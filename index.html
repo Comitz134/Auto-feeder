@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Pet Feeder</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --panel: #111318;
+    --border: #1e2230;
+    --accent: #00e5a0;
+    --accent2: #ff6b35;
+    --warn: #f5c518;
+    --danger: #ff3b5c;
+    --text: #e8eaf0;
+    --muted: #5a6080;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 20% 20%, rgba(0,229,160,0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(255,107,53,0.05) 0%, transparent 50%);
+  }
+
+  /* ---- CONFIG BANNER ---- */
+  #config-banner {
+    background: linear-gradient(135deg, #1a1f2e, #111318);
+    border-bottom: 1px solid var(--border);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  #config-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      90deg, transparent, transparent 40px,
+      rgba(0,229,160,0.015) 40px, rgba(0,229,160,0.015) 41px
+    );
+  }
+  .config-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 24px;
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    flex-wrap: wrap;
+    position: relative;
+  }
+  .config-inner label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .config-inner input {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    padding: 10px 14px;
+    width: 260px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .config-inner input:focus { border-color: var(--accent); }
+  .btn-connect {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 11px 22px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn-connect:hover { background: #00c988; transform: translateY(-1px); }
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--muted);
+    display: inline-block;
+    margin-right: 6px;
+    transition: background 0.3s;
+  }
+  .status-dot.online { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .status-dot.offline { background: var(--danger); }
+  #conn-status {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    padding-bottom: 12px;
+    margin-left: auto;
+  }
+
+  /* ---- HEADER ---- */
+  header {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 36px 24px 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .logo {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent), #00a870);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+  header h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  header h1 span { color: var(--accent); }
+  header p { color: var(--muted); font-size: 13px; margin-top: 2px; }
+
+  /* ---- MAIN GRID ---- */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 28px 24px 48px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  /* ---- CARDS ---- */
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.4s ease both;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .card:hover::before { opacity: 1; }
+
+  .card.full { grid-column: 1 / -1; }
+  .card.accent-border { border-color: rgba(0,229,160,0.3); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.10s; }
+  .card:nth-child(3) { animation-delay: 0.15s; }
+  .card:nth-child(4) { animation-delay: 0.20s; }
+  .card:nth-child(5) { animation-delay: 0.25s; }
+
+  .card-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ---- NIVEL RACAO ---- */
+  .nivel-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 56px;
+    font-weight: 700;
+    line-height: 1;
+    transition: color 0.5s;
+  }
+  .nivel-value .unit { font-size: 22px; color: var(--muted); margin-left: 4px; }
+
+  .bar-track {
+    margin-top: 16px;
+    height: 8px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.8s cubic-bezier(.4,0,.2,1), background 0.5s;
+    width: 0%;
+  }
+
+  .nivel-markers {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+  }
+
+  /* ---- PESO ---- */
+  .peso-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+  .peso-value .unit { font-size: 18px; color: var(--muted); }
+
+  .btn-tara {
+    margin-top: 16px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+  }
+  .btn-tara:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ---- AGUA ---- */
+  .agua-container { display: flex; align-items: center; gap: 20px; }
+  .agua-icon {
+    font-size: 48px;
+    transition: filter 0.5s;
+    filter: grayscale(1);
+  }
+  .agua-icon.ok { filter: grayscale(0); }
+  .agua-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    transition: color 0.5s;
+  }
+  .agua-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* ---- ALIMENTAR ---- */
+  .btn-alimentar {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, var(--accent2), #e5501a);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-alimentar:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,107,53,0.35); }
+  .btn-alimentar:active { transform: translateY(0); }
+  .btn-alimentar:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-alimentar .emoji { font-size: 20px; margin-right: 10px; }
+
+  /* ---- HORÁRIOS ---- */
+  .horarios-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .horario-item label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .horario-item input[type="time"] {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 22px;
+    padding: 10px 14px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+    color-scheme: dark;
+  }
+  .horario-item input[type="time"]:focus { border-color: var(--accent); }
+
+  .btn-salvar-horarios {
+    margin-top: 14px;
+    width: 100%;
+    padding: 11px;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.25);
+    border-radius: 8px;
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-salvar-horarios:hover { background: rgba(0,229,160,0.18); }
+
+  /* ---- HISTÓRICO ---- */
+  .historico-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .historico-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    animation: fadeUp 0.3s ease both;
+  }
+  .historico-list li .hora { color: var(--accent); }
+  .historico-list li .peso-hist { color: var(--muted); }
+  .historico-vazio {
+    text-align: center;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    padding: 20px 0;
+  }
+
+  /* ---- TOAST ---- */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(.4,0,.2,1);
+    z-index: 999;
+    max-width: 300px;
+    border-left: 3px solid var(--accent);
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast.error { border-left-color: var(--danger); }
+  #toast.warn  { border-left-color: var(--warn); }
+
+  /* ---- LOADING SPINNER ---- */
+  .spin {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(0,229,160,0.2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 600px) {
+    main { grid-template-columns: 1fr; }
+    .card.full { grid-column: 1; }
+    .config-inner { flex-direction: column; }
+    .config-inner input { width: 100%; }
+  }
+
+  /* ---- ALERTA ---- */
+  .alerta-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,59,92,0.12);
+    border: 1px solid rgba(255,59,92,0.3);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--danger);
+    margin-top: 10px;
+    display: none;
+  }
+  .alerta-badge.visivel { display: inline-flex; }
+</style>
+</head>
+<body>
+
+<!-- CONFIG BANNER -->
+<div id="config-banner">
+  <div class="config-inner">
+    <div>
+      <label>Blynk Auth Token</label>
+      <input type="text" id="auth-token" placeholder="sOOvSR9kmZxS_CMp5pvbqQHDbGvJczP1" maxlength="64">
+    </div>
+    <div>
+      <label>Blynk Server</label>
+      <input type="text" id="blynk-server" value="blynk.cloud" style="width:160px">
+    </div>
+    <button class="btn-connect" onclick="conectar()">CONECTAR</button>
+    <div id="conn-status">
+      <span class="status-dot" id="dot"></span>
+      <span id="conn-text">DESLIGADO</span>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">🐾</div>
+  <div>
+    <h1>SMART PET <span>FEEDER</span></h1>
+    <p>Alimentador inteligente para animais de estimação</p>
+  </div>
+</header>
+
+<!-- MAIN GRID -->
+<main>
+
+  <!-- NÍVEL RACAO -->
+  <div class="card accent-border">
+    <div class="card-label">📦 Nível de Ração</div>
+    <div class="nivel-value" id="nivel-val">--<span class="unit">%</span></div>
+    <div class="bar-track"><div class="bar-fill" id="nivel-bar"></div></div>
+    <div class="nivel-markers"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+    <div class="alerta-badge" id="alerta-racao">⚠ NÍVEL CRÍTICO</div>
+  </div>
+
+  <!-- PESO TIGELA -->
+  <div class="card">
+    <div class="card-label">⚖️ Peso na Tigela</div>
+    <div class="peso-value" id="peso-val">-- <span class="unit">g</span></div>
+    <button class="btn-tara" onclick="realizarTara()">↺ FAZER TARA</button>
+  </div>
+
+  <!-- ÁGUA -->
+  <div class="card">
+    <div class="card-label">💧 Nível de Água</div>
+    <div class="agua-container">
+      <div class="agua-icon" id="agua-icon">💧</div>
+      <div>
+        <div class="agua-label" id="agua-label">--</div>
+        <div class="agua-sub" id="agua-sub">A aguardar dados...</div>
+      </div>
+    </div>
+    <div class="alerta-badge" id="alerta-agua">⚠ TIGELA VAZIA</div>
+  </div>
+
+  <!-- ALIMENTAR -->
+  <div class="card">
+    <div class="card-label">🍽️ Alimentação Manual</div>
+    <button class="btn-alimentar" id="btn-alimentar" onclick="darComida()" disabled>
+      <span class="emoji">🐾</span>DAR COMIDA AGORA
+    </button>
+    <div style="margin-top:12px; font-size:12px; color:var(--muted); font-family:'Space Mono',monospace; text-align:center;">
+      Dá uma porção ao teu animal
+    </div>
+  </div>
+
+  <!-- HORÁRIOS -->
+  <div class="card full">
+    <div class="card-label">⏰ Horários Automáticos</div>
+    <div class="horarios-grid">
+      <div class="horario-item">
+        <label>Horário 1</label>
+        <input type="time" id="horario1" value="08:00">
+      </div>
+      <div class="horario-item">
+        <label>Horário 2</label>
+        <input type="time" id="horario2" value="20:00">
+      </div>
+    </div>
+    <button class="btn-salvar-horarios" onclick="salvarHorarios()">✓ GUARDAR HORÁRIOS NO ESP32</button>
+  </div>
+
+  <!-- HISTÓRICO -->
+  <div class="card full">
+    <div class="card-label">📋 Histórico de Refeições</div>
+    <ul class="historico-list" id="historico-list">
+      <li class="historico-vazio" style="list-style:none">Sem refeições registadas ainda.</li>
+    </ul>
+  </div>
+
+</main>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// =====================================================
+// CONFIGURAÇÃO BLYNK
+// A API Blynk usa HTTP REST — sem WebSocket direto
+// Formato: https://blynk.cloud/external/api/...
+// =====================================================
+
+let AUTH   = '';
+let SERVER = 'blynk.cloud';
+let connected = false;
+let pollingInterval = null;
+const historico = [];
+
+// Pinos virtuais (devem coincidir com o teu ESP32)
+const PINS = {
+  BOTAO:       'V1',  // Dar comida
+  NIVEL_RACAO: 'V2',  // Nível %
+  PESO:        'V4',  // Peso g
+  AGUA:        'V5',  // Nível água 0-3
+  TARA:        'V6',  // Tara
+};
+
+// =====================================================
+// FUNÇÕES DE API BLYNK
+// =====================================================
+
+// Lê um pino virtual do ESP32
+async function lerPin(pin) {
+  const url = `https://${SERVER}/external/api/get?token=${AUTH}&${pin}`;
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return await r.json();
+  } catch(e) {
+    console.error(`[Blynk] Erro ao ler ${pin}:`, e);
+    return null;
+  }
+}
+
+// Escreve num pino virtual do ESP32
+async function escreverPin(pin, valor) {
+  const url = `https://${SERVER}/external/api/update?token=${AUTH}&${pin}=${valor}`;
+  try {
+    const r = await fetch(url);
+    return r.ok;
+  } catch(e) {
+    console.error(`[Blynk] Erro ao escrever ${pin}:`, e);
+    return false;
+  }
+}
+
+// Verifica se o dispositivo está online
+async function verificarOnline() {
+  const url = `https://${SERVER}/external/api/isHardwareConnected?token=${AUTH}`;
+  try {
+    const r = await fetch(url);
+    if (!r.ok) return false;
+    const txt = await r.text();
+    return txt.trim() === 'true';
+  } catch(e) {
+    return false;
+  }
+}
+
+// =====================================================
+// CONEXÃO
+// =====================================================
+
+async function conectar() {
+  const tokenInput = document.getElementById('auth-token').value.trim();
+  AUTH   = tokenInput || 'sOOvSR9kmZxS_CMp5pvbqQHDbGvJczP1';
+  SERVER = document.getElementById('blynk-server').value.trim() || 'blynk.cloud';
+
+  setStatus('connecting');
+  mostrarToast('A verificar ligação ao ESP32...', 'info');
+
+  const online = await verificarOnline();
+  if (online) {
+    connected = true;
+    setStatus('online');
+    document.getElementById('btn-alimentar').disabled = false;
+    mostrarToast('✓ ESP32 ligado e pronto!', 'ok');
+    iniciarPolling();
+  } else {
+    setStatus('offline');
+    mostrarToast('Dispositivo offline ou token inválido.', 'error');
+  }
+}
+
+function setStatus(s) {
+  const dot  = document.getElementById('dot');
+  const txt  = document.getElementById('conn-text');
+  dot.className = 'status-dot';
+  if (s === 'online')      { dot.classList.add('online'); txt.textContent = 'ONLINE'; }
+  else if (s === 'offline'){ dot.classList.add('offline'); txt.textContent = 'OFFLINE'; }
+  else                     { txt.textContent = 'A LIGAR...'; }
+}
+
+// =====================================================
+// POLLING — Atualiza dados a cada 2 segundos
+// (Exatamente como o teu ESP32 faz com INTERVALO_SENSOR)
+// =====================================================
+
+function iniciarPolling() {
+  if (pollingInterval) clearInterval(pollingInterval);
+  atualizarTudo(); // Imediato
+  pollingInterval = setInterval(atualizarTudo, 2000);
+}
+
+async function atualizarTudo() {
+  // Verifica conexão
+  const online = await verificarOnline();
+  if (!online) { setStatus('offline'); return; }
+  setStatus('online');
+
+  // Lê todos os sensores em paralelo (mais rápido!)
+  const [nivel, peso, agua] = await Promise.all([
+    lerPin(PINS.NIVEL_RACAO),
+    lerPin(PINS.PESO),
+    lerPin(PINS.AGUA),
+  ]);
+
+  if (nivel !== null) atualizarNivel(Number(nivel));
+  if (peso  !== null) atualizarPeso(Number(peso));
+  if (agua  !== null) atualizarAgua(Number(agua));
+}
+
+// =====================================================
+// ATUALIZAR UI — NÍVEL RAÇÃO
+// =====================================================
+
+function atualizarNivel(p) {
+  const el = document.getElementById('nivel-val');
+  const bar = document.getElementById('nivel-bar');
+  const alerta = document.getElementById('alerta-racao');
+
+  // Cor por nível (igual ao teu ESP32: <20 vermelho, <60 amarelo, resto verde)
+  let cor, corBar;
+  if (p < 20)      { cor = 'var(--danger)'; corBar = '#ff3b5c'; }
+  else if (p < 60) { cor = 'var(--warn)';   corBar = '#f5c518'; }
+  else             { cor = 'var(--accent)';  corBar = '#00e5a0'; }
+
+  el.innerHTML = `${p}<span class="unit">%</span>`;
+  el.style.color = cor;
+  bar.style.width = p + '%';
+  bar.style.background = `linear-gradient(90deg, ${corBar}88, ${corBar})`;
+
+  alerta.classList.toggle('visivel', p < 20);
+}
+
+// =====================================================
+// ATUALIZAR UI — PESO
+// =====================================================
+
+function atualizarPeso(g) {
+  const el = document.getElementById('peso-val');
+  el.innerHTML = `${g.toFixed(1)} <span class="unit">g</span>`;
+}
+
+// =====================================================
+// ATUALIZAR UI — ÁGUA
+// =====================================================
+
+function atualizarAgua(n) {
+  const icon  = document.getElementById('agua-icon');
+  const label = document.getElementById('agua-label');
+  const sub   = document.getElementById('agua-sub');
+  const alerta = document.getElementById('alerta-agua');
+
+  // Igual ao teu ESP32: 0=Sem água, 1=Baixo, 2=OK, 3=Cheio
+  const cfg = [
+    { emoji:'🔴', txt:'SEM ÁGUA',  sub:'Enche a tigela!',     cor:'var(--danger)' },
+    { emoji:'🟡', txt:'BAIXO',     sub:'Nível baixo de água', cor:'var(--warn)' },
+    { emoji:'🟢', txt:'OK',        sub:'Nível adequado',      cor:'var(--accent)' },
+    { emoji:'💧', txt:'CHEIO',     sub:'Tigela cheia',        cor:'#00cfff' },
+  ];
+  const c = cfg[Math.min(n, 3)];
+  icon.textContent  = c.emoji;
+  icon.className    = 'agua-icon' + (n >= 2 ? ' ok' : '');
+  label.textContent = c.txt;
+  label.style.color = c.cor;
+  sub.textContent   = c.sub;
+  alerta.classList.toggle('visivel', n === 0);
+}
+
+// =====================================================
+// ACÇÕES
+// =====================================================
+
+async function darComida() {
+  if (!connected) return mostrarToast('Liga-te primeiro ao ESP32!', 'error');
+
+  const btn = document.getElementById('btn-alimentar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span>A DEITAR COMIDA...';
+
+  // Escreve 1 no V1 (igual ao BLYNK_WRITE(V1) no teu ESP32)
+  const ok = await escreverPin(PINS.BOTAO, 1);
+
+  if (ok) {
+    mostrarToast('🐾 Comida deitada com sucesso!', 'ok');
+    registarHistorico();
+    // Reset após 1s (o ESP32 também não fica com o botão premido)
+    setTimeout(() => escreverPin(PINS.BOTAO, 0), 1000);
+  } else {
+    mostrarToast('Erro ao enviar comando.', 'error');
+  }
+
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.innerHTML = '<span class="emoji">🐾</span>DAR COMIDA AGORA';
+  }, 3000);
+}
+
+async function realizarTara() {
+  if (!connected) return mostrarToast('Liga-te primeiro!', 'error');
+  mostrarToast('A fazer tara da balança...', 'info');
+  // Escreve 1 no V6 (igual ao BLYNK_WRITE(V6) no teu ESP32)
+  await escreverPin(PINS.TARA, 1);
+  setTimeout(() => escreverPin(PINS.TARA, 0), 1000);
+  mostrarToast('✓ Tara feita!', 'ok');
+}
+
+async function salvarHorarios() {
+  if (!connected) return mostrarToast('Liga-te primeiro!', 'error');
+
+  const h1 = document.getElementById('horario1').value;
+  const h2 = document.getElementById('horario2').value;
+
+  // Converte HH:MM para segundos desde meia-noite
+  // (Formato que o Blynk Time Input usa internamente)
+  function toSeconds(t) {
+    const [h, m] = t.split(':').map(Number);
+    return h * 3600 + m * 60;
+  }
+
+  // O Blynk Time Input espera: "SECONDS_FROM_MIDNIGHT"
+  await escreverPin('V7', toSeconds(h1));
+  await escreverPin('V8', toSeconds(h2));
+
+  mostrarToast(`✓ Horários guardados: ${h1} e ${h2}`, 'ok');
+}
+
+// =====================================================
+// HISTÓRICO LOCAL
+// =====================================================
+
+function registarHistorico() {
+  const agora = new Date();
+  const hora  = agora.toLocaleTimeString('pt-PT', { hour:'2-digit', minute:'2-digit' });
+  const peso  = document.getElementById('peso-val').textContent.replace('g','').trim();
+
+  historico.unshift({ hora, peso });
+  if (historico.length > 5) historico.pop();
+
+  const ul = document.getElementById('historico-list');
+  ul.innerHTML = historico.map((r,i) => `
+    <li style="animation-delay:${i*0.05}s">
+      <span>🍽 Refeição #${historico.length - i}</span>
+      <span class="hora">${r.hora}</span>
+      <span class="peso-hist">${r.peso} g</span>
+    </li>
+  `).join('');
+}
+
+// =====================================================
+// TOAST
+// =====================================================
+
+let toastTimer;
+function mostrarToast(msg, tipo = 'info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show' + (tipo === 'error' ? ' error' : tipo === 'warn' ? ' warn' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+// Preenche token automaticamente se já está no input por default
+window.addEventListener('load', () => {
+  const inp = document.getElementById('auth-token');
+  if (!inp.value) inp.placeholder = 'Cola aqui o teu auth token';
+});
+</script>
+</body>
+</html>
