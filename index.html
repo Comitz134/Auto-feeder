@@ -1717,16 +1717,10 @@ function atualizarDepRacao(p) {
   let color;
   if (p < 20) {
     color = 'var(--accent-coral)';
-    liquid.style.background = 'linear-gradient(180deg, var(--accent-coral) 0%, #b3001e 100%)';
-    liquid.style.boxShadow = '0 0 15px rgba(255, 23, 68, 0.4)';
   } else if (p < 60) {
     color = 'var(--accent-orange)';
-    liquid.style.background = 'linear-gradient(180deg, var(--accent-orange) 0%, #aa5500 100%)';
-    liquid.style.boxShadow = '0 0 15px rgba(255, 140, 0, 0.3)';
   } else {
     color = 'var(--accent-orange)';
-    liquid.style.background = 'linear-gradient(180deg, var(--accent-orange) 0%, #aa5500 100%)';
-    liquid.style.boxShadow = '0 0 15px rgba(255, 140, 0, 0.25)';
   }
 
   el.innerHTML = `${p}<span class="unit">%</span>`;
