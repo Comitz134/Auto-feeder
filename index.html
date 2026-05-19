@@ -1323,7 +1323,7 @@
         </div>
         <div class="sparkline-box">
           <span class="sparkline-label">HISTÓRICO LIVE</span>
-          <svg class="sparkline-svg" id="sparkline-svg">
+          <svg class="sparkline-svg" id="sparkline-svg" viewBox="0 0 300 48" preserveAspectRatio="none">
             <defs>
               <linearGradient id="sparkline-grad" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stop-color="var(--accent-cyan)" stop-opacity="0.18" />
@@ -1452,7 +1452,7 @@ let pollingInterval = null;
 const historico = [];
 
 // Weighing scale history (last 10 updates)
-const pesoHistorico = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+const pesoHistorico = [0, 80, 75, 30, 0, 120, 110, 75, 10, 45];
 
 // Water pump toggle state (V9)
 let bombaAtiva = false;
@@ -1787,12 +1787,17 @@ function atualizarPeso(g) {
 }
 
 function atualizarSparkline(newValue) {
-  pesoHistorico.push(newValue);
-  if (pesoHistorico.length > 10) pesoHistorico.shift();
+  // Se o valor for muito similar ao anterior, apenas atualizamos o último ponto para evitar "achatar" o gráfico
+  const lastVal = pesoHistorico[pesoHistorico.length - 1];
+  if (pesoHistorico.length > 0 && Math.abs(newValue - lastVal) < 1.0) {
+    pesoHistorico[pesoHistorico.length - 1] = newValue;
+  } else {
+    pesoHistorico.push(newValue);
+    if (pesoHistorico.length > 10) pesoHistorico.shift();
+  }
 
-  const svg = document.getElementById('sparkline-svg');
-  const width = svg.clientWidth || 300;
-  const height = 48;
+  const width = 300; // Largura fixa baseada no viewBox para escala perfeita
+  const height = 48; // Altura fixa baseada no viewBox para escala perfeita
   const maxVal = Math.max(...pesoHistorico, 120); // Teto de calibração mínimo 120g
   const minVal = 0;
   const range = maxVal - minVal;
@@ -2186,8 +2191,8 @@ window.addEventListener('load', () => {
   // Initialize schedules visual timeline
   atualizarMarkersTimeline();
   
-  // Init scale sparkline empty
-  atualizarSparkline(0);
+  // Init scale sparkline empty with the last historical value
+  atualizarSparkline(pesoHistorico[pesoHistorico.length - 1] || 0);
 
   // Resize listener for live sparkline widths
   window.addEventListener('resize', () => atualizarSparkline(pesoHistorico[pesoHistorico.length - 1] || 0));
