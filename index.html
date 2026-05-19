@@ -237,6 +237,63 @@
   }
   .btn-connect:active { transform: translateY(0); }
 
+  /* Simulation specific colors and controls */
+  .status-pulse.simulacao { background: #a855f7; color: #a855f7; }
+  .status-pulse.simulacao::after { animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; }
+
+  .card-simulacao::before {
+    background: linear-gradient(90deg, transparent, #a855f7, transparent) !important;
+  }
+  .card-simulacao:hover {
+    border-color: rgba(168, 85, 247, 0.25) !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 0 15px rgba(168, 85, 247, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .btn-simulacao {
+    background: linear-gradient(135deg, #a855f7, #6366f1) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.2) !important;
+    margin-top: 10px;
+  }
+  .btn-simulacao:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(168, 85, 247, 0.35) !important;
+    filter: brightness(1.05);
+  }
+  .btn-simulacao:active { transform: translateY(0); }
+  .btn-simulacao.active {
+    background: linear-gradient(135deg, #ff1744, #ff5100) !important;
+    box-shadow: 0 4px 15px rgba(255, 23, 68, 0.2) !important;
+  }
+
+  /* Beautiful modern range input styling */
+  input[type="range"].sim-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.08);
+    outline: none;
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+  }
+  input[type="range"].sim-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #a855f7;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(168, 85, 247, 0.5);
+    transition: var(--transition);
+  }
+  input[type="range"].sim-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    background: #6366f1;
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.8);
+  }
+
   /* Connected Indicators */
   .status-widget {
     display: flex;
@@ -1070,12 +1127,55 @@
         <button class="btn-connect" onclick="conectar()">
           <i data-lucide="power"></i>CONECTAR AO ESP32
         </button>
+        <button class="btn-connect btn-simulacao" id="btn-simulacao" onclick="toggleModoSimulacao()">
+          <i data-lucide="play"></i>ATIVAR MODO SIMULAÇÃO
+        </button>
         <div class="status-widget">
           <span style="font-size:10px; color:var(--text-muted); font-family:var(--font-mono)">ESTADO:</span>
           <div class="status-info">
             <span class="status-pulse" id="dot"></span>
             <span id="conn-text">DESLIGADO</span>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIMULATION CONTROL PANEL -->
+    <div class="card card-simulacao" id="sim-panel" style="display: none; border-color: rgba(168, 85, 247, 0.15); margin-top: -12px;">
+      <div class="card-header">
+        <h2 class="card-title" style="color: #a855f7;"><i data-lucide="sliders" style="color: #a855f7;"></i>Painel de Simulação</h2>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="input-group">
+          <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; margin-bottom: 4px;">
+            <span style="color: var(--text-secondary);">Dep. Ração (V2)</span>
+            <span id="sim-val-v2" style="color: var(--accent-orange); font-weight: bold;">--%</span>
+          </div>
+          <input type="range" class="sim-slider" id="sim-slider-v2" min="0" max="100" value="80" oninput="simularAlteracaoSensor('V2', this.value)">
+        </div>
+
+        <div class="input-group">
+          <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; margin-bottom: 4px;">
+            <span style="color: var(--text-secondary);">Dep. Água (V3)</span>
+            <span id="sim-val-v3" style="color: var(--accent-cyan); font-weight: bold;">--%</span>
+          </div>
+          <input type="range" class="sim-slider" id="sim-slider-v3" min="0" max="100" value="75" oninput="simularAlteracaoSensor('V3', this.value)">
+        </div>
+
+        <div class="input-group">
+          <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; margin-bottom: 4px;">
+            <span style="color: var(--text-secondary);">Balança Ração (V4)</span>
+            <span id="sim-val-v4" style="color: var(--text-primary); font-weight: bold;">--g</span>
+          </div>
+          <input type="range" class="sim-slider" id="sim-slider-v4" min="0" max="150" value="45" step="0.5" oninput="simularAlteracaoSensor('V4', this.value)">
+        </div>
+
+        <div class="input-group">
+          <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; margin-bottom: 4px;">
+            <span style="color: var(--text-secondary);">Nível Água Taça (V5)</span>
+            <span id="sim-val-v5" style="color: var(--accent-cyan); font-weight: bold;">--</span>
+          </div>
+          <input type="range" class="sim-slider" id="sim-slider-v5" min="0" max="3" value="2" step="1" oninput="simularAlteracaoSensor('V5', this.value)">
         </div>
       </div>
     </div>
@@ -1363,6 +1463,10 @@ const pesoHistorico = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 // Water pump toggle state (V9)
 let bombaAtiva = false;
 
+// Simulation Mode State Control
+let modoSimulacao = false;
+let bombaSimulacaoInterval = null;
+
 // Mapeamento dos pinos Blynk (Exatamente conforme vosso ESP32 e documentação)
 const PINS = {
   BOTAO:       'V1',  // Alimentar manual (1/0)
@@ -1422,6 +1526,9 @@ async function verificarOnline() {
 // LIGAÇÃO AO DISPOSITIVO BLYNK
 // =====================================================
 async function conectar() {
+  if (modoSimulacao) {
+    toggleModoSimulacao();
+  }
   const tokenInput = document.getElementById('auth-token').value.trim();
   AUTH   = tokenInput || 'sOOvSR9kmZxS_CMp5pvbqQHDbGvJczP1';
   SERVER = document.getElementById('blynk-server').value.trim() || 'blynk.cloud';
@@ -1465,6 +1572,98 @@ function setStatus(s) {
     dot.classList.add('connecting');
     txt.textContent = 'A CONECTAR...';
     txt.style.color = 'var(--accent-orange)';
+  }
+}
+
+// =====================================================
+// CONTROLO DE MODO SIMULAÇÃO
+// =====================================================
+function toggleModoSimulacao() {
+  modoSimulacao = !modoSimulacao;
+  
+  const btnSim = document.getElementById('btn-simulacao');
+  const simPanel = document.getElementById('sim-panel');
+  const btnAlimentar = document.getElementById('btn-alimentar');
+  const dot = document.getElementById('dot');
+  const txt = document.getElementById('conn-text');
+  
+  if (modoSimulacao) {
+    // Para polling do Blynk
+    if (pollingInterval) clearInterval(pollingInterval);
+    if (bombaSimulacaoInterval) clearInterval(bombaSimulacaoInterval);
+    
+    // Atualiza estado de conexão para Simulação
+    connected = true;
+    btnSim.classList.add('active');
+    btnSim.innerHTML = '<i data-lucide="pause"></i>DESATIVAR SIMULAÇÃO';
+    
+    dot.className = 'status-pulse simulacao';
+    txt.textContent = 'MODO SIMULAÇÃO';
+    txt.style.color = '#a855f7';
+    
+    // Habilita botões
+    btnAlimentar.disabled = false;
+    
+    // Exibe painel com sliders
+    simPanel.style.display = 'block';
+    
+    logTerminal('[SYSTEM] MODO SIMULAÇÃO ATIVO. Sensores locais ativados.');
+    mostrarToast('Modo Simulação ativado com sucesso!', 'ok');
+    
+    // Inicializa valores da simulação a partir dos sliders
+    simularAlteracaoSensor('V2', document.getElementById('sim-slider-v2').value);
+    simularAlteracaoSensor('V3', document.getElementById('sim-slider-v3').value);
+    simularAlteracaoSensor('V4', document.getElementById('sim-slider-v4').value);
+    simularAlteracaoSensor('V5', document.getElementById('sim-slider-v5').value);
+  } else {
+    // Desativa simulação
+    btnSim.classList.remove('active');
+    btnSim.innerHTML = '<i data-lucide="play"></i>ATIVAR MODO SIMULAÇÃO';
+    
+    simPanel.style.display = 'none';
+    
+    if (bombaSimulacaoInterval) {
+      clearInterval(bombaSimulacaoInterval);
+      bombaSimulacaoInterval = null;
+    }
+    
+    // Reset pump display button if active in simulation
+    if (bombaAtiva) {
+      bombaAtiva = false;
+      const btnBomba = document.getElementById('btn-bomba');
+      btnBomba.innerHTML = '<i data-lucide="droplet-off"></i>LIGAR BOMBA MANUAL';
+      btnBomba.style.background = 'rgba(255, 255, 255, 0.03)';
+      btnBomba.style.color = 'var(--text-secondary)';
+      btnBomba.style.borderColor = 'var(--border-color)';
+    }
+    
+    connected = false;
+    setStatus('offline');
+    btnAlimentar.disabled = true;
+    
+    logTerminal('[SYSTEM] Modo Simulação desativado.');
+    mostrarToast('Modo Simulação desativado.', 'info');
+  }
+  lucide.createIcons();
+}
+
+function simularAlteracaoSensor(pin, valor) {
+  if (!modoSimulacao) return;
+  
+  const num = Number(valor);
+  if (pin === 'V2') {
+    document.getElementById('sim-val-v2').textContent = `${num}%`;
+    atualizarDepRacao(num);
+  } else if (pin === 'V3') {
+    document.getElementById('sim-val-v3').textContent = `${num}%`;
+    atualizarDepAgua(num);
+  } else if (pin === 'V4') {
+    document.getElementById('sim-val-v4').textContent = `${num.toFixed(1)}g`;
+    atualizarPeso(num);
+  } else if (pin === 'V5') {
+    const statesText = ['VAZIO (0)', 'BAIXO (1)', 'ADEQUADO (2)', 'CHEIO (3)'];
+    document.getElementById('sim-val-v5').textContent = statesText[Math.min(num, 3)];
+    atualizarAgua(num);
   }
 }
 
@@ -1677,6 +1876,26 @@ async function darComida() {
   btn.innerHTML = '<span class="spinner-element"></span>A DISPENSAR RAÇÃO...';
   logTerminal('[STEPPER] A enviar trigger manual de dosagem (V1)...');
 
+  if (modoSimulacao) {
+    setTimeout(() => {
+      const sliderV4 = document.getElementById('sim-slider-v4');
+      let novoPeso = parseFloat(sliderV4.value) + 15.5;
+      if (novoPeso > 150) novoPeso = 150;
+      
+      sliderV4.value = novoPeso;
+      simularAlteracaoSensor('V4', novoPeso);
+      
+      mostrarToast('Simulação: Ração dispensada com sucesso!', 'ok');
+      logTerminal(`[STEPPER] Sucesso. Motor de passo rodou (+15.5g). Peso na taça: ${novoPeso.toFixed(1)}g.`);
+      registarHistorico('Manual');
+      
+      btn.disabled = false;
+      btn.innerHTML = '<i data-lucide="hand"></i>ATIVAR MOTOR DE PASSO (DEITAR COMIDA)';
+      lucide.createIcons();
+    }, 1500);
+    return;
+  }
+
   const ok = await escreverPin(PINS.BOTAO, 1);
 
   if (ok) {
@@ -1708,6 +1927,18 @@ async function realizarTara() {
   mostrarToast('A calibrar tara da balança...', 'info');
   logTerminal('[HX711] A calibrar sensor de tara (V6)...');
 
+  if (modoSimulacao) {
+    setTimeout(() => {
+      const sliderV4 = document.getElementById('sim-slider-v4');
+      sliderV4.value = 0;
+      simularAlteracaoSensor('V4', 0);
+      icon.style.animation = 'none';
+      mostrarToast('Simulação: Tara concluída!', 'ok');
+      logTerminal('[HX711] Tara efetuada com sucesso (0.0g).');
+    }, 1500);
+    return;
+  }
+
   const ok = await escreverPin(PINS.TARA, 1);
   if (ok) {
     setTimeout(() => {
@@ -1726,9 +1957,56 @@ async function realizarTara() {
 async function toggleBomba() {
   if (!connected) return mostrarToast('Ligue o hardware primeiro!', 'error');
   
-  const nextState = bombaAtiva ? 0 : 1;
   const btn = document.getElementById('btn-bomba');
-  
+
+  if (modoSimulacao) {
+    bombaAtiva = !bombaAtiva;
+    if (bombaAtiva) {
+      btn.innerHTML = '<i data-lucide="droplet" class="spin-bomba"></i>DESLIGAR BOMBA';
+      btn.style.background = 'linear-gradient(135deg, var(--accent-cyan), var(--accent-blue))';
+      btn.style.color = '#04060a';
+      btn.style.borderColor = 'var(--accent-cyan)';
+      mostrarToast('Simulação: Bomba de água ligada!', 'ok');
+      logTerminal('[BOMBA] Bomba manual de água ativa em Simulação.');
+      
+      bombaSimulacaoInterval = setInterval(() => {
+        const sliderV5 = document.getElementById('sim-slider-v5');
+        let val = parseInt(sliderV5.value);
+        if (val < 3) {
+          val++;
+          sliderV5.value = val;
+          simularAlteracaoSensor('V5', val);
+          logTerminal(`[BOMBA] Enchendo taça de água... Nível atual: ${val}`);
+        } else {
+          clearInterval(bombaSimulacaoInterval);
+          bombaSimulacaoInterval = null;
+          bombaAtiva = false;
+          btn.innerHTML = '<i data-lucide="droplet-off"></i>LIGAR BOMBA MANUAL';
+          btn.style.background = 'rgba(255, 255, 255, 0.03)';
+          btn.style.color = 'var(--text-secondary)';
+          btn.style.borderColor = 'var(--border-color)';
+          mostrarToast('Taça cheia! Bomba desligada automaticamente.', 'info');
+          logTerminal('[BOMBA] Sensor V5 detectou CHEIO. Desativação automática da Bomba.');
+          lucide.createIcons();
+        }
+      }, 1500);
+    } else {
+      if (bombaSimulacaoInterval) {
+        clearInterval(bombaSimulacaoInterval);
+        bombaSimulacaoInterval = null;
+      }
+      btn.innerHTML = '<i data-lucide="droplet-off"></i>LIGAR BOMBA MANUAL';
+      btn.style.background = 'rgba(255, 255, 255, 0.03)';
+      btn.style.color = 'var(--text-secondary)';
+      btn.style.borderColor = 'var(--border-color)';
+      mostrarToast('Simulação: Bomba de água desligada.', 'info');
+      logTerminal('[BOMBA] Bomba manual de água desligada.');
+    }
+    lucide.createIcons();
+    return;
+  }
+
+  const nextState = bombaAtiva ? 0 : 1;
   logTerminal(`[BOMBA] A enviar comando manual para a Bomba (V9) -> ${nextState === 1 ? 'LIGAR' : 'DESLIGAR'}...`);
   
   const ok = await escreverPin(PINS.BOMBA, nextState);
@@ -1769,6 +2047,12 @@ async function salvarHorarios() {
 
   logTerminal(`[EEPROM] Gravação - Horário 1: ${h1} (${toSeconds(h1)}s desde 00:00)`);
   logTerminal(`[EEPROM] Gravação - Horário 2: ${h2} (${toSeconds(h2)}s desde 00:00)`);
+
+  if (modoSimulacao) {
+    mostrarToast('Simulação: Horários guardados na EEPROM!', 'ok');
+    logTerminal('[SYSTEM] Agendamentos atualizados na EEPROM simulada do ESP32.');
+    return;
+  }
 
   const ok1 = await escreverPin(PINS.HORARIO1, toSeconds(h1));
   const ok2 = await escreverPin(PINS.HORARIO2, toSeconds(h2));
