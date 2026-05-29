@@ -3,1443 +3,562 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smart Pet Feeder | Painel Integrado de Telemetria</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<!-- Lucide Icons CDN -->
+<title>Smart Pet Feeder | Xiaomi Style</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
   :root {
-    --bg-dark: #07090e;
-    --bg-panel: rgba(16, 20, 30, 0.65);
-    --bg-panel-solid: #10141e;
-    --border-color: rgba(255, 255, 255, 0.05);
-    --border-glow: rgba(0, 242, 254, 0.15);
-    --accent-cyan: #00f2fe;
-    --accent-blue: #4facfe;
-    --accent-orange: #ff8c00;
-    --accent-orange-glow: rgba(255, 140, 0, 0.3);
-    --accent-emerald: #00e676;
-    --accent-coral: #ff1744;
-    --text-primary: #f3f4f6;
-    --text-secondary: #9ca3af;
-    --text-muted: #6b7280;
-    --radius-lg: 16px;
-    --radius-md: 10px;
-    --font-sans: 'Plus Jakarta Sans', sans-serif;
-    --font-mono: 'Space Grotesk', monospace;
-    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --bg-top: #ffe8cd;
+    --bg-mid: #fff5e8;
+    --bg-bottom: #f5f5f7;
+    --card-bg: #ffffff;
+    --text-main: #333333;
+    --text-sub: #8c8c8e;
+    --accent-orange: #ff9d00;
+    --accent-orange-light: #fff2e0;
+    --accent-blue: #00aaff;
+    --accent-blue-light: #e0f4ff;
+    --font-sans: 'Inter', -apple-system, sans-serif;
+    --radius-xl: 28px;
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --transition: all 0.3s ease;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* Custom Scrollbar */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg-dark); }
-  ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 99px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
-
   body {
-    background: var(--bg-dark);
-    color: var(--text-primary);
+    background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 30%, var(--bg-bottom) 100%);
+    color: var(--text-main);
     font-family: var(--font-sans);
     min-height: 100vh;
-    background-image:
-      radial-gradient(circle at 10% 20%, rgba(0, 242, 254, 0.04) 0%, transparent 40%),
-      radial-gradient(circle at 90% 80%, rgba(255, 140, 0, 0.04) 0%, transparent 45%);
-    background-attachment: fixed;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
   }
 
-  /* ---- MAIN WRAPPER LAYOUT ---- */
+  /* XIAOMI GRID LAYOUT */
   .dashboard-wrapper {
-    max-width: 1350px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 30px 24px 60px;
-    display: grid;
-    grid-template-columns: 380px 1fr;
-    gap: 24px;
+    padding: 32px 24px 80px;
   }
 
-  /* ---- LEFT PANELS COLUMN ---- */
-  .telemetry-column {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  /* ---- CARDS GENERAL STYLING ---- */
-  .card {
-    background: var(--bg-panel);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: 24px;
-    position: relative;
-    overflow: hidden;
-    transition: var(--transition);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.05);
-  }
-  .card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  .card:hover {
-    border-color: rgba(0, 242, 254, 0.2);
-    transform: translateY(-2px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 242, 254, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.08);
-  }
-  .card:hover::before { opacity: 1; }
-
-  .card-orange::before {
-    background: linear-gradient(90deg, transparent, var(--accent-orange), transparent);
-  }
-  .card-orange:hover {
-    border-color: rgba(255, 140, 0, 0.25);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 140, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.08);
-  }
-
-  .card.full { grid-column: 1 / -1; }
-
-  .card-header {
+  /* TOP HEADER (App Style) */
+  .app-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    padding-bottom: 12px;
+    margin-bottom: 40px;
+    color: #4a4a4a;
   }
-
-  .card-title {
-    font-size: 11px;
-    font-weight: 700;
-    font-family: var(--font-mono);
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  .app-header-title {
+    text-align: center;
+    flex-grow: 1;
   }
-  .card-title i { color: var(--accent-cyan); }
-  .card-orange .card-title i { color: var(--accent-orange); }
-
-  /* ---- BRAND HEADER CARD ---- */
-  .brand-card {
-    padding: 20px 24px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    background: linear-gradient(135deg, rgba(16, 20, 30, 0.8), rgba(8, 10, 15, 0.9));
+  .app-header-title h1 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
   }
-  .brand-logo {
-    width: 46px; height: 46px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px;
-    box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
-    color: #000;
-  }
-  .brand-info h1 {
-    font-family: var(--font-mono);
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: var(--text-primary);
-    line-height: 1.1;
-  }
-  .brand-info h1 span { color: var(--accent-cyan); }
-  .brand-info p {
-    color: var(--text-muted);
-    font-size: 11px;
-    margin-top: 3px;
-    letter-spacing: 0.05em;
-    font-weight: 500;
-  }
-
-  /* ---- CONNECTION MANAGER DRAWER ---- */
-  .conn-settings-container {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-  .input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .input-group label {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    color: var(--text-muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-  .input-row {
-    position: relative;
-    display: flex;
-  }
-  .input-row i {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-muted);
-    width: 14px; height: 14px;
-  }
-  .input-row input {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    color: var(--text-primary);
-    font-family: var(--font-mono);
+  .app-header-title p {
     font-size: 12px;
-    padding: 10px 12px 10px 36px;
-    width: 100%;
-    outline: none;
-    transition: var(--transition);
-  }
-  .input-row input:focus {
-    border-color: var(--accent-cyan);
-    background: rgba(255, 255, 255, 0.05);
-    box-shadow: 0 0 10px rgba(0, 242, 254, 0.1);
-  }
-  .btn-connect {
-    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-    color: #04060a;
-    border: none;
-    border-radius: var(--radius-md);
-    font-family: var(--font-mono);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    padding: 12px;
-    cursor: pointer;
-    transition: var(--transition);
+    color: var(--text-sub);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    width: 100%;
-    margin-top: 6px;
-    box-shadow: 0 4px 15px rgba(0, 242, 254, 0.2);
-  }
-  .btn-connect:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(0, 242, 254, 0.35);
-    filter: brightness(1.05);
-  }
-  .btn-connect:active { transform: translateY(0); }
-
-  /* Simulation specific colors and controls */
-  .status-pulse.simulacao { background: #a855f7; color: #a855f7; }
-  .status-pulse.simulacao::after { animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; }
-
-  .card-simulacao::before {
-    background: linear-gradient(90deg, transparent, #a855f7, transparent) !important;
-  }
-  .card-simulacao:hover {
-    border-color: rgba(168, 85, 247, 0.25) !important;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 0 15px rgba(168, 85, 247, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.08) !important;
-  }
-
-  .btn-simulacao {
-    background: linear-gradient(135deg, #a855f7, #6366f1) !important;
-    color: #fff !important;
-    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.2) !important;
-    margin-top: 10px;
-  }
-  .btn-simulacao:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(168, 85, 247, 0.35) !important;
-    filter: brightness(1.05);
-  }
-  .btn-simulacao:active { transform: translateY(0); }
-  .btn-simulacao.active {
-    background: linear-gradient(135deg, #ff1744, #ff5100) !important;
-    box-shadow: 0 4px 15px rgba(255, 23, 68, 0.2) !important;
-  }
-
-  /* Beautiful modern range input styling */
-  input[type="range"].sim-slider {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 6px;
-    border-radius: 99px;
-    background: rgba(255, 255, 255, 0.08);
-    outline: none;
-    border: 1px solid var(--border-color);
-    transition: var(--transition);
-  }
-  input[type="range"].sim-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: #a855f7;
-    cursor: pointer;
-    box-shadow: 0 0 8px rgba(168, 85, 247, 0.5);
-    transition: var(--transition);
-  }
-  input[type="range"].sim-slider::-webkit-slider-thumb:hover {
-    transform: scale(1.2);
-    background: #6366f1;
-    box-shadow: 0 0 12px rgba(99, 102, 241, 0.8);
-  }
-
-  /* Connected Indicators */
-  .status-widget {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--border-color);
-    padding: 10px 14px;
-    border-radius: var(--radius-md);
+    gap: 4px;
     margin-top: 4px;
   }
-  .status-info {
+  .app-icon-btn {
+    background: transparent;
+    border: none;
+    color: #4a4a4a;
+    cursor: pointer;
+  }
+
+  /* GRID STRUCTURE */
+  .masonry-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    margin-bottom: 24px;
+  }
+  
+  .card-flat {
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  /* HERO WIDGETS (Food / Water Today) */
+  .hero-widget {
+    position: relative;
+    padding: 10px 10px 40px 20px;
+    margin-bottom: 20px;
+  }
+  .hero-value {
+    font-size: 64px;
+    font-weight: 300;
+    color: #333;
+    line-height: 1;
+    margin-bottom: 12px;
+    display: flex;
+    align-items:baseline;
+  }
+  .hero-value .unit {
+    font-size: 24px;
+    font-weight: 500;
+    margin-left: 4px;
+  }
+  .hero-labels p {
+    font-size: 13px;
+    color: var(--text-sub);
+    margin-bottom: 6px;
+  }
+  .hero-mascot {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    width: 120px;
+    height: 120px;
+    background: var(--accent-orange);
+    border-radius: 40px 40px 20px 20px;
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-family: var(--font-mono);
-    font-size: 11px;
+    justify-content: center;
+    font-size: 40px;
+  }
+  .hero-mascot.water {
+    background: var(--accent-blue);
+    border-radius: 50%;
+  }
+
+  /* XIAOMI FLAT ROW BOWL CARDS */
+  .bowl-row-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.02);
+  }
+  .bowl-info-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .bowl-icon {
+    width: 40px;
+    height: 40px;
+    background: #f7f7f8;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+  }
+  .bowl-text h3 {
+    font-size: 18px;
     font-weight: 600;
+    color: #333;
+  }
+  .bowl-text p {
+    font-size: 12px;
+    color: var(--text-sub);
+    margin-top: 4px;
+  }
+  .x-btn {
+    background: var(--accent-orange-light);
+    color: var(--accent-orange);
+    border: none;
+    border-radius: 99px;
+    padding: 10px 24px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .x-btn:hover { background: #ffe4c4; }
+  .x-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  
+  .x-btn-blue {
+    background: var(--accent-blue-light);
+    color: var(--accent-blue);
+  }
+  .x-btn-blue:hover { background: #cceeff; }
+
+  /* TIMELINE LIST (Xiaomi style) */
+  .timeline-card h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    color: #333;
+  }
+  .xiaomi-timeline {
+    list-style: none;
+    padding-left: 8px;
+    border-left: 2px solid #f0f0f0;
+    position: relative;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  .xiaomi-timeline-item {
+    position: relative;
+    padding-left: 24px;
+    padding-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .xiaomi-timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 5px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #d4d4d4;
+  }
+  .x-time {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    min-width: 48px;
+  }
+  .x-desc {
+    font-size: 14px;
+    color: var(--text-sub);
+  }
+  .x-desc strong {
+    color: #333;
+  }
+
+  /* AUTOMATIC SCHEDULES */
+  .schedule-card h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  .schedule-illustration {
+    width: 100%;
+    height: 120px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="120" viewBox="0 0 400 120"><rect x="50" y="40" width="60" height="80" rx="4" fill="none" stroke="%23ccc" stroke-width="2"/><path d="M200 60 h150 v60 h-150 z" fill="none" stroke="%23ccc" stroke-width="2"/><circle cx="280" cy="50" r="15" fill="%23333"/><path d="M295 50 c10 -10, 30 10, 40 0" fill="none" stroke="%23333" stroke-width="3"/></svg>');
+    background-size: cover;
+    background-position: center;
+    margin-bottom: 24px;
+  }
+  .schedule-toggle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  .s-texts h3 { font-size: 15px; font-weight: 600; color:#333; }
+  .s-texts p { font-size: 12px; color:var(--text-sub); margin-top:4px; max-width: 80%; line-height: 1.4; }
+  
+  .s-stats {
+    display: flex;
+    gap: 40px;
+    background: #fafafc;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .s-stat-item h4 { font-size: 24px; font-weight: 600; color: #333; display: flex; align-items:baseline; gap:4px; }
+  .s-stat-item h4 span { font-size: 12px; font-weight: 500; }
+  .s-stat-item p { font-size: 11px; color: var(--text-sub); margin-top: 4px; }
+
+  .x-time-input {
+    background: transparent;
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    outline: none;
+  }
+
+  .add-schedule-btn {
+    width: 100%;
+    background: #f5f5f5;
+    border: none;
+    border-radius: 99px;
+    padding: 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+    margin-top: 12px;
+  }
+  .add-schedule-btn:hover { background: #ececec; }
+
+  /* CONN SETTINGS (Adapted for Xiaomi) */
+  .input-row input {
+    background: #f5f5f5;
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    width: 100%;
+    margin-bottom: 12px;
+    font-family: var(--font-sans);
   }
   .status-pulse {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    background: var(--text-muted);
-    position: relative;
-    transition: background 0.3s;
+    width: 8px; height: 8px; border-radius: 50%; display: inline-block;
   }
-  .status-pulse::after {
-    content: '';
-    position: absolute;
-    inset: -4px;
-    border-radius: 50%;
-    border: 2px solid currentColor;
-    opacity: 0;
-  }
-  .status-pulse.online { background: var(--accent-emerald); color: var(--accent-emerald); }
-  .status-pulse.online::after { animation: pulse-ring 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; }
-  .status-pulse.offline { background: var(--accent-coral); color: var(--accent-coral); }
-  .status-pulse.offline::after { animation: pulse-ring 1.2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; }
-  .status-pulse.connecting { background: var(--accent-orange); color: var(--accent-orange); }
-  .status-pulse.connecting::after { animation: pulse-ring 1s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; }
+  .status-pulse.online { background: #34c759; }
+  .status-pulse.offline { background: #ff3b30; }
+  .status-pulse.connecting { background: var(--accent-orange); }
 
-  @keyframes pulse-ring {
-    0% { transform: scale(0.5); opacity: 0.8; }
-    80%, 100% { transform: scale(2.2); opacity: 0; }
-  }
-  #conn-text {
-    font-size: 11px;
-    font-family: var(--font-mono);
-    letter-spacing: 0.05em;
-    font-weight: 700;
-  }
-
-  /* ---- INTERACTIVE 3D MODEL CARD ---- */
-  .model-card { padding: 20px; }
-  .model-viewer-container {
-    width: 100%;
-    height: 290px;
-    border-radius: var(--radius-md);
-    background: rgba(0, 0, 0, 0.25);
-    border: 1px solid var(--border-color);
-    position: relative;
+  /* 3D MODEL TOGGLE */
+  .model-card-content {
+    height: 350px;
+    background: #fafafc;
+    border-radius: 16px;
+    margin-top: 16px;
     overflow: hidden;
-  }
-  .model-controls {
-    position: absolute;
-    bottom: 12px;
-    right: 12px;
-    display: flex;
-    gap: 6px;
-    z-index: 10;
-  }
-  .btn-model-ctrl {
-    width: 32px; height: 32px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    background: rgba(16, 20, 30, 0.85);
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: var(--transition);
-    backdrop-filter: blur(4px);
-  }
-  .btn-model-ctrl:hover {
-    color: var(--accent-cyan);
-    border-color: rgba(0, 242, 254, 0.3);
-    background: var(--bg-panel-solid);
-  }
-  .btn-model-ctrl.active {
-    color: var(--accent-cyan);
-    background: rgba(0, 242, 254, 0.1);
-    border-color: var(--accent-cyan);
-  }
-  .btn-model-ctrl i { width: 16px; height: 16px; }
-  .model-telemetry-overlay {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    font-family: var(--font-mono);
-    font-size: 8px;
-    color: var(--text-muted);
-    pointer-events: none;
-    line-height: 1.5;
-    background: rgba(0,0,0,0.45);
-    padding: 6px 10px;
-    border-radius: 6px;
-    border: 1px solid rgba(255,255,255,0.02);
-  }
-
-  /* ---- SYSTEM TERMINAL LOG CARD ---- */
-  .terminal-card { padding: 20px; }
-  .terminal-log-container {
-    width: 100%;
-    border-radius: var(--radius-md);
-    background: #030508;
-    border: 1px solid rgba(255, 255, 255, 0.03);
-    overflow: hidden;
-    box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
-  }
-  .terminal-header {
-    background: rgba(255, 255, 255, 0.02);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    padding: 8px 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .terminal-dots { display: flex; gap: 5px; }
-  .terminal-dots span { width: 6px; height: 6px; border-radius: 50%; }
-  .terminal-title {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    color: var(--text-muted);
-    letter-spacing: 0.1em;
-    font-weight: 700;
-  }
-  .terminal-body {
-    height: 135px;
-    padding: 12px;
-    overflow-y: auto;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: rgba(0, 242, 254, 0.85);
-    line-height: 1.6;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    text-shadow: 0 0 2px rgba(0, 242, 254, 0.3);
-  }
-  .terminal-line {
-    word-break: break-all;
-    animation: fade-in 0.2s ease forwards;
-  }
-  .term-time { color: var(--text-muted); margin-right: 4px; }
-
-  @keyframes fade-in {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* ---- RIGHT CONTROLS GRID ---- */
-  .dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
-    align-content: start;
-  }
-
-  /* ---- GAUGES & METERS: RESERVOIRS & BOWLS ---- */
-
-  /* 1. Unified vertical reservoir styling (Depósitos) */
-  .reservoir-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    gap: 20px;
-    padding: 6px 0;
-  }
-  .reservoir-glass {
-    width: 76px;
-    height: 160px;
-    border: 2px solid rgba(255, 255, 255, 0.15);
-    border-radius: 10px 10px 20px 20px;
-    position: relative;
-    overflow: hidden;
-    background: rgba(0, 0, 0, 0.25);
-    box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 0, 0, 0.3);
-    flex-shrink: 0;
-  }
-  .reservoir-fill {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 0%; /* live updated */
-    transition: height 1.2s cubic-bezier(0.4, 0, 0.2, 1), background 0.5s;
-  }
-  .reservoir-fill-food {
-    box-shadow: 0 0 15px rgba(255, 140, 0, 0.25);
-    background-color: #3b1d06; /* Rich dark brown base */
-    background-image: 
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg transform='translate(12, 11) rotate(25)'%3E%3Crect x='-4.5' y='-1.5' width='9' height='3.5' rx='1' fill='%231e0f03' opacity='0.6'/%3E%3Ccircle cx='-4.5' cy='-1.5' r='2.2' fill='%231e0f03' opacity='0.6'/%3E%3Ccircle cx='-4.5' cy='1.5' r='2.2' fill='%231e0f03' opacity='0.6'/%3E%3Ccircle cx='4.5' cy='-1.5' r='2.2' fill='%231e0f03' opacity='0.6'/%3E%3Ccircle cx='4.5' cy='1.5' r='2.2' fill='%231e0f03' opacity='0.6'/%3E%3Crect x='-4' y='-1.5' width='8' height='3' fill='%23a05a2c' stroke='%235c3514' stroke-width='0.5'/%3E%3Ccircle cx='-4' cy='-1.5' r='2' fill='%23a05a2c' stroke='%235c3514' stroke-width='0.5'/%3E%3Ccircle cx='-4' cy='1.5' r='2' fill='%23a05a2c' stroke='%235c3514' stroke-width='0.5'/%3E%3Ccircle cx='4' cy='-1.5' r='2' fill='%23a05a2c' stroke='%235c3514' stroke-width='0.5'/%3E%3Ccircle cx='4' cy='1.5' r='2' fill='%23a05a2c' stroke='%235c3514' stroke-width='0.5'/%3E%3Ccircle cx='-4.2' cy='-1.7' r='0.6' fill='%23ffd7b5' opacity='0.5'/%3E%3Ccircle cx='3.8' cy='-1.7' r='0.6' fill='%23ffd7b5' opacity='0.5'/%3E%3Crect x='-3' y='-1.2' width='6' height='0.8' fill='%23ffd7b5' opacity='0.3'/%3E%3C/g%3E%3Cg transform='translate(28, 12) rotate(-15)'%3E%3Ccircle cx='0.5' cy='1' r='5' fill='%231e0f03' opacity='0.6'/%3E%3Ccircle cx='0' cy='0' r='4.8' fill='%23cd853f' stroke='%2378411b' stroke-width='0.5'/%3E%3Ccircle cx='0' cy='0' r='1.6' fill='%233b1d06' stroke='%2378411b' stroke-width='0.5'/%3E%3Ccircle cx='-2' cy='-2' r='0.4' fill='%235c3514'/%3E%3Ccircle cx='2' cy='2' r='0.4' fill='%235c3514'/%3E%3Ccircle cx='-2' cy='2' r='0.4' fill='%235c3514'/%3E%3Ccircle cx='2' cy='-2' r='0.4' fill='%235c3514'/%3E%3Cpath d='M -3.2 -2.5 A 4 4 0 0 1 3.2 -2.5' fill='none' stroke='%23fff' stroke-width='0.7' opacity='0.4'/%3E%3C/g%3E%3Cg transform='translate(11, 29) rotate(45)'%3E%3Crect x='-3.5' y='-3.5' width='8' height='8' rx='1.5' fill='%231e0f03' opacity='0.6'/%3E%3Crect x='-3.5' y='-3.5' width='7' height='7' rx='1.5' fill='%238c4f2b' stroke='%234a250c' stroke-width='0.5'/%3E%3Cline x1='-1.5' y1='-1.5' x2='1.5' y2='1.5' stroke='%234a250c' stroke-width='0.5'/%3E%3Cline x1='1.5' y1='-1.5' x2='-1.5' y2='1.5' stroke='%234a250c' stroke-width='0.5'/%3E%3Cpath d='M -2.5 -2.5 L 2.5 -2.5' stroke='%23fff' stroke-width='0.6' opacity='0.3'/%3E%3Cpath d='M -2.5 -2.5 L -2.5 2.5' stroke='%23fff' stroke-width='0.6' opacity='0.3'/%3E%3C/g%3E%3Cg transform='translate(29, 29) rotate(10)'%3E%3Ccircle cx='0.5' cy='1' r='4.5' fill='%231e0f03' opacity='0.6'/%3E%3Ccircle cx='0' cy='0' r='4.2' fill='%23a05a2c' stroke='%235c3514' stroke-width='0.5'/%3E%3Ccircle cx='0' cy='0' r='1.2' fill='%235c3514'/%3E%3Cpath d='M -2.8 -2 A 3.5 3.5 0 0 1 2.8 -2' fill='none' stroke='%23fff' stroke-width='0.6' opacity='0.3'/%3E%3C/g%3E%3Ccircle cx='21' cy='5' r='1' fill='%23a05a2c' stroke='%235c3514' stroke-width='0.3'/%3E%3Ccircle cx='4' cy='20' r='0.8' fill='%23cd853f' stroke='%2378411b' stroke-width='0.3'/%3E%3Ccircle cx='36' cy='22' r='1.2' fill='%238c4f2b' stroke='%234a250c' stroke-width='0.3'/%3E%3Ccircle cx='20' cy='35' r='0.9' fill='%23a05a2c' stroke='%235c3514' stroke-width='0.3'/%3E%3Ccircle cx='20' cy='20' r='1' fill='%231e0f03' opacity='0.5'/%3E%3C/svg%3E"),
-      linear-gradient(180deg, rgba(255, 140, 0, 0.08) 0%, rgba(0, 0, 0, 0.45) 100%);
-    background-size: 40px 40px, 100% 100%;
-  }
-  .reservoir-fill-water {
-    background: linear-gradient(180deg, var(--accent-cyan) 0%, var(--accent-blue) 100%);
-    box-shadow: 0 0 15px rgba(0, 242, 254, 0.35);
-  }
-  .reservoir-fill-water::after {
-    content: "";
-    position: absolute;
-    width: 200%;
-    height: 18px;
-    background: rgba(255, 255, 255, 0.75); /* Highly visible bright white wave overlay */
-    top: -10px;
-    left: 0;
-    border-radius: 40%;
-    box-shadow: 0 0 12px rgba(0, 242, 254, 0.95), inset 0 1px 3px rgba(255, 255, 255, 1); /* Cyan neon glow & high visibility highlight */
-    animation: wave-slide 1.8s linear infinite alternate;
-  }
-  .reservoir-ticks {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 12px 6px;
-    font-family: var(--font-mono);
-    font-size: 7px;
-    color: rgba(255, 255, 255, 0.35);
-    pointer-events: none;
-    z-index: 5;
-  }
-  .reservoir-ticks span {
-    border-top: 1px dashed rgba(255, 255, 255, 0.08);
-    padding-top: 2px;
-    line-height: 1;
-  }
-  .reservoir-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .reservoir-value {
-    font-family: var(--font-mono);
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--text-primary);
-    line-height: 1;
-    transition: color 0.5s;
-  }
-  .reservoir-value .unit { font-size: 14px; color: var(--text-secondary); }
-  .reservoir-details { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
-  .reservoir-details strong { color: var(--text-primary); }
-  .food-meta {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    color: var(--text-muted);
-    background: rgba(0,0,0,0.15);
-    padding: 4px 8px;
-    border-radius: 6px;
-    display: inline-block;
-    border: 1px solid rgba(255,255,255,0.02);
-    width: fit-content;
-  }
-
-  /* 2. Unified pet bowl styling (Taças) */
-  .bowl-visual-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    gap: 20px;
-    padding: 6px 0;
-  }
-  .bowl-glass {
-    width: 90px;
-    height: 52px;
-    border: 3px solid rgba(255, 255, 255, 0.15);
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 0 0 45px 45px; /* Perfect pet bowl shape */
-    position: relative;
-    overflow: hidden;
-    background: rgba(0, 0, 0, 0.2);
-    box-shadow: inset 0 6px 12px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3);
-    flex-shrink: 0;
-  }
-  .bowl-fill {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 0%; /* live updated */
-    border-radius: 0 0 42px 42px;
-    transition: height 1s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  .bowl-fill-food {
-    background-color: #3b1d06; /* Rich dark brown base */
-    box-shadow: 0 0 12px rgba(255, 140, 0, 0.25);
-    background-image: 
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg transform='translate(12, 11) rotate(25)'%3E%3Crect x='-4.5' y='-1.5' width='9' height='3.5' rx='1' fill='%231e0f03' opacity='0.6'/%3E%3Ccircle cx='-4.5' cy='-1.5' r='2.2' fill='%231e0f03' opacity='0.6'/%3E%3Ccircle cx='-4.5' cy='1.5' r='2.2' fill='%231e0f03' opacity='0.6'/%3E%3Ccircle cx='4.5' cy='-1.5' r='2.2' fill='%231e0f03' opacity='0.6'/%3E%3Ccircle cx='4.5' cy='1.5' r='2.2' fill='%231e0f03' opacity='0.6'/%3E%3Crect x='-4' y='-1.5' width='8' height='3' fill='%23a05a2c' stroke='%235c3514' stroke-width='0.5'/%3E%3Ccircle cx='-4' cy='-1.5' r='2' fill='%23a05a2c' stroke='%235c3514' stroke-width='0.5'/%3E%3Ccircle cx='-4' cy='1.5' r='2' fill='%23a05a2c' stroke='%235c3514' stroke-width='0.5'/%3E%3Ccircle cx='4' cy='-1.5' r='2' fill='%23a05a2c' stroke='%235c3514' stroke-width='0.5'/%3E%3Ccircle cx='4' cy='1.5' r='2' fill='%23a05a2c' stroke='%235c3514' stroke-width='0.5'/%3E%3Ccircle cx='-4.2' cy='-1.7' r='0.6' fill='%23ffd7b5' opacity='0.5'/%3E%3Ccircle cx='3.8' cy='-1.7' r='0.6' fill='%23ffd7b5' opacity='0.5'/%3E%3Crect x='-3' y='-1.2' width='6' height='0.8' fill='%23ffd7b5' opacity='0.3'/%3E%3C/g%3E%3Cg transform='translate(28, 12) rotate(-15)'%3E%3Ccircle cx='0.5' cy='1' r='5' fill='%231e0f03' opacity='0.6'/%3E%3Ccircle cx='0' cy='0' r='4.8' fill='%23cd853f' stroke='%2378411b' stroke-width='0.5'/%3E%3Ccircle cx='0' cy='0' r='1.6' fill='%233b1d06' stroke='%2378411b' stroke-width='0.5'/%3E%3Ccircle cx='-2' cy='-2' r='0.4' fill='%235c3514'/%3E%3Ccircle cx='2' cy='2' r='0.4' fill='%235c3514'/%3E%3Ccircle cx='-2' cy='2' r='0.4' fill='%235c3514'/%3E%3Ccircle cx='2' cy='-2' r='0.4' fill='%235c3514'/%3E%3Cpath d='M -3.2 -2.5 A 4 4 0 0 1 3.2 -2.5' fill='none' stroke='%23fff' stroke-width='0.7' opacity='0.4'/%3E%3C/g%3E%3Cg transform='translate(11, 29) rotate(45)'%3E%3Crect x='-3.5' y='-3.5' width='8' height='8' rx='1.5' fill='%231e0f03' opacity='0.6'/%3E%3Crect x='-3.5' y='-3.5' width='7' height='7' rx='1.5' fill='%238c4f2b' stroke='%234a250c' stroke-width='0.5'/%3E%3Cline x1='-1.5' y1='-1.5' x2='1.5' y2='1.5' stroke='%234a250c' stroke-width='0.5'/%3E%3Cline x1='1.5' y1='-1.5' x2='-1.5' y2='1.5' stroke='%234a250c' stroke-width='0.5'/%3E%3Cpath d='M -2.5 -2.5 L 2.5 -2.5' stroke='%23fff' stroke-width='0.6' opacity='0.3'/%3E%3Cpath d='M -2.5 -2.5 L -2.5 2.5' stroke='%23fff' stroke-width='0.6' opacity='0.3'/%3E%3C/g%3E%3Cg transform='translate(29, 29) rotate(10)'%3E%3Ccircle cx='0.5' cy='1' r='4.5' fill='%231e0f03' opacity='0.6'/%3E%3Ccircle cx='0' cy='0' r='4.2' fill='%23a05a2c' stroke='%235c3514' stroke-width='0.5'/%3E%3Ccircle cx='0' cy='0' r='1.2' fill='%235c3514'/%3E%3Cpath d='M -2.8 -2 A 3.5 3.5 0 0 1 2.8 -2' fill='none' stroke='%23fff' stroke-width='0.6' opacity='0.3'/%3E%3C/g%3E%3Ccircle cx='21' cy='5' r='1' fill='%23a05a2c' stroke='%235c3514' stroke-width='0.3'/%3E%3Ccircle cx='4' cy='20' r='0.8' fill='%23cd853f' stroke='%2378411b' stroke-width='0.3'/%3E%3Ccircle cx='36' cy='22' r='1.2' fill='%238c4f2b' stroke='%234a250c' stroke-width='0.3'/%3E%3Ccircle cx='20' cy='35' r='0.9' fill='%23a05a2c' stroke='%235c3514' stroke-width='0.3'/%3E%3Ccircle cx='20' cy='20' r='1' fill='%231e0f03' opacity='0.5'/%3E%3C/svg%3E"),
-      linear-gradient(180deg, rgba(255, 140, 0, 0.1) 0%, rgba(0, 0, 0, 0.4) 100%);
-    background-size: 28px 28px, 100% 100%;
-  }
-  .bowl-fill-water {
-    background: linear-gradient(180deg, var(--water-color-top, #00f2fe) 0%, var(--water-color-bottom, #4facfe) 100%);
-    box-shadow: 0 0 15px rgba(0, 242, 254, 0.35);
-  }
-  .bowl-fill-water::after {
-    content: "";
-    position: absolute;
-    width: 200%;
-    height: 14px;
-    background: rgba(255, 255, 255, 0.75); /* Highly visible bright white wave overlay */
-    top: -8px;
-    left: 0;
-    border-radius: 40%;
-    box-shadow: 0 0 12px rgba(0, 242, 254, 0.95), inset 0 1px 3px rgba(255, 255, 255, 1); /* Stunning neon blue glow */
-    animation: wave-slide 2.2s linear infinite alternate;
-  }
-  
-  @keyframes wave-slide {
-    from { transform: translateX(-50%) rotate(0deg); }
-    to { transform: translateX(0) rotate(5deg); }
-  }
-
-  .bowl-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 4px;
-  }
-
-  /* Food bowl specific scales */
-  .scale-container {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .scale-row {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-  }
-  .scale-weight {
-    font-family: var(--font-mono);
-    font-size: 34px;
-    font-weight: 700;
-    line-height: 1;
-    color: var(--text-primary);
-    letter-spacing: -0.03em;
-  }
-  .scale-weight .unit {
-    font-size: 14px;
-    color: var(--text-muted);
-    font-weight: 500;
-    margin-left: 2px;
-  }
-  .btn-tara {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border-color);
-    color: var(--text-secondary);
-    border-radius: var(--radius-md);
-    padding: 8px 16px;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    cursor: pointer;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .btn-tara:hover {
-    border-color: var(--accent-cyan);
-    color: var(--accent-cyan);
-    background: rgba(0, 242, 254, 0.03);
-  }
-  .btn-tara:active { transform: scale(0.98); }
-  
-  .sparkline-box {
-    width: 100%;
-    height: 48px;
-    background: rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.02);
-    border-radius: 8px;
-    padding: 6px 12px;
-    position: relative;
-  }
-  .sparkline-svg { width: 100%; height: 100%; }
-  .sparkline-line {
-    fill: none;
-    stroke: var(--accent-cyan);
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    filter: drop-shadow(0px 0px 4px rgba(0, 242, 254, 0.3));
-  }
-  .sparkline-bg-fill { fill: url(#sparkline-grad); }
-  .sparkline-label {
-    position: absolute;
-    top: 4px;
-    right: 8px;
-    font-family: var(--font-mono);
-    font-size: 7px;
-    color: var(--text-muted);
-    letter-spacing: 0.05em;
-  }
-
-  /* Water bowl specific components */
-  .water-badge {
-    font-family: var(--font-mono);
-    font-size: 17px;
-    font-weight: 700;
-    color: var(--text-primary);
-    transition: color 0.5s;
-  }
-  .water-sub { font-size: 11px; color: var(--text-secondary); line-height: 1.3; }
-
-  /* Manual water pump control button */
-  .btn-bomba {
-    margin-top: 10px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border-color);
-    color: var(--text-secondary);
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    width: 100%;
-  }
-  .btn-bomba:hover {
-    border-color: var(--accent-cyan);
-    color: var(--accent-cyan);
-    background: rgba(0, 242, 254, 0.04);
-  }
-  .spin-bomba {
-    animation: spin 2s linear infinite;
-  }
-
-  /* Warning Alert Badge */
-  .alerta-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(255, 23, 68, 0.08);
-    border: 1px solid rgba(255, 23, 68, 0.25);
-    border-radius: 6px;
-    padding: 6px 12px;
-    font-family: var(--font-mono);
-    font-size: 9px;
-    font-weight: 700;
-    color: var(--accent-coral);
-    margin-top: 12px;
-    width: 100%;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(255, 23, 68, 0.05);
-    opacity: 0;
-    transform: translateY(6px);
-    pointer-events: none;
-    transition: var(--transition);
-  }
-  .alerta-badge.visivel {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-  }
-
-  /* ---- MANUAL FEED CARD ---- */
-  .feed-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    justify-content: center;
-  }
-  .btn-feed {
-    width: 100%;
-    padding: 20px;
-    background: linear-gradient(135deg, var(--accent-orange), #d35400);
-    border: none;
-    border-radius: var(--radius-md);
-    color: #fff;
-    font-family: var(--font-mono);
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    cursor: pointer;
-    transition: var(--transition);
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    box-shadow: 0 4px 18px rgba(255, 140, 0, 0.25);
-  }
-  .btn-feed:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(255, 140, 0, 0.4);
-    filter: brightness(1.08);
-  }
-  .btn-feed:active:not(:disabled) { transform: translateY(0); }
-  .btn-feed:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
-  .btn-feed i { width: 18px; height: 18px; transition: transform 0.5s ease; }
-  .btn-feed:hover:not(:disabled) i { transform: rotate(15deg) scale(1.1); }
-  .feed-sub-info {
-    text-align: center;
-    font-size: 11px;
-    color: var(--text-secondary);
-    line-height: 1.4;
-    padding: 0 10px;
-  }
-  .feed-sub-info strong { color: var(--accent-orange); }
-
-  .spinner-element {
-    width: 16px; height: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ---- AUTOMATIC SCHEDULER ---- */
-  .scheduler-container {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  .scheduler-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-  }
-  .schedule-item {
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--border-color);
-    padding: 14px 16px;
-    border-radius: var(--radius-md);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .schedule-item label {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    color: var(--text-muted);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  .schedule-item label i { width: 11px; height: 11px; color: var(--accent-orange); }
-  .schedule-item input[type="time"] {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    color: var(--text-primary);
-    font-family: var(--font-mono);
-    font-size: 24px;
-    font-weight: 600;
-    padding: 8px 10px;
-    width: 100%;
-    outline: none;
-    transition: var(--transition);
-    color-scheme: dark;
-  }
-  .schedule-item input[type="time"]:focus {
-    border-color: var(--accent-orange);
-    background: rgba(255, 255, 255, 0.05);
-    box-shadow: 0 0 10px rgba(255, 140, 0, 0.1);
-  }
-  .schedule-presets { display: flex; gap: 8px; flex-wrap: wrap; }
-  .btn-preset {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--border-color);
-    color: var(--text-secondary);
-    border-radius: 6px;
-    padding: 5px 10px;
-    font-size: 10px;
-    font-family: var(--font-mono);
-    cursor: pointer;
-    transition: var(--transition);
-  }
-  .btn-preset:hover {
-    background: rgba(255, 140, 0, 0.08);
-    border-color: rgba(255, 140, 0, 0.3);
-    color: var(--accent-orange);
-  }
-
-  /* Visual 24h Timeline */
-  .timeline-bar-container { padding: 4px 6px 12px; }
-  .timeline-bar-track {
-    height: 8px;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--border-color);
-    border-radius: 99px;
-    position: relative;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
-  }
-  .timeline-marker {
-    position: absolute;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent-orange), #ff5100);
-    border: 2px solid var(--bg-panel-solid);
-    box-shadow: 0 0 10px var(--accent-orange-glow);
-    transition: left 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
-  }
-  .timeline-marker::after {
-    content: attr(data-time);
-    position: absolute;
-    bottom: 18px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: var(--font-mono);
-    font-size: 8px;
-    color: var(--text-secondary);
-    background: rgba(3, 5, 8, 0.95);
-    border: 1px solid rgba(255,255,255,0.05);
-    padding: 2px 6px;
-    border-radius: 4px;
-    white-space: nowrap;
-    pointer-events: none;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-  }
-  .timeline-labels {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 8px;
-    font-family: var(--font-mono);
-    font-size: 8px;
-    color: var(--text-muted);
-    letter-spacing: 0.05em;
-  }
-  .btn-save-schedules {
-    width: 100%;
-    padding: 12px;
-    background: rgba(255, 140, 0, 0.08);
-    border: 1px solid rgba(255, 140, 0, 0.25);
-    border-radius: var(--radius-md);
-    color: var(--accent-orange);
-    font-family: var(--font-mono);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    cursor: pointer;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  .btn-save-schedules:hover {
-    background: rgba(255, 140, 0, 0.15);
-    box-shadow: 0 0 15px rgba(255, 140, 0, 0.05);
-    border-color: var(--accent-orange);
-  }
-
-  /* ---- MEAL HISTORY Timeline ---- */
-  .history-container {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    max-height: 295px;
-    overflow-y: auto;
-    padding-right: 4px;
-  }
-  .historico-vazio {
-    text-align: center;
-    color: var(--text-muted);
-    font-family: var(--font-mono);
-    font-size: 11px;
-    padding: 30px 0;
-    border: 1px dashed rgba(255,255,255,0.03);
-    border-radius: var(--radius-md);
-    background: rgba(0,0,0,0.1);
-  }
-  .history-list-items {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    position: relative;
-    padding-left: 14px;
-    border-left: 1px solid rgba(255, 255, 255, 0.04);
-  }
-  .history-item-node {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 14px;
-    background: rgba(0, 0, 0, 0.15);
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
-    font-family: var(--font-mono);
-    font-size: 11px;
-    position: relative;
-    animation: slide-in-node 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-  .history-item-node::before {
-    content: '';
-    position: absolute;
-    left: -19px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 9px; height: 9px;
-    border-radius: 50%;
-    background: var(--accent-orange);
-    border: 2px solid var(--bg-dark);
-    box-shadow: 0 0 6px var(--accent-orange-glow);
-  }
-  @keyframes slide-in-node {
-    from { opacity: 0; transform: translateX(10px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-  .history-time { color: var(--accent-cyan); font-weight: 700; }
-  .history-source { display: flex; align-items: center; gap: 6px; color: var(--text-primary); }
-  .history-source i { width: 12px; height: 12px; color: var(--text-muted); }
-  .history-weight { color: var(--text-muted); }
-  .history-weight strong { color: var(--text-secondary); }
-
-  /* ---- TOAST SYSTEM ---- */
-  #toast {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    background: rgba(16, 20, 30, 0.95);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 14px 20px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--text-primary);
-    transform: translateY(80px);
-    opacity: 0;
-    transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.1);
-    z-index: 999;
-    max-width: 320px;
-    border-left: 4px solid var(--accent-cyan);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  #toast.show { transform: translateY(0); opacity: 1; }
-  #toast.error { border-left-color: var(--accent-coral); }
-  #toast.warn  { border-left-color: var(--accent-orange); }
-
-  /* ---- RESPONSIVE STRUCTURE ---- */
-  @media (max-width: 1024px) {
-    .dashboard-wrapper {
-      grid-template-columns: 1fr;
-      padding: 20px 16px 40px;
-    }
-    .telemetry-column {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
-    .brand-card { grid-column: 1 / -1; }
-    .model-viewer-container { height: 280px; }
-  }
-  @media (max-width: 680px) {
-    .telemetry-column { grid-template-columns: 1fr; }
-    .dashboard-grid { grid-template-columns: 1fr; gap: 16px; }
-    .card.full { grid-column: auto; }
-    .scheduler-grid { grid-template-columns: 1fr; }
   }
 </style>
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
 <div class="dashboard-wrapper">
   
-  <!-- COLUNA DA ESQUERDA: MARCA, LIGAÇÃO, MODELO 3D E LOGS -->
-  <aside class="telemetry-column">
+  <!-- APP HEADER -->
+  <header class="app-header">
+    <button class="app-icon-btn"><i data-lucide="arrow-left"></i></button>
+    <div class="app-header-title">
+      <h1>Smart Pet Feeder 2</h1>
+      <p><span class="status-pulse" id="dot"></span> <span id="conn-text">Disconnected</span></p>
+    </div>
+    <button class="app-icon-btn" onclick="document.getElementById('settings-modal').style.display='block'"><i data-lucide="more-vertical"></i></button>
+  </header>
+
+  <div class="masonry-grid">
     
-    <!-- BRAND CARD -->
-    <div class="card brand-card">
-      <div class="brand-logo">🐾</div>
-      <div class="brand-info">
-        <h1>SMART PET <span>FEEDER</span></h1>
-        <p>PAINEL DE TELEMETRIA IoT · PAP 2026</p>
+    <!-- COLUMN 1 -->
+    <div class="col">
+      <!-- HERO FOOD -->
+      <div class="card-flat hero-widget">
+        <div class="hero-value" id="peso-val">--<span class="unit">g</span></div>
+        <div class="hero-labels">
+          <p>Food in bowl</p>
+          <p id="nivel-val">Reservoir level: --%</p>
+        </div>
+        <div class="hero-mascot">🐱</div>
       </div>
-    </div>
 
-    <!-- BLYNK CONNECTION PANEL -->
-    <div class="card">
-      <div class="card-header">
-        <h2 class="card-title"><i data-lucide="wifi"></i>Ligação ao Dispositivo</h2>
+      <!-- BOWL ACTIONS (Food) -->
+      <div class="bowl-row-card">
+        <div class="bowl-info-left">
+          <div class="bowl-icon"><i data-lucide="inbox"></i></div>
+          <div class="bowl-text">
+            <h3 id="food-left-txt">-- g</h3>
+            <p>Food left in the bowl <i data-lucide="info" style="width:12px;height:12px;vertical-align:middle;"></i></p>
+          </div>
+        </div>
+        <button class="x-btn" id="btn-alimentar" onclick="darComida()">Dispense</button>
       </div>
-      <div class="conn-settings-container">
-        <div class="input-group">
-          <label>Blynk Auth Token</label>
-          <div class="input-row">
-            <i data-lucide="key"></i>
-            <input type="text" id="auth-token" placeholder="Insira o seu Token Blynk" maxlength="64">
-          </div>
-        </div>
-        <div class="input-group" style="display:none;">
-          <label>Blynk Server</label>
-          <div class="input-row">
-            <i data-lucide="globe"></i>
-            <input type="text" id="blynk-server" value="blynk.cloud">
-          </div>
-        </div>
-        <button class="btn-connect" onclick="conectar()">
-          <i data-lucide="power"></i>CONECTAR AO ESP32
-        </button>
-        <button class="btn-connect btn-simulacao" id="btn-simulacao" onclick="toggleModoSimulacao()">
-          <i data-lucide="play"></i>ATIVAR MODO SIMULAÇÃO
-        </button>
-        <div class="status-widget">
-          <span style="font-size:10px; color:var(--text-muted); font-family:var(--font-mono)">ESTADO:</span>
-          <div class="status-info">
-            <span class="status-pulse" id="dot"></span>
-            <span id="conn-text">DESLIGADO</span>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- SIMULATION CONTROL PANEL -->
-    <div class="card card-simulacao" id="sim-panel" style="display: none; border-color: rgba(168, 85, 247, 0.15); margin-top: -12px;">
-      <div class="card-header">
-        <h2 class="card-title" style="color: #a855f7;"><i data-lucide="sliders" style="color: #a855f7;"></i>Painel de Simulação</h2>
-      </div>
-      <div style="display: flex; flex-direction: column; gap: 14px;">
-        <div class="input-group">
-          <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; margin-bottom: 4px;">
-            <span style="color: var(--text-secondary);">Dep. Ração (V2)</span>
-            <span id="sim-val-v2" style="color: var(--accent-orange); font-weight: bold;">--%</span>
+      <!-- BOWL ACTIONS (Water) -->
+      <div class="bowl-row-card">
+        <div class="bowl-info-left">
+          <div class="bowl-icon"><i data-lucide="droplet"></i></div>
+          <div class="bowl-text">
+            <h3 id="agua-label">--</h3>
+            <p id="dep-agua-val">Reservoir: --%</p>
           </div>
-          <input type="range" class="sim-slider" id="sim-slider-v2" min="0" max="100" value="80" oninput="simularAlteracaoSensor('V2', this.value)">
         </div>
+        <button class="x-btn x-btn-blue" id="btn-bomba" onclick="toggleBomba()">Pump</button>
+      </div>
 
-        <div class="input-group">
-          <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; margin-bottom: 4px;">
-            <span style="color: var(--text-secondary);">Dep. Água (V3)</span>
-            <span id="sim-val-v3" style="color: var(--accent-cyan); font-weight: bold;">--%</span>
-          </div>
-          <input type="range" class="sim-slider" id="sim-slider-v3" min="0" max="100" value="75" oninput="simularAlteracaoSensor('V3', this.value)">
-        </div>
-
-        <div class="input-group">
-          <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; margin-bottom: 4px;">
-            <span style="color: var(--text-secondary);">Balança Ração (V4)</span>
-            <span id="sim-val-v4" style="color: var(--text-primary); font-weight: bold;">--g</span>
-          </div>
-          <input type="range" class="sim-slider" id="sim-slider-v4" min="0" max="150" value="45" step="0.5" oninput="simularAlteracaoSensor('V4', this.value)">
-        </div>
-
-        <div class="input-group">
-          <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; margin-bottom: 4px;">
-            <span style="color: var(--text-secondary);">Nível Água Taça (V5)</span>
-            <span id="sim-val-v5" style="color: var(--accent-cyan); font-weight: bold;">--</span>
-          </div>
-          <input type="range" class="sim-slider" id="sim-slider-v5" min="0" max="3" value="2" step="1" oninput="simularAlteracaoSensor('V5', this.value)">
-        </div>
-      </div>
-    </div>
-
-    <!-- INTERACTIVE 3D MODEL CARD -->
-    <div class="card model-card">
-      <div class="card-header">
-        <h2 class="card-title"><i data-lucide="box"></i>Visualizador de Hardware</h2>
-      </div>
-      <div class="model-viewer-container">
-        <div class="model-telemetry-overlay">
-          BOARD: ESP32 DEVKIT V1<br>
-          SCALE: 1:1 SCALED MODEL<br>
-          UI TYPE: TOUCH DEFEITUOSO
-        </div>
-        <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
-        <model-viewer
-          id="modelo3d"
-          src="PAPZINHA_scaled.glb"
-          alt="Dispensador Smart Pet Feeder"
-          camera-controls
-          shadow-intensity="1"
-          environment-image="neutral"
-          style="width: 100%; height: 100%; background: transparent;"
-          ar
-          ar-modes="webxr scene-viewer quick-look"
-        ></model-viewer>
-        <div class="model-controls">
-          <button class="btn-model-ctrl" id="btn-rotate" onclick="toggle3DRotate()" title="Rodar Automaticamente">
-            <i data-lucide="rotate-cw"></i>
-          </button>
-          <button class="btn-model-ctrl" onclick="reset3DCamera()" title="Repor Câmara">
-            <i data-lucide="refresh-cw"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- SYSTEM CONSOLE TERMINAL -->
-    <div class="card terminal-card">
-      <div class="card-header">
-        <h2 class="card-title"><i data-lucide="terminal"></i>Consola do Sistema</h2>
-      </div>
-      <div class="terminal-log-container">
-        <div class="terminal-header">
-          <div class="terminal-dots">
-            <span class="dot-red"></span>
-            <span class="dot-yellow"></span>
-            <span class="dot-green"></span>
-          </div>
-          <span class="terminal-title">TELEMETRY_LOG</span>
-        </div>
-        <div class="terminal-body" id="terminal-body">
-          <div class="terminal-line"><span class="term-time">[00:00:00]</span> [SYSTEM] A iniciar consola...</div>
-          <div class="terminal-line"><span class="term-time">[00:00:00]</span> [SYSTEM] Sensores reconfigurados conforme hardware da PAP.</div>
-          <div class="terminal-line"><span class="term-time">[00:00:00]</span> [SYSTEM] A aguardar token Blynk...</div>
-        </div>
-      </div>
-    </div>
-
-  </aside>
-
-  <!-- COLUNA DA DIREITA: PAINEL DE CONTROLO DO FEEDER -->
-  <main class="dashboard-grid">
-    
-    <!-- CARD 1: FOOD STORAGE RESERVOIR (Ultrasonic 1 - V2) -->
-    <div class="card">
-      <div class="card-header">
-        <h2 class="card-title"><i data-lucide="package"></i>Depósito de Ração (Armazém)</h2>
-      </div>
-      <div class="reservoir-container">
-        <div class="reservoir-glass">
-          <div class="reservoir-fill reservoir-fill-food" id="dep-racao-liquid"></div>
-          <div class="reservoir-ticks">
-            <span>100%</span>
-            <span>75%</span>
-            <span>50%</span>
-            <span>25%</span>
-            <span>0%</span>
-          </div>
-        </div>
-        <div class="reservoir-info">
-          <div class="reservoir-value" id="nivel-val">--<span class="unit">%</span></div>
-          <div class="reservoir-details">
-            Sensor: <strong>HC-SR04 #1</strong><br>
-            Armazém de ração do alimentador.
-          </div>
-          <div class="food-meta">
-            PIN BLYNK: V2
-          </div>
-        </div>
-      </div>
-      <div class="alerta-badge" id="alerta-racao">
-        <i data-lucide="alert-triangle" style="width:12px;height:12px;"></i>NÍVEL CRÍTICO NO DEPÓSITO
-      </div>
-    </div>
-
-    <!-- CARD 2: WATER STORAGE RESERVOIR (Ultrasonic 2 - V3) -->
-    <div class="card">
-      <div class="card-header">
-        <h2 class="card-title"><i data-lucide="archive"></i>Depósito de Água (Armazém)</h2>
-      </div>
-      <div class="reservoir-container">
-        <div class="reservoir-glass">
-          <div class="reservoir-fill reservoir-fill-water" id="dep-agua-liquid"></div>
-          <div class="reservoir-ticks">
-            <span>100%</span>
-            <span>75%</span>
-            <span>50%</span>
-            <span>25%</span>
-            <span>0%</span>
-          </div>
-        </div>
-        <div class="reservoir-info">
-          <div class="reservoir-value" id="dep-agua-val">--<span class="unit">%</span></div>
-          <div class="reservoir-details">
-            Sensor: <strong>HC-SR04 #2</strong><br>
-            Depósito de armazenamento de água.
-          </div>
-          <div class="food-meta">
-            PIN BLYNK: V3
-          </div>
-        </div>
-      </div>
-      <div class="alerta-badge" id="alerta-dep-agua">
-        <i data-lucide="alert-triangle" style="width:12px;height:12px;"></i>DEPÓSITO DE ÁGUA VAZIO
-      </div>
-    </div>
-
-    <!-- CARD 3: FOOD BOWL SCALE (Load Cell - V4) -->
-    <div class="card">
-      <div class="card-header">
-        <h2 class="card-title"><i data-lucide="scale"></i>Taça de Ração (Balança)</h2>
-        <button class="btn-tara" onclick="realizarTara()">
-          <i data-lucide="refresh-cw" id="tara-icon"></i>TARA
-        </button>
-      </div>
-      <div class="scale-container">
-        <div class="bowl-visual-container">
-          <div class="bowl-glass">
-            <div class="bowl-fill bowl-fill-food" id="bowl-food-liquid"></div>
-          </div>
-          <div class="bowl-info">
-            <div class="scale-row">
-              <span class="scale-weight" id="peso-val">-- <span class="unit">g</span></span>
-            </div>
-            <div class="food-meta" style="margin-top: 4px;">
-              PIN BLYNK: V4 (HX711)
-            </div>
-          </div>
-        </div>
-        <div class="sparkline-box">
-          <span class="sparkline-label">HISTÓRICO LIVE</span>
-          <svg class="sparkline-svg" id="sparkline-svg" viewBox="0 0 300 48" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="sparkline-grad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="var(--accent-cyan)" stop-opacity="0.18" />
-                <stop offset="100%" stop-color="var(--accent-cyan)" stop-opacity="0" />
-              </linearGradient>
-            </defs>
-            <path class="sparkline-bg-fill" id="sparkline-bg" d="" />
-            <path class="sparkline-line" id="sparkline-path" d="" />
-          </svg>
-        </div>
-      </div>
-    </div>
-
-    <!-- CARD 4: WATER BOWL LIQUID GAUGE (Resistive - V5) & BOMBA MANUAL (V9) -->
-    <div class="card">
-      <div class="card-header">
-        <h2 class="card-title"><i data-lucide="droplet"></i>Taça de Água (Nível)</h2>
-      </div>
-      <div class="bowl-visual-container">
-        <div class="bowl-glass">
-          <div class="bowl-fill bowl-fill-water" id="water-liquid"></div>
-        </div>
-        <div class="bowl-info">
-          <div class="water-badge" id="agua-label">--</div>
-          <div class="water-sub" id="agua-sub" style="margin-bottom: 8px;">Taça de consumo de água (Sensor V5).</div>
-          <button class="btn-bomba" id="btn-bomba" onclick="toggleBomba()">
-            <i data-lucide="droplet-off" id="bomba-icon"></i>LIGAR BOMBA MANUAL
-          </button>
-        </div>
-      </div>
-      <div class="alerta-badge" id="alerta-agua">
-        <i data-lucide="alert-circle" style="width:12px;height:12px;"></i>TAÇA DE ÁGUA TOTALMENTE VAZIA
-      </div>
-    </div>
-
-    <!-- CARD 5: MANUAL DISPENSE CONTROL (Stepper V1) -->
-    <div class="card card-orange full">
-      <div class="card-header">
-        <h2 class="card-title"><i data-lucide="utensils"></i>Dispensar Ração Manualmente</h2>
-      </div>
-      <div class="feed-panel">
-        <button class="btn-feed" id="btn-alimentar" onclick="darComida()" disabled>
-          <i data-lucide="hand"></i>ATIVAR MOTOR DE PASSO (DEITAR COMIDA)
-        </button>
-        <div class="feed-sub-info">
-          Alimenta o seu animal imediatamente. O ESP32 acionará as bobinas do motor <strong>28BYJ-48</strong> por 1024 passos (GPIOs 13/14/12/27) e desligará após rodar para evitar aquecimento.
-        </div>
-      </div>
-    </div>
-
-    <!-- CARD 6: AUTOMATIC SCHEDULES (V7, V8) -->
-    <div class="card full">
-      <div class="card-header">
-        <h2 class="card-title"><i data-lucide="clock"></i>Agendamento Automático (Persistência EEPROM)</h2>
-      </div>
-      <div class="scheduler-container">
-        <div class="scheduler-grid">
-          <div class="schedule-item">
-            <label><i data-lucide="sun"></i>Refeição Manhã (Horário 1)</label>
-            <input type="time" id="horario1" value="08:00" oninput="atualizarMarkersTimeline()">
-            <div class="schedule-presets">
-              <button class="btn-preset" onclick="setPresetTime('horario1', '07:30')">07:30</button>
-              <button class="btn-preset" onclick="setPresetTime('horario1', '08:30')">08:30</button>
-            </div>
-          </div>
-          <div class="schedule-item">
-            <label><i data-lucide="moon"></i>Refeição Noite (Horário 2)</label>
-            <input type="time" id="horario2" value="20:00" oninput="atualizarMarkersTimeline()">
-            <div class="schedule-presets">
-              <button class="btn-preset" onclick="setPresetTime('horario2', '19:30')">19:30</button>
-              <button class="btn-preset" onclick="setPresetTime('horario2', '20:30')">20:30</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 24h Visual timeline -->
-        <div class="timeline-bar-container">
-          <div class="timeline-bar-track">
-            <div class="timeline-marker" id="marker-h1" style="left: 33.3%;" data-time="08:00"></div>
-            <div class="timeline-marker" id="marker-h2" style="left: 83.3%;" data-time="20:00"></div>
-          </div>
-          <div class="timeline-labels">
-            <span>00:00</span>
-            <span>06:00</span>
-            <span>12:00</span>
-            <span>18:00</span>
-            <span>24:00</span>
-          </div>
-        </div>
-
-        <button class="btn-save-schedules" onclick="salvarHorarios()">
-          <i data-lucide="save"></i>GRAVAR AGENDAMENTOS NA EEPROM DO ESP32
-        </button>
-      </div>
-    </div>
-
-    <!-- CARD 7: FEEDING TIMELINE LOG -->
-    <div class="card full">
-      <div class="card-header">
-        <h2 class="card-title"><i data-lucide="history"></i>Histórico Recente de Refeições</h2>
-      </div>
-      <div class="history-container">
-        <ul class="history-list-items" id="historico-list">
-          <li class="historico-vazio">Sem registos de doseamento nesta sessão de monitorização.</li>
+      <!-- TIMELINE LOG -->
+      <div class="card timeline-card">
+        <h2>Today's feed log <i data-lucide="chevron-right" style="float:right;color:#ccc;width:18px;"></i></h2>
+        <ul class="xiaomi-timeline" id="historico-list">
+          <li class="xiaomi-timeline-item">
+            <span class="x-time">--:--</span>
+            <span class="x-desc">No logs yet</span>
+          </li>
         </ul>
       </div>
     </div>
 
-  </main>
+    <!-- COLUMN 2 -->
+    <div class="col">
+      <!-- AUTOMATIC FEEDING SCHEDULE -->
+      <div class="card schedule-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h2>Automatic feeding schedule</h2>
+          <i data-lucide="settings" style="color:#ccc;width:18px;"></i>
+        </div>
+        
+        <div class="schedule-illustration"></div>
+
+        <div class="schedule-toggle-row">
+          <div class="s-texts">
+            <h3>Automatic feeding</h3>
+            <p>Once enabled, food will be dispensed automatically every day according to the set schedule.</p>
+          </div>
+          <!-- Toggle fake styling -->
+          <div style="width:44px;height:24px;background:#ff9d00;border-radius:12px;position:relative;">
+            <div style="width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;right:2px;top:2px;"></div>
+          </div>
+        </div>
+
+        <div class="s-stats">
+          <div class="s-stat-item">
+            <h4>4 <span>Portions</span></h4>
+            <p>Amount to feed</p>
+          </div>
+          <div class="s-stat-item">
+            <h4>2 <span>Meals</span></h4>
+            <p>Number of meals</p>
+          </div>
+        </div>
+
+        <ul class="xiaomi-timeline">
+          <li class="xiaomi-timeline-item">
+            <input type="time" id="horario1" value="08:00" class="x-time-input">
+            <span class="x-desc">Portions dispensed: <strong>2</strong></span>
+          </li>
+          <li class="xiaomi-timeline-item">
+            <input type="time" id="horario2" value="20:00" class="x-time-input">
+            <span class="x-desc">Portions dispensed: <strong>2</strong></span>
+          </li>
+        </ul>
+
+        <button class="add-schedule-btn" onclick="salvarHorarios()">Save schedules to ESP32</button>
+      </div>
+
+      <!-- 3D MODEL & CALIBRATION -->
+      <div class="card">
+        <div class="schedule-toggle-row" style="margin-bottom:0;">
+          <div class="s-texts">
+            <h3>Hardware 3D Viewer</h3>
+            <p>Interactive scale model of the PAP feeder.</p>
+          </div>
+          <button class="x-btn" id="toggle-3d-text" onclick="toggle3DModel()">Hide 3D Model</button>
+        </div>
+        <div class="model-card-content" id="model-card-content">
+          <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+          <model-viewer
+            id="modelo3d"
+            src="PAPZINHA_scaled.glb"
+            alt="Dispensador Smart Pet Feeder"
+            camera-controls
+            shadow-intensity="1"
+            environment-image="neutral"
+            style="width: 100%; height: 100%; background: transparent;"
+          ></model-viewer>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="schedule-toggle-row" style="margin-bottom:0;">
+          <div class="s-texts">
+            <h3>Weight calibration</h3>
+            <p>Empty the food bowl before calibrating the scale.</p>
+          </div>
+          <button class="x-btn" onclick="realizarTara()"><i data-lucide="refresh-cw" id="tara-icon" style="width:14px;height:14px;margin-right:4px;vertical-align:middle;"></i> Calibrate</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
-<!-- TOAST CONTAINER -->
-<div id="toast">
-  <i data-lucide="info" id="toast-icon" style="width:16px;height:16px;"></i>
-  <span id="toast-text">Notificação</span>
+<!-- HIDDEN SETTINGS MODAL FOR CONNECTION -->
+<div id="settings-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:100;">
+  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:100%; height:100%; background:#f5f5f7; display:flex; flex-direction:column;">
+    
+    <!-- Top Header Like Screenshot -->
+    <div style="padding: 24px; display:flex; align-items:center;">
+      <button style="background:transparent; border:none; cursor:pointer;" onclick="document.getElementById('settings-modal').style.display='none';"><i data-lucide="chevron-left" style="width:24px;height:24px;color:#333;"></i></button>
+    </div>
+
+    <!-- Titles -->
+    <div style="padding: 0 24px;">
+      <h1 style="font-size: 28px; font-weight: 500; color:#1d1d1f; margin-bottom:8px;">Selecionar redes Wi-Fi</h1>
+      <p style="font-size: 14px; color:#86868b; line-height:1.4;">Este dispositivo é compatível apenas com Wi-Fi de 2,4 GHz</p>
+    </div>
+
+    <!-- Wi-Fi Input Area -->
+    <div style="padding: 24px;">
+      <div style="background:#e8e8ed; border-radius:16px; padding: 16px 20px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="document.getElementById('wifi-list-sheet').style.bottom='0';">
+        <span style="font-size:16px; color:#1d1d1f;" id="selected-wifi-name">Nome do Wi-Fi</span>
+        <span style="font-size:14px; color:#00aaff;">Selecionar rede...</span>
+      </div>
+
+      <!-- Password Input Placeholder -->
+      <div style="background:#e8e8ed; border-radius:16px; padding: 16px 20px; margin-top:16px; display:flex; align-items:center;">
+        <input type="password" placeholder="Palavra-passe" style="background:transparent; border:none; outline:none; width:100%; font-size:16px; color:#1d1d1f;">
+        <i data-lucide="eye-off" style="width:20px;height:20px;color:#86868b;"></i>
+      </div>
+    </div>
+
+    <!-- Original Hidden Inputs for Connection -->
+    <div style="display:none;">
+      <input type="text" id="auth-token" value="sOOvSR9kmZxS_CMp5pvbqQHDbGvJczP1">
+      <input type="text" id="blynk-server" value="blynk.cloud">
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="padding: 24px; margin-top:auto;">
+      <button class="add-schedule-btn" style="background:#ff9d00; color:#fff; border-radius:99px; font-size:16px; padding:16px; margin-bottom:12px;" onclick="conectar(); document.getElementById('settings-modal').style.display='none';">Seguinte (Ligar)</button>
+      <button class="add-schedule-btn" id="btn-simulacao" style="background:#e8e8ed; color:#333; border-radius:99px;" onclick="toggleModoSimulacao(); document.getElementById('settings-modal').style.display='none';">Ativar Modo Simulação PAP</button>
+    </div>
+
+    <!-- BOTTOM SHEET FOR WIFI LIST -->
+    <div id="wifi-list-sheet" style="position:absolute; bottom:-100%; left:0; width:100%; height:75%; background:#fff; border-radius:24px 24px 0 0; box-shadow:0 -4px 20px rgba(0,0,0,0.1); transition: bottom 0.3s ease; display:flex; flex-direction:column;">
+      <div style="padding:20px; text-align:center; position:relative; border-bottom:1px solid #f0f0f0;">
+        <h3 style="font-size:16px; font-weight:500;">Selecionar redes Wi-Fi</h3>
+        <button style="position:absolute; right:20px; top:20px; background:transparent; border:none; cursor:pointer;" onclick="document.getElementById('wifi-list-sheet').style.bottom='-100%';"><i data-lucide="x" style="width:20px;height:20px;color:#333;"></i></button>
+      </div>
+      <div style="padding:16px 24px; font-size:12px; color:#86868b;">Redes Wi-Fi que podem ser usadas para adicionar dispositivos (2.4G)</div>
+      
+      <div style="flex-grow:1; overflow-y:auto;">
+        <!-- Network Items -->
+        <div style="padding:16px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f5f5f5; cursor:pointer;" onclick="document.getElementById('selected-wifi-name').textContent='REDE5-5G'; document.getElementById('wifi-list-sheet').style.bottom='-100%';">
+          <span style="font-size:16px; color:#333;">REDE5-5G</span>
+          <i data-lucide="wifi" style="width:20px;height:20px;color:#86868b;"></i>
+        </div>
+        <div style="padding:16px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f5f5f5; cursor:pointer;" onclick="document.getElementById('selected-wifi-name').textContent='REDE5-2G'; document.getElementById('wifi-list-sheet').style.bottom='-100%';">
+          <span style="font-size:16px; color:#333;">REDE5-2G</span>
+          <i data-lucide="wifi" style="width:20px;height:20px;color:#86868b;"></i>
+        </div>
+        <div style="padding:16px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f5f5f5; cursor:pointer;" onclick="document.getElementById('selected-wifi-name').textContent='VIVOFIBRA-A270'; document.getElementById('wifi-list-sheet').style.bottom='-100%';">
+          <span style="font-size:16px; color:#333;">VIVOFIBRA-A270</span>
+          <i data-lucide="wifi" style="width:20px;height:20px;color:#86868b;"></i>
+        </div>
+        <div style="padding:16px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f5f5f5; cursor:pointer;" onclick="document.getElementById('selected-wifi-name').textContent='DIRECT-C1-HP Smart Tank 610'; document.getElementById('wifi-list-sheet').style.bottom='-100%';">
+          <span style="font-size:16px; color:#333;">DIRECT-C1-HP Smart Tank 610</span>
+          <i data-lucide="wifi" style="width:20px;height:20px;color:#86868b;"></i>
+        </div>
+      </div>
+      
+      <div style="padding:16px 24px; font-size:12px; color:#86868b; background:#fafafa;">Redes Wi-Fi que não podem ser usadas para adicionar dispositivos (5G)</div>
+    </div>
+  </div>
 </div>
+
+<div id="toast" style="position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#333; color:#fff; padding:12px 24px; border-radius:24px; font-size:13px; display:none; z-index:200;">
+  <span id="toast-text"></span>
+</div>
+
 
 <script>
 // =====================================================
@@ -1557,11 +676,11 @@ function setStatus(s) {
   if (s === 'online') {
     dot.classList.add('online');
     txt.textContent = 'ONLINE';
-    txt.style.color = 'var(--accent-emerald)';
+    txt.style.color = 'var(--accent-green)';
   } else if (s === 'offline') {
     dot.classList.add('offline');
     txt.textContent = 'OFFLINE';
-    txt.style.color = 'var(--accent-coral)';
+    txt.style.color = 'var(--accent-red)';
   } else {
     dot.classList.add('connecting');
     txt.textContent = 'A CONECTAR...';
@@ -1593,7 +712,7 @@ function toggleModoSimulacao() {
     
     dot.className = 'status-pulse simulacao';
     txt.textContent = 'MODO SIMULAÇÃO';
-    txt.style.color = '#a855f7';
+    txt.style.color = '#af52de';
     
     // Habilita botões
     btnAlimentar.disabled = false;
@@ -1716,7 +835,7 @@ function atualizarDepRacao(p) {
 
   let color;
   if (p < 20) {
-    color = 'var(--accent-coral)';
+    color = 'var(--accent-red)';
   } else if (p < 60) {
     color = 'var(--accent-orange)';
   } else {
@@ -1744,16 +863,16 @@ function atualizarDepAgua(p) {
   const alerta = document.getElementById('alerta-dep-agua');
 
   liquid.style.height = `${p}%`;
-  liquid.style.background = 'linear-gradient(180deg, var(--accent-cyan) 0%, var(--accent-blue) 100%)';
-  liquid.style.boxShadow = '0 0 15px rgba(0, 242, 254, 0.35)';
+  liquid.style.background = 'linear-gradient(180deg, #ff9500 0%, #ff9500 100%)';
+  liquid.style.boxShadow = 'var(--shadow-sm)';
 
   let color;
   if (p < 20) {
-    color = 'var(--accent-coral)';
+    color = 'var(--accent-red)';
   } else if (p < 60) {
     color = 'var(--accent-orange)';
   } else {
-    color = 'var(--accent-cyan)';
+    color = '#ff9500';
   }
 
   el.innerHTML = `${p}<span class="unit">%</span>`;
@@ -1827,10 +946,10 @@ function atualizarAgua(n) {
   const alerta = document.getElementById('alerta-agua');
 
   const states = [
-    { text: 'SEM ÁGUA (0)', pct: 0,   top: '#ff1744', bot: '#b3001e', glow: 'rgba(255, 23, 68, 0.4)' },
-    { text: 'NÍVEL BAIXO (1)', pct: 33,  top: '#ff8c00', bot: '#d35400', glow: 'rgba(255, 140, 0, 0.3)' },
-    { text: 'NÍVEL ADEQUADO (2)', pct: 66,  top: '#00e676', bot: '#00a050', glow: 'rgba(0, 230, 118, 0.3)' },
-    { text: 'CHEIO (3)', pct: 100, top: '#00f2fe', bot: '#4facfe', glow: 'rgba(0, 242, 254, 0.4)' }
+    { text: 'SEM ÁGUA (0)', pct: 0,   top: '#ff3b30', bot: '#b3001e', glow: 'rgba(255, 23, 68, 0.4)' },
+    { text: 'NÍVEL BAIXO (1)', pct: 33,  top: '#ff9500', bot: '#d35400', glow: 'rgba(255, 140, 0, 0.3)' },
+    { text: 'NÍVEL ADEQUADO (2)', pct: 66,  top: '#34c759', bot: '#00a050', glow: 'rgba(0, 230, 118, 0.3)' },
+    { text: 'CHEIO (3)', pct: 100, top: '#007aff', bot: '#005bb5', glow: 'rgba(0, 242, 254, 0.4)' }
   ];
 
   const s = states[Math.min(n, 3)];
@@ -1840,8 +959,8 @@ function atualizarAgua(n) {
   
   liquid.style.height = `${s.pct}%`;
   // The water in the bowl is always blue/cyan
-  liquid.style.setProperty('--water-color-top', '#00f2fe');
-  liquid.style.setProperty('--water-color-bottom', '#4facfe');
+  liquid.style.setProperty('--water-color-top', '#007aff');
+  liquid.style.setProperty('--water-color-bottom', '#005bb5');
   liquid.style.setProperty('--water-glow', 'rgba(0, 242, 254, 0.4)');
 
   const isEmpty = n === 0;
@@ -1953,9 +1072,9 @@ async function toggleBomba() {
     bombaAtiva = !bombaAtiva;
     if (bombaAtiva) {
       btn.innerHTML = '<i data-lucide="droplet" class="spin-bomba"></i>DESLIGAR BOMBA';
-      btn.style.background = 'linear-gradient(135deg, var(--accent-cyan), var(--accent-blue))';
+      btn.style.background = 'linear-gradient(135deg, #ff9500, #ff9500)';
       btn.style.color = '#04060a';
-      btn.style.borderColor = 'var(--accent-cyan)';
+      btn.style.borderColor = '#ff9500';
       mostrarToast('Simulação: Bomba de água ligada!', 'ok');
       logTerminal('[BOMBA] Bomba manual de água ativa em Simulação.');
       
@@ -2004,9 +1123,9 @@ async function toggleBomba() {
     bombaAtiva = !bombaAtiva;
     if (bombaAtiva) {
       btn.innerHTML = '<i data-lucide="droplet" class="spin-bomba"></i>DESLIGAR BOMBA';
-      btn.style.background = 'linear-gradient(135deg, var(--accent-cyan), var(--accent-blue))';
+      btn.style.background = 'linear-gradient(135deg, #ff9500, #ff9500)';
       btn.style.color = '#04060a';
-      btn.style.borderColor = 'var(--accent-cyan)';
+      btn.style.borderColor = '#ff9500';
       mostrarToast('Bomba de água manual ligada!', 'ok');
       logTerminal('[BOMBA] Bomba manual de água ativa.');
     } else {
@@ -2042,6 +1161,15 @@ async function salvarHorarios() {
     mostrarToast('Simulação: Horários guardados na EEPROM!', 'ok');
     logTerminal('[SYSTEM] Agendamentos atualizados na EEPROM simulada do ESP32.');
     return;
+  }
+
+  saveSupabaseSettings();
+  // Guardar na base de dados (Supabase)
+  try {
+    await supa.from('settings').upsert({ id: 1, schedule_1: h1, schedule_2: h2, auth_token: document.getElementById('auth-token').value });
+    logTerminal('[SUPABASE] Definições guardadas na cloud.');
+  } catch(e) {
+    console.error('Erro a guardar supabase:', e);
   }
 
   const ok1 = await escreverPin(PINS.HORARIO1, toSeconds(h1));
@@ -2095,17 +1223,15 @@ function registarHistorico(source = 'Manual') {
   const peso = isNaN(parseFloat(pesoElementText)) ? '0.0' : parseFloat(pesoElementText).toFixed(1);
 
   historico.unshift({ hora, peso, source });
+  saveHistoryToSupabase(hora, peso, source);
   if (historico.length > 5) historico.pop();
 
   const ul = document.getElementById('historico-list');
   ul.innerHTML = historico.map((r, i) => `
-    <li class="history-item-node" style="animation-delay: ${i * 0.06}s">
-      <span class="history-source">
-        <i data-lucide="${r.source === 'Manual' ? 'hand' : 'clock'}"></i>
-        ${r.source === 'Manual' ? 'Doseamento Manual' : 'Doseamento Automático'}
-      </span>
-      <span class="history-time">${r.hora}</span>
-      <span class="history-weight">Peso na taça: <strong>${r.peso} g</strong></span>
+    
+    <li class="xiaomi-timeline-item" style="animation-delay: ${i * 0.06}s">
+      <span class="x-time">${r.hora.substring(0,5)}</span>
+      <span class="x-desc">${r.source === 'Manual' ? 'Manual consumption' : 'Pet\'s consumption'} ${r.peso} g</span>
     </li>
   `).join('');
 
@@ -2155,7 +1281,7 @@ function mostrarToast(msg, tipo = 'info') {
   lucide.createIcons();
   
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 4000);
+  toastTimer = setTimeout(() => el.style.display = 'none', 4000);
 }
 
 // =====================================================
@@ -2179,8 +1305,25 @@ function reset3DCamera() {
   mostrarToast('Câmara 3D redefinida.', 'info');
 }
 
+
+// Toggle 3D Model
+function toggle3DModel() {
+  const modelCard = document.getElementById('model-card-content');
+  const btnText = document.getElementById('toggle-3d-text');
+  if (modelCard.style.display === 'none') {
+    modelCard.style.display = 'block';
+    btnText.textContent = 'Hide 3D Model';
+  } else {
+    modelCard.style.display = 'none';
+    btnText.textContent = 'Show 3D Model';
+  }
+}
+
 // Initializer
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
+  // Load from DB first
+  await loadSupabaseSettings();
+  await loadSupabaseHistory();
   // Lucide Icons
   lucide.createIcons();
   
@@ -2198,5 +1341,3 @@ window.addEventListener('load', () => {
   window.addEventListener('resize', () => atualizarSparkline(pesoHistorico[pesoHistorico.length - 1] || 0));
 });
 </script>
-</body>
-</html>
