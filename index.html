@@ -1432,6 +1432,10 @@
               <label><span>Nível Taça Água</span> <span id="sim-val-v5">ADEQUADO (2)</span></label>
               <input type="range" id="sim-slider-v5" min="0" max="3" value="2" oninput="simularAlteracaoSensor('V5', this.value)">
             </div>
+            <div class="slider-row" style="margin-top: 4px;">
+              <label><span>SSIDs Wi-Fi Simulados (Separar por vírgula)</span></label>
+              <input type="text" id="sim-wifi-networks" value="REDE-CASA-2.4G,WIFI-ESCONDE,Net-Rapida,PAP-Dispensador-AP" style="background:#ffffff; border:1px solid #ddd; border-radius:8px; padding:6px 10px; font-size:11px; outline:none; margin-top:2px; font-family:inherit;">
+            </div>
           </div>
         </div>
         
@@ -2074,29 +2078,51 @@ function switchScreen(screenId) {
 // Wi-Fi Screen Wizard
 async function openWifiScreen() {
   switchScreen('screen-wifi');
-  if (connected && !modoSimulacao) {
-    mostrarToast('A ler redes Wi-Fi do ESP32...', 'info');
-    logTerminal('[WiFiManager] A solicitar escaneamento de redes ao ESP32...');
-    
-    // Trigger wifi scan (V11)
-    await escreverPin(PINS.WIFI_SCAN, 1);
-    
-    // Pulse V11 off
-    setTimeout(() => escreverPin(PINS.WIFI_SCAN, 0), 1000);
-
-    // Fetch scanned list (V10) after 4 seconds
-    setTimeout(async () => {
-      const redes = await lerPin(PINS.WIFI_LIST);
-      if (redes && redes.toString().trim() !== '' && redes.toString() !== 'Nenhuma rede detetada') {
-        const arr = redes.toString().split(',');
+  
+  if (modoSimulacao) {
+    mostrarToast('A ler redes Wi-Fi (Simulado)...', 'info');
+    logTerminal('[WiFiManager] Modo Simulação: a ler SSIDs configurados...');
+    setTimeout(() => {
+      const redes = document.getElementById('sim-wifi-networks').value.trim();
+      if (redes) {
+        const arr = redes.split(',');
         populateWifiList(arr);
-        logTerminal(`[WiFiManager] Lista de redes recebida: ${redes}`);
-        mostrarToast('Redes Wi-Fi atualizadas!', 'ok');
-      } else {
-        logTerminal('[WiFiManager] Sem resposta de redes do hardware. Carregadas redes predefinidas.');
+        logTerminal(`[WiFiManager] Redes simuladas carregadas: ${redes}`);
+        mostrarToast('Redes simuladas carregadas!', 'ok');
       }
-    }, 4000);
+    }, 1200);
+    return;
   }
+
+  if (!connected) {
+    mostrarToast('ESP32 desconectado. Mostrando redes padrão.', 'error');
+    logTerminal('[WiFiManager] Hardware offline. Mostrando redes padrão para demonstração.');
+    populateWifiList(['REDE5-5G', 'REDE5-2G', 'VIVOFIBRA-A270', 'DIRECT-C1-HP Smart Tank 610']);
+    return;
+  }
+
+  mostrarToast('A ler redes Wi-Fi do ESP32...', 'info');
+  logTerminal('[WiFiManager] A solicitar escaneamento de redes ao ESP32...');
+  
+  // Trigger wifi scan (V11)
+  await escreverPin(PINS.WIFI_SCAN, 1);
+  
+  // Pulse V11 off
+  setTimeout(() => escreverPin(PINS.WIFI_SCAN, 0), 1000);
+
+  // Fetch scanned list (V10) after 4 seconds
+  setTimeout(async () => {
+    const redes = await lerPin(PINS.WIFI_LIST);
+    if (redes && redes.toString().trim() !== '' && redes.toString() !== 'Nenhuma rede detetada') {
+      const arr = redes.toString().split(',');
+      populateWifiList(arr);
+      logTerminal(`[WiFiManager] Lista de redes recebida: ${redes}`);
+      mostrarToast('Redes Wi-Fi atualizadas!', 'ok');
+    } else {
+      logTerminal('[WiFiManager] Sem resposta de redes do hardware. Mostrando redes padrão.');
+      populateWifiList(['REDE5-5G', 'REDE5-2G', 'VIVOFIBRA-A270', 'DIRECT-C1-HP Smart Tank 610']);
+    }
+  }, 4000);
 }
 
 function populateWifiList(arr) {
