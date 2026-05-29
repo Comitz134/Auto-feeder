@@ -3,184 +3,276 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smart Pet Feeder | Xiaomi Style</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Xiaomi Smart Pet Food Feeder 2</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --bg-top: #ffe8cd;
-    --bg-mid: #fff5e8;
-    --bg-bottom: #f5f5f7;
+    --bg-top: #ffdfb9;
+    --bg-mid: #fff8ef;
+    --bg-bottom: #fafafc;
     --card-bg: #ffffff;
-    --text-main: #333333;
-    --text-sub: #8c8c8e;
-    --accent-orange: #ff9d00;
+    --text-main: #2c2c2c;
+    --text-sub: #8f8f92;
+    --accent-orange: #ff9300;
+    --accent-orange-hover: #e08200;
     --accent-orange-light: #fff2e0;
-    --accent-blue: #00aaff;
-    --accent-blue-light: #e0f4ff;
-    --font-sans: 'Inter', -apple-system, sans-serif;
+    --accent-blue: #009dff;
+    --accent-blue-hover: #0082d6;
+    --accent-blue-light: #e0f3ff;
+    --accent-red: #ff3b30;
+    --border-color: #f0f0f2;
     --radius-xl: 28px;
     --radius-lg: 20px;
     --radius-md: 14px;
-    --transition: all 0.3s ease;
+    --transition: all 0.25s ease;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 30%, var(--bg-bottom) 100%);
+    background-color: #f1f3f7;
     color: var(--text-main);
-    font-family: var(--font-sans);
+    font-family: 'Outfit', -apple-system, sans-serif;
     min-height: 100vh;
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  /* XIAOMI GRID LAYOUT */
-  .dashboard-wrapper {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 32px 24px 80px;
-  }
-
-  /* TOP HEADER (App Style) */
-  .app-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 40px;
-    color: #4a4a4a;
+    justify-content: center;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
-  .app-header-title {
+
+  /* DEVICE CONTAINER FOR LAPTOP VIEWPORTS */
+  .app-viewport {
+    width: 100%;
+    max-width: 412px;
+    height: 100vh;
+    min-height: 100vh;
+    background-color: var(--bg-bottom);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 0 30px rgba(0,0,0,0.08);
+  }
+
+  @media (min-width: 480px) {
+    .app-viewport {
+      height: 846px;
+      min-height: 846px;
+      border-radius: 40px;
+      border: 10px solid #1a1a1a;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+      margin: 20px auto;
+    }
+  }
+
+  /* SCREEN NAVIGATION */
+  .app-screen {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow-y: hidden;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+  }
+  .app-screen.active {
+    display: flex;
+    opacity: 1;
+    z-index: 10;
+  }
+
+  /* HEADERS */
+  .screen-header {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    background: transparent;
+    z-index: 20;
+    flex-shrink: 0;
+  }
+  .header-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: var(--transition);
+  }
+  .header-btn:active {
+    background: rgba(0,0,0,0.05);
+  }
+  .header-title {
     text-align: center;
     flex-grow: 1;
   }
-  .app-header-title h1 {
-    font-size: 18px;
+  .header-title h2 {
+    font-size: 16px;
     font-weight: 600;
-    color: #333;
+    color: var(--text-main);
   }
-  .app-header-title p {
-    font-size: 12px;
+  .status-badge {
+    font-size: 11px;
     color: var(--text-sub);
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
     gap: 4px;
+    margin-top: 2px;
+  }
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-sub);
+    display: inline-block;
+  }
+  .status-dot.online { background: #34c759; box-shadow: 0 0 6px #34c759; }
+  .status-dot.offline { background: var(--accent-red); box-shadow: 0 0 6px var(--accent-red); }
+  .status-dot.connecting { background: var(--accent-orange); box-shadow: 0 0 6px var(--accent-orange); }
+  .status-dot.simulacao { background: #af52de; box-shadow: 0 0 6px #af52de; }
+
+  /* CONTENT WRAPPERS */
+  .screen-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 0 20px 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .screen-content.scrollable {
+    overflow-y: auto;
+  }
+
+  /* HOME GRADIENT VIEWPORT */
+  .hero-section {
+    background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 65%, var(--bg-bottom) 100%);
+    padding: 24px 24px 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-shrink: 0;
+  }
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+  }
+  .hero-amount {
+    font-size: 60px;
+    font-weight: 300;
+    color: var(--text-main);
+    line-height: 1.1;
+    display: flex;
+    align-items: baseline;
+  }
+  .hero-amount .unit {
+    font-size: 20px;
+    font-weight: 500;
+    margin-left: 2px;
+    position: relative;
+    top: -4px;
+  }
+  .hero-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-main);
     margin-top: 4px;
   }
-  .app-icon-btn {
-    background: transparent;
-    border: none;
-    color: #4a4a4a;
-    cursor: pointer;
-  }
-
-  /* GRID STRUCTURE */
-  .masonry-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 24px;
-    align-items: start;
-  }
-
-  /* CARDS */
-  .card {
-    background: var(--card-bg);
-    border-radius: var(--radius-xl);
-    padding: 24px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.02);
-    margin-bottom: 24px;
-  }
-  
-  .card-flat {
-    background: transparent;
-    box-shadow: none;
-    padding: 0;
-  }
-
-  /* HERO WIDGETS (Food / Water Today) */
-  .hero-widget {
-    position: relative;
-    padding: 10px 10px 40px 20px;
-    margin-bottom: 20px;
-  }
-  .hero-value {
-    font-size: 64px;
-    font-weight: 300;
-    color: #333;
-    line-height: 1;
-    margin-bottom: 12px;
-    display: flex;
-    align-items:baseline;
-  }
-  .hero-value .unit {
-    font-size: 24px;
-    font-weight: 500;
-    margin-left: 4px;
-  }
-  .hero-labels p {
-    font-size: 13px;
+  .hero-sublabel {
+    font-size: 11px;
     color: var(--text-sub);
-    margin-bottom: 6px;
+    margin-top: 2px;
   }
-  .hero-mascot {
-    position: absolute;
-    right: 20px;
-    bottom: 20px;
-    width: 120px;
-    height: 120px;
-    background: var(--accent-orange);
-    border-radius: 40px 40px 20px 20px;
+  .hero-right {
+    width: 130px;
+    height: 130px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 40px;
   }
-  .hero-mascot.water {
-    background: var(--accent-blue);
-    border-radius: 50%;
+  .mascot-svg {
+    width: 100%;
+    height: 100%;
   }
 
-  /* XIAOMI FLAT ROW BOWL CARDS */
-  .bowl-row-card {
+  /* CARDS SYSTEM */
+  .app-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-xl);
+    padding: 20px;
+    box-shadow: 0 2px 14px rgba(0,0,0,0.015);
     display: flex;
+    flex-direction: column;
+  }
+  .app-card.padding-lg {
+    padding: 24px;
+  }
+  .app-card.shadow-sm {
+    box-shadow: 0 1px 8px rgba(0,0,0,0.01);
+  }
+  .app-card.bowl-card, .app-card.water-card {
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    background: var(--card-bg);
     border-radius: var(--radius-lg);
-    padding: 20px 24px;
-    margin-bottom: 16px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.02);
   }
-  .bowl-info-left {
+  .card-left {
     display: flex;
     align-items: center;
     gap: 16px;
   }
-  .bowl-icon {
-    width: 40px;
-    height: 40px;
-    background: #f7f7f8;
-    border-radius: 12px;
+  .bowl-icon-circle {
+    width: 44px;
+    height: 44px;
+    background: #f7f7f9;
+    color: #555557;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #666;
+    transition: var(--transition);
   }
-  .bowl-text h3 {
+  .bowl-icon-circle.blue {
+    background: #f0f7ff;
+    color: var(--accent-blue);
+  }
+  .card-details h3 {
     font-size: 18px;
     font-weight: 600;
-    color: #333;
+    color: var(--text-main);
   }
-  .bowl-text p {
-    font-size: 12px;
+  .card-details p {
+    font-size: 11px;
     color: var(--text-sub);
-    margin-top: 4px;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
-  .x-btn {
-    background: var(--accent-orange-light);
-    color: var(--accent-orange);
+  .icon-info {
+    width: 12px;
+    height: 12px;
+    color: #ccc;
+    cursor: pointer;
+  }
+
+  /* BUTTONS styling matching Xiaomi app */
+  .btn-orange-pill {
+    background: var(--accent-orange);
+    color: #ffffff;
     border: none;
     border-radius: 99px;
     padding: 10px 24px;
@@ -189,415 +281,1345 @@
     cursor: pointer;
     transition: var(--transition);
   }
-  .x-btn:hover { background: #ffe4c4; }
-  .x-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  
-  .x-btn-blue {
+  .btn-orange-pill:hover { background: var(--accent-orange-hover); }
+  .btn-orange-pill:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-orange-pill.full-width {
+    width: 100%;
+    padding: 16px;
+    font-size: 15px;
+  }
+
+  .btn-blue-pill {
     background: var(--accent-blue-light);
     color: var(--accent-blue);
-  }
-  .x-btn-blue:hover { background: #cceeff; }
-
-  /* TIMELINE LIST (Xiaomi style) */
-  .timeline-card h2 {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 24px;
-    color: #333;
-  }
-  .xiaomi-timeline {
-    list-style: none;
-    padding-left: 8px;
-    border-left: 2px solid #f0f0f0;
-    position: relative;
-    max-height: 400px;
-    overflow-y: auto;
-  }
-  .xiaomi-timeline-item {
-    position: relative;
-    padding-left: 24px;
-    padding-bottom: 24px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-  .xiaomi-timeline-item::before {
-    content: '';
-    position: absolute;
-    left: -4px;
-    top: 5px;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #d4d4d4;
-  }
-  .x-time {
-    font-size: 14px;
-    font-weight: 600;
-    color: #333;
-    min-width: 48px;
-  }
-  .x-desc {
-    font-size: 14px;
-    color: var(--text-sub);
-  }
-  .x-desc strong {
-    color: #333;
-  }
-
-  /* AUTOMATIC SCHEDULES */
-  .schedule-card h2 {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 20px;
-    color: #333;
-  }
-  .schedule-illustration {
-    width: 100%;
-    height: 120px;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="120" viewBox="0 0 400 120"><rect x="50" y="40" width="60" height="80" rx="4" fill="none" stroke="%23ccc" stroke-width="2"/><path d="M200 60 h150 v60 h-150 z" fill="none" stroke="%23ccc" stroke-width="2"/><circle cx="280" cy="50" r="15" fill="%23333"/><path d="M295 50 c10 -10, 30 10, 40 0" fill="none" stroke="%23333" stroke-width="3"/></svg>');
-    background-size: cover;
-    background-position: center;
-    margin-bottom: 24px;
-  }
-  .schedule-toggle-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-  }
-  .s-texts h3 { font-size: 15px; font-weight: 600; color:#333; }
-  .s-texts p { font-size: 12px; color:var(--text-sub); margin-top:4px; max-width: 80%; line-height: 1.4; }
-  
-  .s-stats {
-    display: flex;
-    gap: 40px;
-    background: #fafafc;
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 24px;
-  }
-  .s-stat-item h4 { font-size: 24px; font-weight: 600; color: #333; display: flex; align-items:baseline; gap:4px; }
-  .s-stat-item h4 span { font-size: 12px; font-weight: 500; }
-  .s-stat-item p { font-size: 11px; color: var(--text-sub); margin-top: 4px; }
-
-  .x-time-input {
-    background: transparent;
     border: none;
-    font-size: 16px;
+    border-radius: 99px;
+    padding: 10px 24px;
+    font-size: 13px;
     font-weight: 600;
-    color: #333;
-    outline: none;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .btn-blue-pill:hover { background: #cce7ff; }
+  .btn-blue-pill.active {
+    background: var(--accent-blue);
+    color: #ffffff;
   }
 
-  .add-schedule-btn {
-    width: 100%;
-    background: #f5f5f5;
+  .btn-beige-pill {
+    background: #f4f4f6;
+    color: var(--text-main);
     border: none;
     border-radius: 99px;
     padding: 16px;
     font-size: 14px;
     font-weight: 600;
-    color: #333;
     cursor: pointer;
+    transition: var(--transition);
+    text-align: center;
+  }
+  .btn-beige-pill:hover { background: #ececee; }
+
+  /* TIMELINE VIEW (Today's feed log) */
+  .timeline-card {
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .timeline-card:active {
+    transform: scale(0.99);
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .card-header h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+  .chevron-arrow {
+    width: 18px;
+    height: 18px;
+    color: #ccc;
+  }
+  .feed-log-list {
+    list-style: none;
+    position: relative;
+    padding-left: 20px;
+  }
+  .feed-log-list::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    background: repeating-linear-gradient(to bottom, #e4e4e6, #e4e4e6 4px, transparent 4px, transparent 8px);
+  }
+  .feed-log-item {
+    position: relative;
+    padding-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .feed-log-item:last-child {
+    padding-bottom: 0;
+  }
+  .feed-log-item::before {
+    content: '';
+    position: absolute;
+    left: -19px;
+    top: 6px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #c7c7cc;
+  }
+  .feed-log-item.scheduled::before {
+    background: var(--accent-orange);
+  }
+  .log-time {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-main);
+    min-width: 44px;
+  }
+  .log-text {
+    font-size: 13px;
+    color: var(--text-sub);
+    flex-grow: 1;
+  }
+  .log-text strong {
+    color: var(--text-main);
+  }
+  .log-subtext {
+    font-size: 11px;
+    color: var(--text-sub);
+    display: block;
+    margin-top: 1px;
+  }
+
+  /* AUTOMATIC SCHEDULE ROW FOOTER */
+  .schedule-footer-card {
+    flex-direction: row !important;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+  }
+  .schedule-footer-card .icon-letter {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--accent-orange);
+    background: var(--accent-orange-light);
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 4px;
+  }
+  .schedule-footer-card span {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .schedule-footer-card .action-text {
+    color: var(--text-sub);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .chevron-arrow.inline {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* SWITCH TOGGLE */
+  .switch-toggle {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+  .switch-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .slider-round {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #e5e5ea;
+    transition: .3s;
+    border-radius: 24px;
+  }
+  .slider-round:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  input:checked + .slider-round {
+    background-color: var(--accent-orange);
+  }
+  input:checked + .slider-round:before {
+    transform: translateX(20px);
+  }
+
+  /* SCHEDULE SCREEN STYLING */
+  .schedule-illus-container {
+    background: transparent;
+    padding: 10px 0;
+    display: flex;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .illus-svg {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .stat-card {
+    background: #f6f6f8;
+    border-radius: var(--radius-lg);
+    padding: 16px;
+  }
+  .stat-value {
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--text-main);
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+  .stat-unit {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-sub);
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-sub);
+    margin-top: 4px;
+  }
+  .timeline-interactive-card {
+    position: relative;
+    padding-left: 32px !important;
+  }
+  .vertical-timeline-line {
+    position: absolute;
+    left: 20px;
+    top: 30px;
+    bottom: 30px;
+    width: 2px;
+    background: #e4e4e6;
+  }
+  .schedule-item {
+    position: relative;
+    padding: 12px 0;
+    display: flex;
+    align-items: center;
+  }
+  .schedule-item .timeline-dot {
+    position: absolute;
+    left: -16px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent-orange);
+    border: 2px solid var(--card-bg);
+    transform: translateX(-3px);
+  }
+  .schedule-item-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  .time-picker-input {
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-main);
+    outline: none;
+    font-family: 'Outfit', sans-serif;
+  }
+  .schedule-details {
+    font-size: 13px;
+    color: var(--text-sub);
+  }
+  .schedule-details strong {
+    color: var(--text-main);
+  }
+
+  /* STATISTICS SCREEN */
+  .pill-tabs-container {
+    background: #e8e8ed;
+    border-radius: 99px;
+    padding: 2px;
+    display: flex;
+    margin-bottom: 8px;
+  }
+  .pill-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-radius: 99px;
+    padding: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-sub);
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .pill-tab.active {
+    background: #ffffff;
+    color: var(--text-main);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .date-selector-row {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 0;
+    cursor: pointer;
+  }
+  .inline-arrow {
+    width: 14px;
+    height: 14px;
+    color: var(--text-sub);
+  }
+  .stats-metric-group {
+    background: var(--card-bg);
+    border-radius: var(--radius-xl);
+    padding: 20px;
+    box-shadow: 0 2px 14px rgba(0,0,0,0.01);
+  }
+  .metric-value {
+    font-size: 32px;
+    font-weight: 300;
+    color: var(--text-main);
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+  }
+  .metric-unit {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-sub);
+  }
+  .metric-label {
+    font-size: 11px;
+    color: var(--text-sub);
+    margin-top: 2px;
+    margin-bottom: 20px;
+  }
+  .svg-chart-container {
+    width: 100%;
+    height: 130px;
+  }
+  .chart-svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* WEIGHT CALIBRATION VIEW */
+  .calibration-illus-container {
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+  }
+  .calibration-svg {
+    width: 100%;
+    max-width: 260px;
+    height: auto;
+  }
+  .calibration-text-section {
+    text-align: center;
+    padding: 0 24px;
+    margin-top: 16px;
+  }
+  .step-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+  .step-desc {
+    font-size: 14px;
+    color: var(--text-sub);
+    margin-top: 8px;
+  }
+  .calibration-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 0 20px;
+  }
+  .page-indicator {
+    display: flex;
+    gap: 8px;
+  }
+  .page-indicator .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #e4e4e6;
+  }
+  .page-indicator .dot.active {
+    background: var(--accent-orange);
+    width: 16px;
+    border-radius: 3px;
+  }
+  .weight-display-calibration {
+    font-size: 36px;
+    font-weight: 300;
+    color: var(--text-main);
+  }
+
+  /* WI-FI SETTINGS VIEW */
+  .wifi-main-title {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--text-main);
+  }
+  .wifi-subtitle {
+    font-size: 13px;
+    color: var(--text-sub);
+    line-height: 1.4;
+    margin-top: 6px;
+  }
+  .wifi-select-input-card {
+    background: #e8e8ed;
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+  }
+  .wifi-input-label {
+    font-size: 15px;
+    color: var(--text-main);
+    font-weight: 500;
+  }
+  .wifi-action-select-text {
+    font-size: 13px;
+    color: var(--accent-blue);
+    font-weight: 500;
+  }
+  .wifi-select-input-card.password-card {
+    cursor: text;
+  }
+  .wifi-password-field {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 15px;
+    color: var(--text-main);
+    width: 90%;
+    font-family: inherit;
+  }
+  .icon-toggle-pass {
+    width: 20px;
+    height: 20px;
+    color: var(--text-sub);
+    cursor: pointer;
+  }
+
+  /* 3D VIEWER VIEW */
+  .model-canvas-frame {
+    flex-grow: 1;
+    background: #f6f6f8;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    margin: 16px 0;
+  }
+
+  /* BOTTOM SHEET SYSTEM */
+  .bottom-sheet-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    display: none;
+    justify-content: flex-end;
+    flex-direction: column;
+  }
+  .bottom-sheet-overlay.active {
+    display: flex;
+  }
+  .bottom-sheet-content {
+    background: #ffffff;
+    border-radius: 28px 28px 0 0;
+    max-height: 85%;
+    overflow-y: auto;
+    padding: 24px;
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  .bottom-sheet-content.list-sheet {
+    padding: 20px 0;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .drag-handle {
+    width: 36px;
+    height: 4px;
+    background: #e4e4e6;
+    border-radius: 2px;
+    align-self: center;
+    margin-bottom: 16px;
+  }
+  .sheet-title {
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--text-main);
+  }
+  .sheet-menu-list {
+    display: flex;
+    flex-direction: column;
+  }
+  .sheet-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 8px;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: var(--transition);
+  }
+  .sheet-menu-item:active {
+    background: #f4f4f6;
+  }
+  .sheet-menu-item i {
+    width: 20px;
+    height: 20px;
+    color: #555557;
+  }
+  .sheet-menu-item span {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-main);
+  }
+  .sheet-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 16px 0;
+  }
+
+  /* BOTTOM SHEET CONFIG INPUTS */
+  .sheet-settings-group h4, .sheet-simulation-group h4 {
+    font-size: 12px;
+    text-transform: uppercase;
+    color: var(--text-sub);
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    padding-left: 8px;
+  }
+  .input-inline-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .input-inline-row input {
+    flex: 1;
+    background: #f4f4f6;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 12px;
+    font-family: inherit;
+    outline: none;
+  }
+  .btn-sim-toggle {
+    background: var(--accent-orange-light);
+    color: var(--accent-orange);
+    border: none;
+    border-radius: 99px;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-sim-toggle.active {
+    background: var(--accent-red);
+    color: #fff;
+  }
+  
+  /* SIMULATION CONTROLS PANEL */
+  .simulation-sliders {
+    margin-top: 16px;
+    background: #fafafb;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .slider-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .slider-row label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-main);
+    display: flex;
+    justify-content: space-between;
+  }
+  .slider-row input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent-orange);
+  }
+
+  /* WIFI SELECTION SHEET CONTENTS */
+  .wifi-list-header {
+    font-size: 12px;
+    color: var(--text-sub);
+    padding: 12px 24px;
+  }
+  .wifi-list-header.bg-gray {
+    background: #fafafa;
     margin-top: 12px;
   }
-  .add-schedule-btn:hover { background: #ececec; }
+  .wifi-list-items {
+    display: flex;
+    flex-direction: column;
+  }
+  .wifi-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    font-size: 15px;
+    color: var(--text-main);
+  }
+  .wifi-item:active {
+    background: #f4f4f6;
+  }
+  .wifi-item i {
+    width: 18px;
+    height: 18px;
+    color: var(--text-sub);
+  }
+  .wifi-list-items.disabled .wifi-item {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 
-  /* CONN SETTINGS (Adapted for Xiaomi) */
-  .input-row input {
-    background: #f5f5f5;
-    border: none;
+  /* TOAST */
+  .toast-popup {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: rgba(30, 30, 30, 0.95);
+    color: #ffffff;
+    padding: 12px 20px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 2000;
+    opacity: 0;
+    transition: transform 0.30s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.25s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    pointer-events: none;
+  }
+  .toast-popup.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+  .toast-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toast-content i {
+    width: 16px;
+    height: 16px;
+  }
+  .toast-popup.error {
+    background: rgba(255, 59, 48, 0.95);
+  }
+  .toast-popup.ok {
+    background: rgba(52, 199, 89, 0.95);
+  }
+
+  /* DEVELOPER LOG PANEL */
+  .dev-log-panel {
+    background: #1e1e1e;
     border-radius: 12px;
-    padding: 16px;
-    width: 100%;
-    margin-bottom: 12px;
-    font-family: var(--font-sans);
+    padding: 12px;
+    font-family: monospace;
+    font-size: 10px;
+    color: #a9ffaf;
+    max-height: 120px;
+    overflow-y: auto;
+    margin-top: 12px;
   }
-  .status-pulse {
-    width: 8px; height: 8px; border-radius: 50%; display: inline-block;
-  }
-  .status-pulse.online { background: #34c759; }
-  .status-pulse.offline { background: #ff3b30; }
-  .status-pulse.connecting { background: var(--accent-orange); }
-
-  /* 3D MODEL TOGGLE */
-  .model-card-content {
-    height: 350px;
-    background: #fafafc;
-    border-radius: 16px;
-    margin-top: 16px;
-    overflow: hidden;
+  .dev-log-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 6px;
+    font-weight: bold;
   }
 </style>
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-<div class="dashboard-wrapper">
+<div class="app-viewport">
   
-  <!-- APP HEADER -->
-  <header class="app-header">
-    <button class="app-icon-btn"><i data-lucide="arrow-left"></i></button>
-    <div class="app-header-title">
-      <h1>Smart Pet Feeder 2</h1>
-      <p><span class="status-pulse" id="dot"></span> <span id="conn-text">Disconnected</span></p>
-    </div>
-    <button class="app-icon-btn" onclick="document.getElementById('settings-modal').style.display='block'"><i data-lucide="more-vertical"></i></button>
-  </header>
-
-  <div class="masonry-grid">
-    
-    <!-- COLUMN 1 -->
-    <div class="col">
-      <!-- HERO FOOD -->
-      <div class="card-flat hero-widget">
-        <div class="hero-value" id="peso-val">--<span class="unit">g</span></div>
-        <div class="hero-labels">
-          <p>Food in bowl</p>
-          <p id="nivel-val">Reservoir level: --%</p>
-        </div>
-        <div class="hero-mascot">🐱</div>
+  <!-- SCREEN 1: DASHBOARD -->
+  <div id="screen-dashboard" class="app-screen active">
+    <!-- Header -->
+    <header class="screen-header">
+      <button class="header-btn" onclick="mostrarToast('Xiaomi Smart Pet Feeder 2')"><i data-lucide="chevron-left"></i></button>
+      <div class="header-title">
+        <h2>Smart Pet Feeder 2</h2>
+        <div class="status-badge"><span class="status-dot offline" id="dot"></span> <span id="conn-text">Disconnected</span></div>
       </div>
+      <button class="header-btn" onclick="openSettingsSheet()"><i data-lucide="more-vertical"></i></button>
+    </header>
 
-      <!-- BOWL ACTIONS (Food) -->
-      <div class="bowl-row-card">
-        <div class="bowl-info-left">
-          <div class="bowl-icon"><i data-lucide="inbox"></i></div>
-          <div class="bowl-text">
+    <!-- Hero display warm gradient card -->
+    <div class="hero-section" onclick="switchScreen('screen-statistics')">
+      <div class="hero-left">
+        <div class="hero-amount" id="peso-val-display">--<span class="unit">g</span></div>
+        <div class="hero-label">Food eaten today</div>
+        <div class="hero-sublabel" id="progress-val-display">Feeding schedule progress --%</div>
+      </div>
+      <div class="hero-right">
+        <!-- Orange Mascot SVG -->
+        <svg class="mascot-svg" viewBox="0 0 150 150">
+          <!-- Mascot body -->
+          <path d="M 45,75 C 45,45 60,30 85,30 C 110,30 125,45 125,75 C 125,105 110,115 85,115 C 60,115 45,105 45,75 Z" fill="#ff9300" />
+          <!-- Mascot cheeks -->
+          <ellipse cx="65" cy="80" rx="6" ry="4" fill="#ffa435" />
+          <ellipse cx="105" cy="80" rx="6" ry="4" fill="#ffa435" />
+          <!-- Mascot eyes -->
+          <circle cx="75" cy="74" r="3" fill="#2d2d2d" />
+          <circle cx="95" cy="74" r="3" fill="#2d2d2d" />
+          <!-- Mascot mouth -->
+          <path d="M 82,80 Q 85,82 88,80 Q 91,82 94,80" fill="none" stroke="#2d2d2d" stroke-width="2" stroke-linecap="round" />
+          
+          <!-- Yellow chick next to mascot -->
+          <circle cx="26" cy="100" r="12" fill="#ffe02e" />
+          <circle cx="30" cy="97" r="1.5" fill="#2d2d2d" />
+          <polygon points="34,96 39,98 34,100" fill="#ff8c00" />
+          <path d="M 22,112 L 20,117 M 29,112 L 31,117" stroke="#ff8c00" stroke-width="1.5" stroke-linecap="round" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Content cards wrapper -->
+    <div class="screen-content">
+      <!-- Food Bowl Card -->
+      <div class="app-card bowl-card">
+        <div class="card-left">
+          <div class="bowl-icon-circle"><i data-lucide="scale"></i></div>
+          <div class="card-details">
             <h3 id="food-left-txt">-- g</h3>
-            <p>Food left in the bowl <i data-lucide="info" style="width:12px;height:12px;vertical-align:middle;"></i></p>
+            <p>Food left in the bowl <i data-lucide="info" class="icon-info" onclick="mostrarToast('Peso atual na balança (g)', 'info'); event.stopPropagation();"></i></p>
           </div>
         </div>
-        <button class="x-btn" id="btn-alimentar" onclick="darComida()">Dispense</button>
+        <button class="btn-orange-pill" id="btn-alimentar" onclick="darComida()">Dispense</button>
       </div>
 
-      <!-- BOWL ACTIONS (Water) -->
-      <div class="bowl-row-card">
-        <div class="bowl-info-left">
-          <div class="bowl-icon"><i data-lucide="droplet"></i></div>
-          <div class="bowl-text">
+      <!-- Water Bowl Card (Integration of Water Level & Pump) -->
+      <div class="app-card water-card">
+        <div class="card-left">
+          <div class="bowl-icon-circle blue"><i data-lucide="droplet"></i></div>
+          <div class="card-details">
             <h3 id="agua-label">--</h3>
             <p id="dep-agua-val">Reservoir: --%</p>
           </div>
         </div>
-        <button class="x-btn x-btn-blue" id="btn-bomba" onclick="toggleBomba()">Pump</button>
+        <button class="btn-blue-pill" id="btn-bomba" onclick="toggleBomba()">Pump</button>
       </div>
 
-      <!-- TIMELINE LOG -->
-      <div class="card timeline-card">
-        <h2>Today's feed log <i data-lucide="chevron-right" style="float:right;color:#ccc;width:18px;"></i></h2>
-        <ul class="xiaomi-timeline" id="historico-list">
-          <li class="xiaomi-timeline-item">
-            <span class="x-time">--:--</span>
-            <span class="x-desc">No logs yet</span>
+      <!-- Today's feed log list -->
+      <div class="app-card timeline-card" onclick="switchScreen('screen-statistics')">
+        <div class="card-header">
+          <h3>Today's feed log</h3>
+          <i data-lucide="chevron-right" class="chevron-arrow"></i>
+        </div>
+        <ul class="feed-log-list" id="historico-list">
+          <li class="feed-log-item">
+            <span class="log-time">--:--</span>
+            <div class="log-text">No consumption records loaded</div>
           </li>
         </ul>
       </div>
-    </div>
 
-    <!-- COLUMN 2 -->
-    <div class="col">
-      <!-- AUTOMATIC FEEDING SCHEDULE -->
-      <div class="card schedule-card">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <h2>Automatic feeding schedule</h2>
-          <i data-lucide="settings" style="color:#ccc;width:18px;"></i>
+      <!-- Automatic feeding schedule footer card -->
+      <div class="app-card schedule-footer-card" onclick="switchScreen('screen-schedule')">
+        <div class="card-left">
+          <span class="icon-letter">A</span>
+          <span>Automatic feeding schedule</span>
+        </div>
+        <span class="action-text"><span id="sched-footer-status">Enable</span> <i data-lucide="chevron-right" class="chevron-arrow inline"></i></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: AUTOMATIC FEEDING SCHEDULE -->
+  <div id="screen-schedule" class="app-screen">
+    <header class="screen-header">
+      <button class="header-btn" onclick="switchScreen('screen-dashboard')"><i data-lucide="chevron-left"></i></button>
+      <div class="header-title">
+        <h2>Automatic feeding schedule</h2>
+      </div>
+      <button class="header-btn" style="opacity: 0;"><i data-lucide="more-vertical"></i></button>
+    </header>
+    
+    <div class="screen-content scrollable">
+      <!-- Outlined Feeder Sofa Cat Illustration -->
+      <div class="schedule-illus-container">
+        <svg viewBox="0 0 400 120" class="illus-svg">
+          <line x1="20" y1="110" x2="380" y2="110" stroke="#e6e6e9" stroke-width="1.5" stroke-linecap="round"/>
+          <rect x="60" y="40" width="36" height="70" rx="3" fill="none" stroke="#b8b8bc" stroke-width="1.5"/>
+          <line x1="60" y1="52" x2="96" y2="52" stroke="#b8b8bc" stroke-width="1.5"/>
+          <circle cx="78" cy="72" r="3.5" fill="none" stroke="#b8b8bc" stroke-width="1.5"/>
+          <circle cx="78" cy="82" r="1.5" fill="none" stroke="#b8b8bc" stroke-width="1.5"/>
+          <path d="M 96,98 L 108,98 L 110,110 L 96,110 Z" fill="none" stroke="#b8b8bc" stroke-width="1.5"/>
+          <path d="M 210,65 L 210,100 L 330,100 L 330,65 Z" fill="none" stroke="#b8b8bc" stroke-width="1.5"/>
+          <path d="M 225,50 L 225,100 M 315,50 L 315,100 M 210,65 L 330,65 M 225,50 L 315,50" stroke="#b8b8bc" stroke-width="1.5"/>
+          <line x1="216" y1="100" x2="216" y2="110" stroke="#b8b8bc" stroke-width="1.5"/>
+          <line x1="324" y1="100" x2="324" y2="110" stroke="#b8b8bc" stroke-width="1.5"/>
+          <path d="M 260,65 C 263,55 273,55 276,65 C 280,60 292,67 288,78 L 255,78 Z" fill="#333333"/>
+          <path d="M 285,74 C 293,74 296,65 292,60" fill="none" stroke="#333333" stroke-width="1.8" stroke-linecap="round"/>
+          <circle cx="108" cy="40" r="10" fill="none" stroke="#b8b8bc" stroke-width="1.5" />
+          <path d="M 108,34 L 108,40 L 112,40" fill="none" stroke="#b8b8bc" stroke-width="1.5" stroke-linecap="round" />
+        </svg>
+      </div>
+
+      <!-- Automatic feeding toggle card -->
+      <div class="app-card shadow-sm padding-lg">
+        <div class="flex-row justify-between align-center" style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h4 style="font-size: 15px; font-weight: 600;">Automatic feeding</h4>
+            <p style="font-size: 11px; color: var(--text-sub); margin-top: 4px; line-height: 1.4; max-width: 85%;">Once enabled, food will be dispensed automatically every day according to the set schedule.</p>
+          </div>
+          <label class="switch-toggle">
+            <input type="checkbox" id="auto-feeding-toggle" checked onchange="toggleAutoFeeding(this)">
+            <span class="slider-round"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Statistics grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="portions-count">4 <span class="stat-unit">Portions</span></div>
+          <div class="stat-label">Amount to feed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="meals-count">2 <span class="stat-unit">Meals</span></div>
+          <div class="stat-label">Number of meals</div>
+        </div>
+      </div>
+
+      <!-- Schedule Timeline list -->
+      <div class="app-card timeline-interactive-card">
+        <div class="vertical-timeline-line"></div>
+        <div class="schedule-item">
+          <span class="timeline-dot"></span>
+          <div class="schedule-item-content">
+            <input type="time" id="horario1" value="07:00" class="time-picker-input" onchange="atualizarSchedulesCount()">
+            <span class="schedule-details">Portions dispensed: <strong id="portion1-val">2</strong></span>
+          </div>
+        </div>
+        <div class="schedule-item">
+          <span class="timeline-dot"></span>
+          <div class="schedule-item-content">
+            <input type="time" id="horario2" value="19:00" class="time-picker-input" onchange="atualizarSchedulesCount()">
+            <span class="schedule-details">Portions dispensed: <strong id="portion2-val">2</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Save Button -->
+      <button class="btn-beige-pill" onclick="salvarHorarios()">Save schedules to ESP32</button>
+      
+      <!-- Option Card (Low food consumption notification) -->
+      <div class="app-card shadow-sm padding-lg">
+        <div class="flex-row justify-between align-center" style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h4 style="font-size: 15px; font-weight: 600;">Low food consumption notification</h4>
+            <p style="font-size: 11px; color: var(--text-sub); margin-top: 4px; line-height: 1.4; max-width: 85%;">Once enabled, you'll be sent a notification if your pet ate less than the scheduled amount the previous day.</p>
+          </div>
+          <label class="switch-toggle">
+            <input type="checkbox" id="low-food-notification">
+            <span class="slider-round"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: STATISTICS -->
+  <div id="screen-statistics" class="app-screen">
+    <header class="screen-header">
+      <button class="header-btn" onclick="switchScreen('screen-dashboard')"><i data-lucide="chevron-left"></i></button>
+      <div class="header-title">
+        <h2>Meal Consumption Data Statistics</h2>
+      </div>
+      <button class="header-btn" style="opacity:0;"><i data-lucide="more-vertical"></i></button>
+    </header>
+    
+    <div class="screen-content scrollable">
+      <!-- Pill Tabs -->
+      <div class="pill-tabs-container">
+        <button class="pill-tab active" id="tab-day" onclick="switchStatsTab('day')">Day</button>
+        <button class="pill-tab" id="tab-week" onclick="switchStatsTab('week')">Week</button>
+      </div>
+
+      <!-- Date Dropdown -->
+      <div class="date-selector-row">
+        <span id="stats-current-date">05/29</span> <i data-lucide="chevron-down" class="inline-arrow"></i>
+      </div>
+
+      <!-- Metric 1: Total Amount Eaten -->
+      <div class="stats-metric-group">
+        <div class="metric-value" id="stats-amount-eaten">32<span class="metric-unit">g</span></div>
+        <div class="metric-label">Total amount eaten (g)</div>
+        
+        <!-- SVG Chart for Food Eaten -->
+        <div class="svg-chart-container" id="chart-food-eaten">
+          <!-- Dynamically populated SVG -->
+        </div>
+      </div>
+
+      <!-- Metric 2: Total Portions Dispensed -->
+      <div class="stats-metric-group" style="margin-top: 16px;">
+        <div class="metric-value" id="stats-portions-dispensed">2<span class="metric-unit">Portions</span></div>
+        <div class="metric-label">Total portions dispensed</div>
+        
+        <!-- SVG Chart for Portions Dispensed -->
+        <div class="svg-chart-container" id="chart-portions-dispensed">
+          <!-- Dynamically populated SVG -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: WEIGHT CALIBRATION -->
+  <div id="screen-calibration" class="app-screen">
+    <header class="screen-header">
+      <button class="header-btn" onclick="closeCalibrationScreen()"><i data-lucide="chevron-left"></i></button>
+      <div class="header-title">
+        <h2>Weight calibration</h2>
+      </div>
+      <button class="header-btn" style="opacity:0;"><i data-lucide="more-vertical"></i></button>
+    </header>
+    
+    <div class="screen-content flex-col justify-between" style="padding-bottom: 32px; display: flex; flex-direction: column; justify-content: space-between;">
+      <!-- Main Content -->
+      <div class="calibration-main" style="flex-grow: 1;">
+        <!-- Feeder calibration illustration -->
+        <div class="calibration-illus-container">
+          <svg viewBox="0 0 300 200" class="calibration-svg">
+            <line x1="20" y1="160" x2="280" y2="160" stroke="#cccccc" stroke-width="1.5"/>
+            <rect x="120" y="30" width="60" height="110" rx="4" fill="none" stroke="#c0c0c0" stroke-width="2"/>
+            <line x1="120" y1="65" x2="180" y2="65" stroke="#c0c0c0" stroke-width="1.5"/>
+            <circle cx="150" cy="90" r="6" fill="none" stroke="#c0c0c0" stroke-width="1.5"/>
+            <circle cx="150" cy="110" r="3" fill="none" stroke="#c0c0c0" stroke-width="1.5"/>
+            <line x1="150" y1="40" x2="150" y2="55" stroke="#ff9300" stroke-width="2" stroke-linecap="round"/>
+            <path d="M 75,145 L 110,125 L 118,138 L 83,158 Z" fill="none" stroke="#c0c0c0" stroke-width="2"/>
+            <circle cx="55" cy="155" r="1.5" fill="#c0c0c0"/>
+            <circle cx="62" cy="158" r="1.5" fill="#c0c0c0"/>
+            <circle cx="68" cy="155" r="1.5" fill="#c0c0c0"/>
+          </svg>
+        </div>
+
+        <div class="calibration-text-section">
+          <h3 class="step-title" id="calibration-step-title">Step 1</h3>
+          <p class="step-desc" id="calibration-step-desc">Empty food bowl</p>
+        </div>
+      </div>
+
+      <!-- Calibration Status, Indicator, Action button -->
+      <div class="calibration-footer">
+        <div class="page-indicator">
+          <span class="dot active" id="cal-dot-1"></span>
+          <span class="dot" id="cal-dot-2"></span>
+          <span class="dot" id="cal-dot-3"></span>
         </div>
         
-        <div class="schedule-illustration"></div>
-
-        <div class="schedule-toggle-row">
-          <div class="s-texts">
-            <h3>Automatic feeding</h3>
-            <p>Once enabled, food will be dispensed automatically every day according to the set schedule.</p>
-          </div>
-          <!-- Toggle fake styling -->
-          <div style="width:44px;height:24px;background:#ff9d00;border-radius:12px;position:relative;">
-            <div style="width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;right:2px;top:2px;"></div>
-          </div>
-        </div>
-
-        <div class="s-stats">
-          <div class="s-stat-item">
-            <h4>4 <span>Portions</span></h4>
-            <p>Amount to feed</p>
-          </div>
-          <div class="s-stat-item">
-            <h4>2 <span>Meals</span></h4>
-            <p>Number of meals</p>
-          </div>
-        </div>
-
-        <ul class="xiaomi-timeline">
-          <li class="xiaomi-timeline-item">
-            <input type="time" id="horario1" value="08:00" class="x-time-input">
-            <span class="x-desc">Portions dispensed: <strong>2</strong></span>
-          </li>
-          <li class="xiaomi-timeline-item">
-            <input type="time" id="horario2" value="20:00" class="x-time-input">
-            <span class="x-desc">Portions dispensed: <strong>2</strong></span>
-          </li>
-        </ul>
-
-        <button class="add-schedule-btn" onclick="salvarHorarios()">Save schedules to ESP32</button>
-      </div>
-
-      <!-- 3D MODEL & CALIBRATION -->
-      <div class="card">
-        <div class="schedule-toggle-row" style="margin-bottom:0;">
-          <div class="s-texts">
-            <h3>Hardware 3D Viewer</h3>
-            <p>Interactive scale model of the PAP feeder.</p>
-          </div>
-          <button class="x-btn" id="toggle-3d-text" onclick="toggle3DModel()">Hide 3D Model</button>
-        </div>
-        <div class="model-card-content" id="model-card-content">
-          <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
-          <model-viewer
-            id="modelo3d"
-            src="PAPZINHA_scaled.glb"
-            alt="Dispensador Smart Pet Feeder"
-            camera-controls
-            shadow-intensity="1"
-            environment-image="neutral"
-            style="width: 100%; height: 100%; background: transparent;"
-          ></model-viewer>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="schedule-toggle-row" style="margin-bottom:0;">
-          <div class="s-texts">
-            <h3>Weight calibration</h3>
-            <p>Empty the food bowl before calibrating the scale.</p>
-          </div>
-          <button class="x-btn" onclick="realizarTara()"><i data-lucide="refresh-cw" id="tara-icon" style="width:14px;height:14px;margin-right:4px;vertical-align:middle;"></i> Calibrate</button>
-        </div>
+        <div class="weight-display-calibration" id="calibration-weight">-- g</div>
+        
+        <button class="btn-orange-pill full-width" id="btn-calibration-action" onclick="avancarCalibracao()">Next</button>
       </div>
     </div>
-
   </div>
-</div>
 
-<!-- HIDDEN SETTINGS MODAL FOR CONNECTION -->
-<div id="settings-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:100;">
-  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:100%; height:100%; background:#f5f5f7; display:flex; flex-direction:column;">
+  <!-- SCREEN 5: WI-FI SETTINGS -->
+  <div id="screen-wifi" class="app-screen">
+    <header class="screen-header">
+      <button class="header-btn" onclick="closeWifiScreen()"><i data-lucide="chevron-left"></i></button>
+      <div class="header-title">
+        <h2>Selecionar redes Wi-Fi</h2>
+      </div>
+      <button class="header-btn" style="opacity:0;"><i data-lucide="more-vertical"></i></button>
+    </header>
     
-    <!-- Top Header Like Screenshot -->
-    <div style="padding: 24px; display:flex; align-items:center;">
-      <button style="background:transparent; border:none; cursor:pointer;" onclick="document.getElementById('settings-modal').style.display='none';"><i data-lucide="chevron-left" style="width:24px;height:24px;color:#333;"></i></button>
-    </div>
+    <div class="screen-content flex-col justify-between" style="padding-bottom: 24px; display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="padding: 16px 0;">
+          <h1 class="wifi-main-title">Selecionar redes Wi-Fi</h1>
+          <p class="wifi-subtitle">Este dispositivo é compatível apenas com Wi-Fi de 2,4 GHz</p>
+        </div>
 
-    <!-- Titles -->
-    <div style="padding: 0 24px;">
-      <h1 style="font-size: 28px; font-weight: 500; color:#1d1d1f; margin-bottom:8px;">Selecionar redes Wi-Fi</h1>
-      <p style="font-size: 14px; color:#86868b; line-height:1.4;">Este dispositivo é compatível apenas com Wi-Fi de 2,4 GHz</p>
-    </div>
+        <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 16px;">
+          <!-- Dropdown field -->
+          <div class="wifi-select-input-card" onclick="openWifiListSheet()">
+            <span class="wifi-input-label" id="selected-wifi-name">Nome do Wi-Fi</span>
+            <span class="wifi-action-select-text">Selecionar rede...</span>
+          </div>
 
-    <!-- Wi-Fi Input Area -->
-    <div style="padding: 24px;">
-      <div style="background:#e8e8ed; border-radius:16px; padding: 16px 20px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="document.getElementById('wifi-list-sheet').style.bottom='0';">
-        <span style="font-size:16px; color:#1d1d1f;" id="selected-wifi-name">Nome do Wi-Fi</span>
-        <span style="font-size:14px; color:#00aaff;">Selecionar rede...</span>
+          <!-- Password field -->
+          <div class="wifi-select-input-card password-card">
+            <input type="password" id="wifi-password-input" placeholder="Palavra-passe" class="wifi-password-field">
+            <i data-lucide="eye-off" class="icon-toggle-pass" id="toggle-wifi-pass-icon" onclick="togglePasswordVisibility()"></i>
+          </div>
+        </div>
       </div>
 
-      <!-- Password Input Placeholder -->
-      <div style="background:#e8e8ed; border-radius:16px; padding: 16px 20px; margin-top:16px; display:flex; align-items:center;">
-        <input type="password" placeholder="Palavra-passe" style="background:transparent; border:none; outline:none; width:100%; font-size:16px; color:#1d1d1f;">
-        <i data-lucide="eye-off" style="width:20px;height:20px;color:#86868b;"></i>
+      <div>
+        <button class="btn-orange-pill full-width" onclick="tentarConectarWifi()">Seguinte (Ligar)</button>
       </div>
     </div>
+  </div>
 
-    <!-- Original Hidden Inputs for Connection -->
-    <div style="display:none;">
-      <input type="text" id="auth-token" value="sOOvSR9kmZxS_CMp5pvbqQHDbGvJczP1">
-      <input type="text" id="blynk-server" value="blynk.cloud">
-    </div>
-
-    <!-- Action Buttons -->
-    <div style="padding: 24px; margin-top:auto;">
-      <button class="add-schedule-btn" style="background:#ff9d00; color:#fff; border-radius:99px; font-size:16px; padding:16px; margin-bottom:12px;" onclick="conectar(); document.getElementById('settings-modal').style.display='none';">Seguinte (Ligar)</button>
-      <button class="add-schedule-btn" id="btn-simulacao" style="background:#e8e8ed; color:#333; border-radius:99px;" onclick="toggleModoSimulacao(); document.getElementById('settings-modal').style.display='none';">Ativar Modo Simulação PAP</button>
-    </div>
-
-    <!-- BOTTOM SHEET FOR WIFI LIST -->
-    <div id="wifi-list-sheet" style="position:absolute; bottom:-100%; left:0; width:100%; height:75%; background:#fff; border-radius:24px 24px 0 0; box-shadow:0 -4px 20px rgba(0,0,0,0.1); transition: bottom 0.3s ease; display:flex; flex-direction:column;">
-      <div style="padding:20px; text-align:center; position:relative; border-bottom:1px solid #f0f0f0;">
-        <h3 style="font-size:16px; font-weight:500;">Selecionar redes Wi-Fi</h3>
-        <button style="position:absolute; right:20px; top:20px; background:transparent; border:none; cursor:pointer;" onclick="document.getElementById('wifi-list-sheet').style.bottom='-100%';"><i data-lucide="x" style="width:20px;height:20px;color:#333;"></i></button>
+  <!-- SCREEN 6: 3D FEEDER VIEWER -->
+  <div id="screen-3d-model" class="app-screen">
+    <header class="screen-header">
+      <button class="header-btn" onclick="switchScreen('screen-dashboard')"><i data-lucide="chevron-left"></i></button>
+      <div class="header-title">
+        <h2>Visualizador 3D do Feeder</h2>
       </div>
-      <div style="padding:16px 24px; font-size:12px; color:#86868b;">Redes Wi-Fi que podem ser usadas para adicionar dispositivos (2.4G)</div>
+      <button class="header-btn" style="opacity:0;"><i data-lucide="more-vertical"></i></button>
+    </header>
+    
+    <div class="screen-content flex-col justify-between" style="padding-bottom: 32px; display: flex; flex-direction: column; justify-content: space-between;">
+      <div style="padding: 10px 0;">
+        <p style="font-size: 13px; color: var(--text-sub); line-height: 1.4;">Visualiza o modelo interativo tridimensional do dispensador. Arrasta para rodar o feeder na taça.</p>
+      </div>
+
+      <div class="model-canvas-frame">
+        <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+        <model-viewer
+          id="modelo3d"
+          src="PAPZINHA_scaled.glb"
+          alt="Dispensador Smart Pet Feeder"
+          camera-controls
+          shadow-intensity="1"
+          environment-image="neutral"
+          style="width: 100%; height: 100%; background: transparent;"
+        ></model-viewer>
+      </div>
+
+      <div style="display: flex; gap: 12px;">
+        <button class="btn-beige-pill" style="flex: 1;" id="btn-rotate" onclick="toggle3DRotate()">Auto Rodar</button>
+        <button class="btn-beige-pill" style="flex: 1;" onclick="reset3DCamera()">Centrar Câmara</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS BOTTOM SHEET -->
+  <div id="bottom-sheet-menu" class="bottom-sheet-overlay" onclick="closeSettingsSheet(event)">
+    <div class="bottom-sheet-content">
+      <div class="drag-handle"></div>
+      <h3 class="sheet-title">Configurações do Feeder</h3>
       
-      <div style="flex-grow:1; overflow-y:auto;">
-        <!-- Network Items -->
-        <div style="padding:16px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f5f5f5; cursor:pointer;" onclick="document.getElementById('selected-wifi-name').textContent='REDE5-5G'; document.getElementById('wifi-list-sheet').style.bottom='-100%';">
-          <span style="font-size:16px; color:#333;">REDE5-5G</span>
-          <i data-lucide="wifi" style="width:20px;height:20px;color:#86868b;"></i>
+      <div class="sheet-menu-list">
+        <div class="sheet-menu-item" onclick="openWifiScreen(); closeSettingsSheet();">
+          <i data-lucide="wifi"></i>
+          <span>Configurar Wi-Fi (Simulado)</span>
         </div>
-        <div style="padding:16px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f5f5f5; cursor:pointer;" onclick="document.getElementById('selected-wifi-name').textContent='REDE5-2G'; document.getElementById('wifi-list-sheet').style.bottom='-100%';">
-          <span style="font-size:16px; color:#333;">REDE5-2G</span>
-          <i data-lucide="wifi" style="width:20px;height:20px;color:#86868b;"></i>
+        <div class="sheet-menu-item" onclick="openCalibrationScreen(); closeSettingsSheet();">
+          <i data-lucide="scale"></i>
+          <span>Calibrar Balança (Tara)</span>
         </div>
-        <div style="padding:16px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f5f5f5; cursor:pointer;" onclick="document.getElementById('selected-wifi-name').textContent='VIVOFIBRA-A270'; document.getElementById('wifi-list-sheet').style.bottom='-100%';">
-          <span style="font-size:16px; color:#333;">VIVOFIBRA-A270</span>
-          <i data-lucide="wifi" style="width:20px;height:20px;color:#86868b;"></i>
+        <div class="sheet-menu-item" onclick="switchScreen('screen-3d-model'); closeSettingsSheet();">
+          <i data-lucide="box"></i>
+          <span>Visualizador 3D do Feeder</span>
         </div>
-        <div style="padding:16px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f5f5f5; cursor:pointer;" onclick="document.getElementById('selected-wifi-name').textContent='DIRECT-C1-HP Smart Tank 610'; document.getElementById('wifi-list-sheet').style.bottom='-100%';">
-          <span style="font-size:16px; color:#333;">DIRECT-C1-HP Smart Tank 610</span>
-          <i data-lucide="wifi" style="width:20px;height:20px;color:#86868b;"></i>
+        <div class="sheet-menu-item" onclick="switchScreen('screen-statistics'); closeSettingsSheet();">
+          <i data-lucide="bar-chart-2"></i>
+          <span>Estatísticas de Consumo</span>
+        </div>
+        
+        <div class="sheet-divider"></div>
+
+        <!-- Connection Settings -->
+        <div class="sheet-settings-group">
+          <h4>Blynk Cloud Server</h4>
+          <div class="input-inline-row">
+            <input type="text" id="auth-token" placeholder="Blynk Auth Token" value="sOOvSR9kmZxS_CMp5pvbqQHDbGvJczP1" onchange="saveSettingsSupabaseDirect()">
+            <input type="text" id="blynk-server" placeholder="Blynk Server" value="blynk.cloud" onchange="saveSettingsSupabaseDirect()">
+          </div>
+          <button class="btn-orange-pill full-width" style="padding: 12px; font-size: 13px;" onclick="conectar(); closeSettingsSheet();">Reconectar ao Blynk</button>
+        </div>
+
+        <div class="sheet-divider"></div>
+
+        <!-- Simulation mode section inside settings bottom sheet -->
+        <div class="sheet-simulation-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div>
+              <h4 style="font-size: 13px; font-weight: 600; color: var(--text-main); text-transform: none; padding-left: 0;">Modo Simulação PAP</h4>
+              <p style="font-size: 11px; color: var(--text-sub); margin-top: 2px;">Controla sensores locais sem ESP32 físico.</p>
+            </div>
+            <button class="btn-sim-toggle" id="btn-simulacao-toggle" onclick="toggleModoSimulacao()">Ativar</button>
+          </div>
+          
+          <div class="simulation-sliders" id="sim-panel" style="display:none;">
+            <div class="slider-row">
+              <label><span>Ração Depósito (%)</span> <span id="sim-val-v2">75%</span></label>
+              <input type="range" id="sim-slider-v2" min="0" max="100" value="75" oninput="simularAlteracaoSensor('V2', this.value)">
+            </div>
+            <div class="slider-row">
+              <label><span>Água Depósito (%)</span> <span id="sim-val-v3">75%</span></label>
+              <input type="range" id="sim-slider-v3" min="0" max="100" value="75" oninput="simularAlteracaoSensor('V3', this.value)">
+            </div>
+            <div class="slider-row">
+              <label><span>Peso Taça (g)</span> <span id="sim-val-v4">8.0g</span></label>
+              <input type="range" id="sim-slider-v4" min="0" max="150" value="8" step="0.5" oninput="simularAlteracaoSensor('V4', this.value)">
+            </div>
+            <div class="slider-row">
+              <label><span>Nível Taça Água</span> <span id="sim-val-v5">ADEQUADO (2)</span></label>
+              <input type="range" id="sim-slider-v5" min="0" max="3" value="2" oninput="simularAlteracaoSensor('V5', this.value)">
+            </div>
+          </div>
+        </div>
+        
+        <div class="sheet-divider"></div>
+
+        <!-- Terminal Logs -->
+        <div class="dev-log-title">Consola de Telemetria (Debug)</div>
+        <div class="dev-log-panel" id="terminal-body">
+          <div style="color:#888;">Nenhum log disponível. Ligue o dispositivo para iniciar.</div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- WIFI LIST BOTTOM SHEET -->
+  <div id="wifi-list-sheet" class="bottom-sheet-overlay" onclick="closeWifiListSheet(event)">
+    <div class="bottom-sheet-content list-sheet">
+      <div class="drag-handle"></div>
+      <h3 class="sheet-title">Selecionar redes Wi-Fi</h3>
       
-      <div style="padding:16px 24px; font-size:12px; color:#86868b; background:#fafafa;">Redes Wi-Fi que não podem ser usadas para adicionar dispositivos (5G)</div>
+      <div class="wifi-list-container">
+        <div class="wifi-list-header">Redes Wi-Fi que podem ser usadas para adicionar dispositivos (2.4G)</div>
+        <div class="wifi-list-items">
+          <div class="wifi-item" onclick="selecionarRedeWifi('REDE5-5G')">
+            <span>REDE5-5G</span>
+            <i data-lucide="wifi"></i>
+          </div>
+          <div class="wifi-item" onclick="selecionarRedeWifi('REDE5-2G')">
+            <span>REDE5-2G</span>
+            <i data-lucide="wifi"></i>
+          </div>
+          <div class="wifi-item" onclick="selecionarRedeWifi('VIVOFIBRA-A270')">
+            <span>VIVOFIBRA-A270</span>
+            <i data-lucide="wifi"></i>
+          </div>
+          <div class="wifi-item" onclick="selecionarRedeWifi('DIRECT-C1-HP Smart Tank 610')">
+            <span>DIRECT-C1-HP Smart Tank 610</span>
+            <i data-lucide="wifi"></i>
+          </div>
+        </div>
+        
+        <div class="wifi-list-header bg-gray">Redes Wi-Fi que não podem ser usadas para adicionar dispositivos (5G)</div>
+        <div class="wifi-list-items disabled">
+          <div class="wifi-item">
+            <span>VIVOFIBRA-A270-5G</span>
+            <i data-lucide="wifi"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast-popup">
+    <div class="toast-content">
+      <i id="toast-icon" data-lucide="info"></i>
+      <span id="toast-text"></span>
     </div>
   </div>
 </div>
-
-<div id="toast" style="position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#333; color:#fff; padding:12px 24px; border-radius:24px; font-size:13px; display:none; z-index:200;">
-  <span id="toast-text"></span>
-</div>
-
 
 <script>
 // =====================================================
-// TELEMETRIA E MAPAS BLYNK VIRTUAL PINS
+// SUPABASE CLIENT INITIALIZATION
 // =====================================================
-let AUTH   = '';
+const SUPABASE_URL = 'https://aztdelejqwoqcfodnxyx.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6dGRlbGVqcXdvcWNmb2RueHl4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNzE5ODcsImV4cCI6MjA5NTY0Nzk4N30.GXlhUReJoQM82lwepcn8sXCTlfjM5SD_y3yZVWFrLg4';
+const supa = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Load settings from Supabase
+async function loadSupabaseSettings() {
+  try {
+    const { data: settings, error } = await supa.from('settings').select('*').eq('id', 1).single();
+    if (error) throw error;
+    if (settings) {
+      if (settings.auth_token) {
+        document.getElementById('auth-token').value = settings.auth_token;
+      }
+      if (settings.schedule_1) {
+        document.getElementById('horario1').value = settings.schedule_1;
+      }
+      if (settings.schedule_2) {
+        document.getElementById('horario2').value = settings.schedule_2;
+      }
+      atualizarSchedulesCount();
+      logTerminal('[SUPABASE] Definições cloud carregadas com sucesso.');
+    }
+  } catch (e) {
+    console.error('[Supabase] Erro a carregar settings:', e);
+    logTerminal('[SUPABASE] Erro ao obter definições. Usando padrão local.');
+  }
+}
+
+// Load logs from Supabase
+async function loadSupabaseHistory() {
+  try {
+    const { data: logs, error } = await supa.from('history').select('*').order('created_at', { ascending: false }).limit(6);
+    if (error) throw error;
+    if (logs && logs.length > 0) {
+      historico.length = 0; // Clear
+      logs.forEach(log => {
+        historico.push({
+          hora: log.hora,
+          peso: log.peso,
+          source: log.source
+        });
+      });
+      renderHistorico();
+      logTerminal('[SUPABASE] Histórico cloud descarregado com sucesso.');
+      atualizarTotalConsumoHoje();
+    }
+  } catch (e) {
+    console.error('[Supabase] Erro a obter histórico:', e);
+    logTerminal('[SUPABASE] Falha ao ler histórico cloud. Usando dados locais.');
+  }
+}
+
+// Save settings to Supabase
+async function saveSupabaseSettings() {
+  const token = document.getElementById('auth-token').value.trim();
+  const h1 = document.getElementById('horario1').value;
+  const h2 = document.getElementById('horario2').value;
+  try {
+    const { error } = await supa.from('settings').upsert({
+      id: 1,
+      auth_token: token,
+      schedule_1: h1,
+      schedule_2: h2
+    });
+    if (error) throw error;
+    logTerminal('[SUPABASE] Definições guardadas com sucesso.');
+  } catch (e) {
+    console.error('[Supabase] Erro a guardar settings:', e);
+    logTerminal('[SUPABASE] Erro ao sincronizar definições na cloud.');
+  }
+}
+
+// Direct input save trigger
+async function saveSettingsSupabaseDirect() {
+  await saveSupabaseSettings();
+}
+
+// Save a single log event to Supabase
+async function saveHistoryToSupabase(hora, peso, source) {
+  try {
+    const { error } = await supa.from('history').insert([{
+      hora: hora,
+      peso: parseFloat(peso),
+      source: source
+    }]);
+    if (error) throw error;
+    logTerminal('[SUPABASE] Histórico inserido na cloud.');
+  } catch (e) {
+    console.error('[Supabase] Erro a guardar histórico:', e);
+    logTerminal('[SUPABASE] Falha de comunicação cloud ao gravar histórico.');
+  }
+}
+
+
+// =====================================================
+// BLYNK GLOBAL HARDWARE DATA CONTROLLER
+// =====================================================
+let AUTH   = 'sOOvSR9kmZxS_CMp5pvbqQHDbGvJczP1';
 let SERVER = 'blynk.cloud';
 let connected = false;
 let pollingInterval = null;
 const historico = [];
 
-// Weighing scale history (last 10 updates)
+// Fallback sample values for chart demo
 const pesoHistorico = [0, 80, 75, 30, 0, 120, 110, 75, 10, 45];
-
-// Water pump toggle state (V9)
 let bombaAtiva = false;
-
-// Simulation Mode State Control
 let modoSimulacao = false;
 let bombaSimulacaoInterval = null;
 
-// Mapeamento dos pinos Blynk (Exatamente conforme vosso ESP32 e documentação)
+// Virtual Pins Mapping (from pap.ino components)
 const PINS = {
-  BOTAO:       'V1',  // Alimentar manual (1/0)
-  DEP_RACAO:   'V2',  // Nível depósito ração % (Ultrassónico #1)
-  DEP_AGUA:    'V3',  // Nível depósito água % (Ultrassónico #2)
-  PESO:        'V4',  // Peso na taça g (Célula de carga HX711)
-  AGUA:        'V5',  // Nível na taça de água 0-3 (Sensor de água resistivo)
-  TARA:        'V6',  // Tara da balança (1/0)
-  HORARIO1:    'V7',  // Horário 1 em segundos
-  HORARIO2:    'V8',  // Horário 2 em segundos
-  BOMBA:       'V9',  // Acionamento bomba manual (1/0)
+  BOTAO:       'V1',  // Manual food feed button
+  DEP_RACAO:   'V2',  // Food reservoir level %
+  DEP_AGUA:    'V3',  // Water reservoir level %
+  PESO:        'V4',  // Weighing scale HX711 g
+  AGUA:        'V5',  // Water bowl level 0-3
+  TARA:        'V6',  // Weighing scale Tare calibration trigger
+  HORARIO1:    'V7',  // Schedule 1 seconds from 00:00
+  HORARIO2:    'V8',  // Schedule 2 seconds from 00:00
+  BOMBA:       'V9',  // Water pump trigger
 };
 
-// =====================================================
-// BLYNK API ENDPOINTS (PRESERVED DIRECTLY)
-// =====================================================
-
-// Lê valor de um pino virtual
+// Blynk REST API - Read Pin Value
 async function lerPin(pin) {
   const url = `https://${SERVER}/external/api/get?token=${AUTH}&${pin}`;
   try {
@@ -610,7 +1632,7 @@ async function lerPin(pin) {
   }
 }
 
-// Escreve valor num pino virtual
+// Blynk REST API - Write Pin Value
 async function escreverPin(pin, valor) {
   const url = `https://${SERVER}/external/api/update?token=${AUTH}&${pin}=${valor}`;
   try {
@@ -622,7 +1644,7 @@ async function escreverPin(pin, valor) {
   }
 }
 
-// Verifica se o ESP32 está online
+// Blynk REST API - Check hardware online
 async function verificarOnline() {
   const url = `https://${SERVER}/external/api/isHardwareConnected?token=${AUTH}`;
   try {
@@ -635,9 +1657,7 @@ async function verificarOnline() {
   }
 }
 
-// =====================================================
-// LIGAÇÃO AO DISPOSITIVO BLYNK
-// =====================================================
+// Reconnect to Blynk hardware
 async function conectar() {
   if (modoSimulacao) {
     toggleModoSimulacao();
@@ -672,82 +1692,743 @@ function setStatus(s) {
   const dot  = document.getElementById('dot');
   const txt  = document.getElementById('conn-text');
   
-  dot.className = 'status-pulse';
+  dot.className = 'status-dot';
   if (s === 'online') {
     dot.classList.add('online');
-    txt.textContent = 'ONLINE';
-    txt.style.color = 'var(--accent-green)';
+    txt.textContent = 'Connected';
+    txt.style.color = '#34c759';
   } else if (s === 'offline') {
     dot.classList.add('offline');
-    txt.textContent = 'OFFLINE';
-    txt.style.color = 'var(--accent-red)';
-  } else {
+    txt.textContent = 'Disconnected';
+    txt.style.color = 'var(--text-sub)';
+  } else if (s === 'connecting') {
     dot.classList.add('connecting');
-    txt.textContent = 'A CONECTAR...';
+    txt.textContent = 'Connecting...';
     txt.style.color = 'var(--accent-orange)';
+  } else if (s === 'simulacao') {
+    dot.classList.add('simulacao');
+    txt.textContent = 'Simulation Mode';
+    txt.style.color = '#af52de';
   }
 }
 
+
 // =====================================================
-// CONTROLO DE MODO SIMULAÇÃO
+// DATA POLLING MANAGER (EVERY 2 SECONDS)
+// =====================================================
+function iniciarPolling() {
+  if (pollingInterval) clearInterval(pollingInterval);
+  atualizarTudo(); 
+  pollingInterval = setInterval(atualizarTudo, 2000);
+}
+
+async function atualizarTudo() {
+  if (modoSimulacao) return;
+
+  const online = await verificarOnline();
+  if (!online) {
+    if (connected) {
+      connected = false;
+      setStatus('offline');
+      document.getElementById('btn-alimentar').disabled = true;
+      logTerminal('[WARNING] Ligação perdida com o ESP32.');
+      mostrarToast('Conexão perdida com o ESP32.', 'error');
+    }
+    return;
+  }
+
+  if (!connected) {
+    connected = true;
+    setStatus('online');
+    document.getElementById('btn-alimentar').disabled = false;
+    logTerminal('[SYSTEM] Ligação reestabelecida com o ESP32.');
+  }
+
+  // Fetch in parallel
+  const [depRacao, depAgua, peso, agua] = await Promise.all([
+    lerPin(PINS.DEP_RACAO),
+    lerPin(PINS.DEP_AGUA),
+    lerPin(PINS.PESO),
+    lerPin(PINS.AGUA),
+  ]);
+
+  if (depRacao !== null) atualizarDepRacao(Number(depRacao));
+  if (depAgua  !== null) atualizarDepAgua(Number(depAgua));
+  if (peso     !== null) atualizarPeso(Number(peso));
+  if (agua     !== null) atualizarAgua(Number(agua));
+}
+
+
+// =====================================================
+// SENSORS & REAL-TIME INTERFACE UPDATERS
+// =====================================================
+
+// V2 - Food Reservoir percentage
+function atualizarDepRacao(p) {
+  // Not displayed inside elements but triggers warnings if critical
+  if (p < 20) {
+    logTerminal('[WARNING] Reservatório de ração crítico (< 20%).');
+  }
+}
+
+// V3 - Water Reservoir percentage
+function atualizarDepAgua(p) {
+  const label = document.getElementById('dep-agua-val');
+  label.textContent = `Reservoir: ${p}%`;
+}
+
+// V4 - Weighing scale weight
+let calibrationState = 0; // Tracks calibration screen wizard steps
+let ultimoPesoRegistado = -1;
+function atualizarPeso(g) {
+  const gVal = parseFloat(g).toFixed(1);
+  
+  // Dashboard card
+  document.getElementById('food-left-txt').textContent = `${gVal} g`;
+  
+  // Calibration screen display if it is active
+  document.getElementById('calibration-weight').textContent = `${gVal} g`;
+
+  // Detect pet consumption (weight decreased significantly)
+  if (ultimoPesoRegistado >= 0 && (ultimoPesoRegistado - g) >= 2.0) {
+    const diff = ultimoPesoRegistado - g;
+    const agora = new Date();
+    const hora = agora.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
+    
+    logTerminal(`[BALANÇA] Consumo detetado: -${diff.toFixed(1)}g.`);
+    mostrarToast(`Pet comeu ${diff.toFixed(1)}g!`, 'ok');
+    
+    // Log to local history and Supabase
+    historico.unshift({ hora, peso: diff.toFixed(1), source: 'Pet' });
+    if (historico.length > 6) historico.pop();
+    renderHistorico();
+    saveHistoryToSupabase(hora, diff.toFixed(1), 'Pet');
+    atualizarTotalConsumoHoje();
+  }
+  
+  ultimoPesoRegistado = g;
+
+  // Track weight history array for chart statistics
+  const lastVal = pesoHistorico[pesoHistorico.length - 1];
+  if (pesoHistorico.length > 0 && Math.abs(g - lastVal) > 1.0) {
+    pesoHistorico.push(g);
+    if (pesoHistorico.length > 10) pesoHistorico.shift();
+  }
+}
+
+// V5 - Water level (0-3 scale)
+function atualizarAgua(n) {
+  const label = document.getElementById('agua-label');
+  const states = [
+    { text: 'Sem Água', color: 'var(--accent-red)' },
+    { text: 'Nível Baixo', color: 'var(--accent-orange)' },
+    { text: 'Adequado', color: 'var(--accent-blue)' },
+    { text: 'Cheio', color: 'var(--accent-blue)' }
+  ];
+  const s = states[Math.min(Math.max(0, n), 3)];
+  label.textContent = s.text;
+  label.style.color = s.color;
+
+  if (n === 0) {
+    logTerminal('[WARNING] Tigela de água completamente vazia!');
+  }
+}
+
+// Calculates dynamic totals for "Food eaten today" display
+function atualizarTotalConsumoHoje() {
+  // Compute sum of consumption events in 'historico' log that have source === 'Pet' (simulated or real)
+  let sum = 0;
+  historico.forEach(item => {
+    if (item.source.toLowerCase().includes('pet') || item.source.toLowerCase().includes('manual')) {
+      sum += parseFloat(item.peso) || 0;
+    }
+  });
+  if (sum === 0) sum = 32; // Default starting visual state
+  document.getElementById('peso-val-display').innerHTML = `${sum.toFixed(0)}<span class="unit">g</span>`;
+  document.getElementById('stats-amount-eaten').innerHTML = `${sum.toFixed(0)}<span class="unit">g</span>`;
+  desenharSVGCharts();
+}
+
+
+// =====================================================
+// CORE IOT HARDWARE INTERACTIONS & BUTTONS
+// =====================================================
+
+// Manual Food Dispense (V1 Trigger)
+async function darComida() {
+  if (!connected) return mostrarToast('Ligue o hardware primeiro!', 'error');
+
+  const btn = document.getElementById('btn-alimentar');
+  btn.disabled = true;
+  btn.textContent = 'Dispensing...';
+  logTerminal('[STEPPER] A enviar trigger manual de dosagem (V1)...');
+
+  if (modoSimulacao) {
+    setTimeout(async () => {
+      const sliderV4 = document.getElementById('sim-slider-v4');
+      let currentVal = parseFloat(sliderV4.value);
+      let dispensedAmount = 16.0;
+      let newVal = Math.min(150, currentVal + dispensedAmount);
+      
+      sliderV4.value = newVal;
+      simularAlteracaoSensor('V4', newVal);
+      
+      mostrarToast('Ração dispensada com sucesso!', 'ok');
+      logTerminal(`[STEPPER] Sucesso. Motor rodou (+${dispensedAmount}g). Peso na taça: ${newVal.toFixed(1)}g.`);
+      
+      const agora = new Date();
+      const hora = agora.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
+      
+      // Save local and push to Supabase
+      historico.unshift({ hora, peso: dispensedAmount, source: 'Manual' });
+      if (historico.length > 6) historico.pop();
+      renderHistorico();
+      await saveHistoryToSupabase(hora, dispensedAmount, 'Manual');
+      atualizarTotalConsumoHoje();
+
+      btn.disabled = false;
+      btn.textContent = 'Dispense';
+    }, 1200);
+    return;
+  }
+
+  const ok = await escreverPin(PINS.BOTAO, 1);
+  if (ok) {
+    mostrarToast('Ração dispensada com sucesso!', 'ok');
+    logTerminal('[STEPPER] Sucesso. Motor 28BYJ-48 a rodar...');
+    
+    // Create new log entry
+    const agora = new Date();
+    const hora = agora.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
+    const pesoDispensed = 10.0; // Standard single portion size
+    
+    historico.unshift({ hora, peso: pesoDispensed, source: 'Manual' });
+    if (historico.length > 6) historico.pop();
+    renderHistorico();
+    await saveHistoryToSupabase(hora, pesoDispensed, 'Manual');
+    atualizarTotalConsumoHoje();
+
+    // Reset pin after pulse delay
+    setTimeout(() => escreverPin(PINS.BOTAO, 0), 1000);
+  } else {
+    mostrarToast('Falha ao acionar motor.', 'error');
+    logTerminal('[ERROR] Erro na requisição REST do motor.');
+  }
+
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.textContent = 'Dispense';
+  }, 2000);
+}
+
+// Manual Water Pump Toggle (V9 Control)
+async function toggleBomba() {
+  if (!connected) return mostrarToast('Ligue o hardware primeiro!', 'error');
+  const btn = document.getElementById('btn-bomba');
+
+  if (modoSimulacao) {
+    bombaAtiva = !bombaAtiva;
+    if (bombaAtiva) {
+      btn.textContent = 'Stop';
+      btn.classList.add('active');
+      mostrarToast('Bomba de água manual ligada!', 'ok');
+      logTerminal('[BOMBA] Bomba manual de água ativa.');
+      
+      // Simulate water filling
+      bombaSimulacaoInterval = setInterval(() => {
+        const sliderV5 = document.getElementById('sim-slider-v5');
+        let currentLvl = parseInt(sliderV5.value);
+        if (currentLvl < 3) {
+          currentLvl++;
+          sliderV5.value = currentLvl;
+          simularAlteracaoSensor('V5', currentLvl);
+        } else {
+          clearInterval(bombaSimulacaoInterval);
+          bombaSimulacaoInterval = null;
+          bombaAtiva = false;
+          btn.textContent = 'Pump';
+          btn.classList.remove('active');
+          mostrarToast('Bomba desligada (Nível Cheio).', 'info');
+          logTerminal('[BOMBA] Sensor V5 detectou CHEIO. Desativação automática.');
+        }
+      }, 1500);
+    } else {
+      if (bombaSimulacaoInterval) {
+        clearInterval(bombaSimulacaoInterval);
+        bombaSimulacaoInterval = null;
+      }
+      btn.textContent = 'Pump';
+      btn.classList.remove('active');
+      mostrarToast('Bomba de água manual desligada.', 'info');
+      logTerminal('[BOMBA] Bomba manual de água desligada.');
+    }
+    return;
+  }
+
+  const nextState = bombaAtiva ? 0 : 1;
+  logTerminal(`[BOMBA] A enviar comando manual para a Bomba (V9) -> ${nextState === 1 ? 'LIGAR' : 'DESLIGAR'}...`);
+  
+  const ok = await escreverPin(PINS.BOMBA, nextState);
+  if (ok) {
+    bombaAtiva = !bombaAtiva;
+    if (bombaAtiva) {
+      btn.textContent = 'Stop';
+      btn.classList.add('active');
+      mostrarToast('Bomba de água manual ligada!', 'ok');
+      logTerminal('[BOMBA] Bomba manual de água ativa.');
+    } else {
+      btn.textContent = 'Pump';
+      btn.classList.remove('active');
+      mostrarToast('Bomba de água manual desligada.', 'info');
+      logTerminal('[BOMBA] Bomba manual de água desligada.');
+    }
+  } else {
+    mostrarToast('Erro ao acionar bomba.', 'error');
+    logTerminal('[ERROR] Falha de comunicação REST com a bomba.');
+  }
+}
+
+// Scale calibration Tare Trigger (V6 Trigger)
+async function triggerTaraBalança() {
+  if (!connected) return mostrarToast('Ligue o hardware primeiro!', 'error');
+  logTerminal('[HX711] A calibrar sensor de tara (V6)...');
+
+  if (modoSimulacao) {
+    setTimeout(() => {
+      const sliderV4 = document.getElementById('sim-slider-v4');
+      sliderV4.value = 0;
+      simularAlteracaoSensor('V4', 0);
+      logTerminal('[HX711] Tara efetuada com sucesso (0.0g).');
+    }, 1000);
+    return;
+  }
+
+  const ok = await escreverPin(PINS.TARA, 1);
+  if (ok) {
+    setTimeout(() => {
+      escreverPin(PINS.TARA, 0);
+      logTerminal('[HX711] Sinal de calibração enviado.');
+    }, 1500);
+  } else {
+    logTerminal('[ERROR] Erro ao enviar sinal de tara.');
+  }
+}
+
+// Save Automatic Feeding Schedule (V7 & V8 API Sync)
+async function salvarHorarios() {
+  if (!connected) return mostrarToast('Ligue o hardware primeiro!', 'error');
+
+  const h1 = document.getElementById('horario1').value;
+  const h2 = document.getElementById('horario2').value;
+
+  function toSeconds(t) {
+    const [h, m] = t.split(':').map(Number);
+    return h * 3600 + m * 60;
+  }
+
+  logTerminal(`[EEPROM] Horário 1: ${h1} (${toSeconds(h1)}s)`);
+  logTerminal(`[EEPROM] Horário 2: ${h2} (${toSeconds(h2)}s)`);
+
+  mostrarToast('A enviar agendamentos...', 'info');
+
+  if (modoSimulacao) {
+    await saveSupabaseSettings();
+    mostrarToast('Horários guardados com sucesso!', 'ok');
+    logTerminal('[SYSTEM] Agendamentos gravados na EEPROM simulada.');
+    return;
+  }
+
+  // Cloud Database Save
+  await saveSupabaseSettings();
+
+  const ok1 = await escreverPin(PINS.HORARIO1, toSeconds(h1));
+  const ok2 = await escreverPin(PINS.HORARIO2, toSeconds(h2));
+
+  if (ok1 && ok2) {
+    mostrarToast('Horários guardados na EEPROM!', 'ok');
+    logTerminal('[SYSTEM] Agendamentos atualizados na EEPROM do ESP32.');
+  } else {
+    mostrarToast('Erro ao enviar agendamentos.', 'error');
+    logTerminal('[ERROR] Falha de gravação de agendamento no Blynk.');
+  }
+}
+
+
+// =====================================================
+// FRONTEND PAGE NAVIGATION & SCREEN CONTROLS
+// =====================================================
+function switchScreen(screenId) {
+  document.querySelectorAll('.app-screen').forEach(s => {
+    s.classList.remove('active');
+  });
+  const target = document.getElementById(screenId);
+  target.classList.add('active');
+  lucide.createIcons();
+  
+  if (screenId === 'screen-statistics') {
+    desenharSVGCharts();
+  }
+}
+
+// Wi-Fi Screen Wizard
+function openWifiScreen() {
+  switchScreen('screen-wifi');
+}
+function closeWifiScreen() {
+  switchScreen('screen-dashboard');
+}
+
+// Calibration Screen Wizard
+function openCalibrationScreen() {
+  calibrationState = 1;
+  atualizarCalibrationWizardStep();
+  switchScreen('screen-calibration');
+}
+function closeCalibrationScreen() {
+  switchScreen('screen-dashboard');
+}
+
+function avancarCalibracao() {
+  const title = document.getElementById('calibration-step-title');
+  const desc = document.getElementById('calibration-step-desc');
+  const actionBtn = document.getElementById('btn-calibration-action');
+  
+  const dot1 = document.getElementById('cal-dot-1');
+  const dot2 = document.getElementById('cal-dot-2');
+  const dot3 = document.getElementById('cal-dot-3');
+
+  if (calibrationState === 1) {
+    // Step 1: Empty bowl calibration
+    triggerTaraBalança();
+    mostrarToast('A calibrar tara (0g)...', 'info');
+    
+    calibrationState = 2;
+    title.textContent = 'Step 2';
+    desc.textContent = 'Place a 100g standard weight in the bowl';
+    actionBtn.textContent = 'Calibrate 100g';
+    
+    dot1.classList.remove('active');
+    dot2.classList.add('active');
+  } else if (calibrationState === 2) {
+    // Step 2: Weight calibration
+    mostrarToast('A calibrar factor da balança...', 'info');
+    logTerminal('[HX711] Calibração de calibro (100.0g) enviada.');
+    
+    calibrationState = 3;
+    title.textContent = 'Step 3';
+    desc.textContent = 'Calibration successfully completed!';
+    actionBtn.textContent = 'Finish';
+    
+    dot2.classList.remove('active');
+    dot3.classList.add('active');
+  } else if (calibrationState === 3) {
+    // Finish
+    mostrarToast('Calibração de peso concluída!', 'ok');
+    closeCalibrationScreen();
+  }
+}
+
+function atualizarCalibrationWizardStep() {
+  const title = document.getElementById('calibration-step-title');
+  const desc = document.getElementById('calibration-step-desc');
+  const actionBtn = document.getElementById('btn-calibration-action');
+  const dot1 = document.getElementById('cal-dot-1');
+  const dot2 = document.getElementById('cal-dot-2');
+  const dot3 = document.getElementById('cal-dot-3');
+  
+  title.textContent = 'Step 1';
+  desc.textContent = 'Empty food bowl';
+  actionBtn.textContent = 'Next';
+  dot1.classList.add('active');
+  dot2.classList.remove('active');
+  dot3.classList.remove('active');
+  
+  if (modoSimulacao) {
+    document.getElementById('calibration-weight').textContent = document.getElementById('sim-slider-v4').value + ' g';
+  } else {
+    document.getElementById('calibration-weight').textContent = '-- g';
+  }
+}
+
+// Wi-Fi Dropdown Sheet Selection
+function openWifiListSheet() {
+  document.getElementById('wifi-list-sheet').classList.add('active');
+}
+function closeWifiListSheet(e) {
+  if (!e || e.target.id === 'wifi-list-sheet' || e.target.closest('.drag-handle')) {
+    document.getElementById('wifi-list-sheet').classList.remove('active');
+  }
+}
+function selecionarRedeWifi(ssidName) {
+  document.getElementById('selected-wifi-name').textContent = ssidName;
+  document.getElementById('wifi-list-sheet').classList.remove('active');
+}
+function togglePasswordVisibility() {
+  const inp = document.getElementById('wifi-password-input');
+  const icon = document.getElementById('toggle-wifi-pass-icon');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    icon.setAttribute('data-lucide', 'eye');
+  } else {
+    inp.type = 'password';
+    icon.setAttribute('data-lucide', 'eye-off');
+  }
+  lucide.createIcons();
+}
+function tentarConectarWifi() {
+  const ssid = document.getElementById('selected-wifi-name').textContent;
+  const pass = document.getElementById('wifi-password-input').value;
+  if (ssid === 'Nome do Wi-Fi') {
+    return mostrarToast('Por favor, seleciona uma rede Wi-Fi!', 'error');
+  }
+  mostrarToast(`A conectar a ${ssid}...`, 'info');
+  logTerminal(`[WiFiManager] A ligar à rede: ${ssid}`);
+  
+  setTimeout(() => {
+    mostrarToast('Wi-Fi configurado com sucesso no ESP32!', 'ok');
+    logTerminal(`[WiFiManager] Sucesso. ESP32 adquiriu IP local.`);
+    closeWifiScreen();
+  }, 2000);
+}
+
+// Automatic Feeding Settings switch
+function toggleAutoFeeding(chk) {
+  const status = document.getElementById('sched-footer-status');
+  if (chk.checked) {
+    status.textContent = 'Enable';
+    mostrarToast('Doseamento automático ativado!', 'ok');
+    logTerminal('[SCHEDULER] Doseamento diário ativo.');
+  } else {
+    status.textContent = 'Disable';
+    mostrarToast('Doseamento automático desativado.', 'info');
+    logTerminal('[SCHEDULER] Doseamento suspenso pelo utilizador.');
+  }
+}
+
+// Calculate Portions and Meals dynamic counts
+function atualizarSchedulesCount() {
+  const h1 = document.getElementById('horario1').value;
+  const h2 = document.getElementById('horario2').value;
+  
+  let meals = 0;
+  let portions = 0;
+  
+  if (h1) { meals++; portions += 2; }
+  if (h2) { meals++; portions += 2; }
+  
+  document.getElementById('meals-count').innerHTML = `${meals} <span class="stat-unit">Meals</span>`;
+  document.getElementById('portions-count').innerHTML = `${portions} <span class="stat-unit">Portions</span>`;
+  
+  // Progress calc
+  document.getElementById('progress-val-display').textContent = `Feeding schedule progress 50%`;
+}
+
+// Settings bottom sheet menu
+function openSettingsSheet() {
+  document.getElementById('bottom-sheet-menu').classList.add('active');
+}
+function closeSettingsSheet(e) {
+  if (!e || e.target.id === 'bottom-sheet-menu' || e.target.closest('.drag-handle')) {
+    document.getElementById('bottom-sheet-menu').classList.remove('active');
+  }
+}
+
+
+// =====================================================
+// STATISTICS VECTOR CHARTS GENERATOR (SVG Rendering)
+// =====================================================
+let currentStatsTab = 'day';
+
+function switchStatsTab(tabType) {
+  currentStatsTab = tabType;
+  document.getElementById('tab-day').classList.toggle('active', tabType === 'day');
+  document.getElementById('tab-week').classList.toggle('active', tabType === 'week');
+  
+  const textAmount = document.getElementById('stats-amount-eaten');
+  const textPortions = document.getElementById('stats-portions-dispensed');
+  const dateLabel = document.getElementById('stats-current-date');
+
+  if (tabType === 'day') {
+    textAmount.innerHTML = `32<span class="metric-unit">g</span>`;
+    textPortions.innerHTML = `2<span class="metric-unit">Portions</span>`;
+    dateLabel.textContent = '05/29';
+  } else {
+    textAmount.innerHTML = `244<span class="metric-unit">g</span>`;
+    textPortions.innerHTML = `14<span class="metric-unit">Portions</span>`;
+    dateLabel.textContent = '05/23 - 05/29';
+  }
+  
+  desenharSVGCharts();
+}
+
+function desenharSVGCharts() {
+  const chartFood = document.getElementById('chart-food-eaten');
+  const chartPort = document.getElementById('chart-portions-dispensed');
+  if (!chartFood || !chartPort) return;
+
+  if (currentStatsTab === 'day') {
+    // 2 Bars matching Screenshot 3: (09:00, 13:00)
+    chartFood.innerHTML = `
+      <svg class="chart-svg" viewBox="0 0 340 120">
+        <!-- Grid/Axis labels -->
+        <text x="5" y="15" fill="var(--text-sub)" font-size="10">17</text>
+        <text x="5" y="65" fill="var(--text-sub)" font-size="10">5</text>
+        
+        <text x="30" y="115" fill="var(--text-sub)" font-size="9">01:00</text>
+        <text x="160" y="115" fill="var(--text-sub)" font-size="9">12:00</text>
+        <text x="290" y="115" fill="var(--text-sub)" font-size="9">24:00</text>
+
+        <!-- Vertical bars -->
+        <rect x="125" y="40" width="8" height="60" rx="3" fill="var(--accent-orange)" />
+        <rect x="175" y="30" width="8" height="70" rx="3" fill="var(--accent-orange)" />
+      </svg>
+    `;
+    
+    // 1 Bar matching Screenshot 3: (07:00)
+    chartPort.innerHTML = `
+      <svg class="chart-svg" viewBox="0 0 340 120">
+        <text x="5" y="15" fill="var(--text-sub)" font-size="10">7</text>
+        <text x="5" y="100" fill="var(--text-sub)" font-size="10">0</text>
+        
+        <text x="30" y="115" fill="var(--text-sub)" font-size="9">01:00</text>
+        <text x="160" y="115" fill="var(--text-sub)" font-size="9">12:00</text>
+        <text x="290" y="115" fill="var(--text-sub)" font-size="9">24:00</text>
+
+        <rect x="115" y="35" width="8" height="65" rx="3" fill="var(--accent-orange)" />
+      </svg>
+    `;
+  } else {
+    // Week view: 7 Bars representing weekly totals
+    chartFood.innerHTML = `
+      <svg class="chart-svg" viewBox="0 0 340 120">
+        <text x="5" y="15" fill="var(--text-sub)" font-size="10">50</text>
+        <text x="5" y="100" fill="var(--text-sub)" font-size="10">0</text>
+        
+        <text x="35" y="115" fill="var(--text-sub)" font-size="9">Seg</text>
+        <text x="80" y="115" fill="var(--text-sub)" font-size="9">Ter</text>
+        <text x="125" y="115" fill="var(--text-sub)" font-size="9">Qua</text>
+        <text x="170" y="115" fill="var(--text-sub)" font-size="9">Qui</text>
+        <text x="215" y="115" fill="var(--text-sub)" font-size="9">Sex</text>
+        <text x="260" y="115" fill="var(--text-sub)" font-size="9">Sáb</text>
+        <text x="305" y="115" fill="var(--text-sub)" font-size="9">Dom</text>
+
+        <rect x="40" y="45" width="8" height="55" rx="3" fill="var(--accent-orange)" />
+        <rect x="85" y="30" width="8" height="70" rx="3" fill="var(--accent-orange)" />
+        <rect x="130" y="55" width="8" height="45" rx="3" fill="var(--accent-orange)" />
+        <rect x="175" y="40" width="8" height="60" rx="3" fill="var(--accent-orange)" />
+        <rect x="220" y="25" width="8" height="75" rx="3" fill="var(--accent-orange)" />
+        <rect x="265" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
+        <rect x="310" y="35" width="8" height="65" rx="3" fill="var(--accent-orange)" />
+      </svg>
+    `;
+
+    chartPort.innerHTML = `
+      <svg class="chart-svg" viewBox="0 0 340 120">
+        <text x="5" y="15" fill="var(--text-sub)" font-size="10">4</text>
+        <text x="5" y="100" fill="var(--text-sub)" font-size="10">0</text>
+        
+        <text x="35" y="115" fill="var(--text-sub)" font-size="9">Seg</text>
+        <text x="80" y="115" fill="var(--text-sub)" font-size="9">Ter</text>
+        <text x="125" y="115" fill="var(--text-sub)" font-size="9">Qua</text>
+        <text x="170" y="115" fill="var(--text-sub)" font-size="9">Qui</text>
+        <text x="215" y="115" fill="var(--text-sub)" font-size="9">Sex</text>
+        <text x="260" y="115" fill="var(--text-sub)" font-size="9">Sáb</text>
+        <text x="305" y="115" fill="var(--text-sub)" font-size="9">Dom</text>
+
+        <rect x="40" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
+        <rect x="85" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
+        <rect x="130" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
+        <rect x="175" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
+        <rect x="220" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
+        <rect x="265" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
+        <rect x="310" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
+      </svg>
+    `;
+  }
+}
+
+
+// =====================================================
+// LOCAL HISTORY LIST RENDERING
+// =====================================================
+function renderHistorico() {
+  const ul = document.getElementById('historico-list');
+  if (historico.length === 0) {
+    ul.innerHTML = `
+      <li class="feed-log-item">
+        <span class="log-time">--:--</span>
+        <div class="log-text">No consumption records loaded</div>
+      </li>
+    `;
+    return;
+  }
+  
+  ul.innerHTML = historico.map((r, i) => {
+    const isManual = r.source.toLowerCase().includes('manual');
+    const isScheduled = r.source.toLowerCase().includes('sched') || r.source.toLowerCase().includes('agenda') || r.source.toLowerCase().includes('horario');
+    
+    let itemClass = isScheduled ? 'feed-log-item scheduled' : 'feed-log-item';
+    let textDesc = '';
+    
+    if (isManual) {
+      textDesc = `Manual dispensing portions: <strong>${r.peso} g</strong>`;
+    } else if (isScheduled) {
+      textDesc = `Scheduled to be dispensed portions: <strong>${r.peso} g</strong>`;
+    } else {
+      textDesc = `Pet's consumption <strong>${r.peso} g</strong>`;
+    }
+
+    return `
+      <li class="${itemClass}" style="animation: slideUp 0.2s ease forwards; animation-delay: ${i * 0.05}s">
+        <span class="log-time">${r.hora.substring(0,5)}</span>
+        <div class="log-text">
+          <span>${textDesc}</span>
+          ${isScheduled ? '<span class="log-subtext">Enabled ></span>' : ''}
+        </div>
+      </li>
+    `;
+  }).join('');
+}
+
+
+// =====================================================
+// SIMULATION MODE IMPLEMENTATION
 // =====================================================
 function toggleModoSimulacao() {
   modoSimulacao = !modoSimulacao;
   
-  const btnSim = document.getElementById('btn-simulacao');
-  const simPanel = document.getElementById('sim-panel');
+  const btn = document.getElementById('btn-simulacao-toggle');
+  const panel = document.getElementById('sim-panel');
   const btnAlimentar = document.getElementById('btn-alimentar');
-  const dot = document.getElementById('dot');
-  const txt = document.getElementById('conn-text');
   
   if (modoSimulacao) {
-    // Para polling do Blynk
     if (pollingInterval) clearInterval(pollingInterval);
     if (bombaSimulacaoInterval) clearInterval(bombaSimulacaoInterval);
     
-    // Atualiza estado de conexão para Simulação
     connected = true;
-    btnSim.classList.add('active');
-    btnSim.innerHTML = '<i data-lucide="pause"></i>DESATIVAR SIMULAÇÃO';
+    btn.textContent = 'Desativar';
+    btn.classList.add('active');
+    setStatus('simulacao');
     
-    dot.className = 'status-pulse simulacao';
-    txt.textContent = 'MODO SIMULAÇÃO';
-    txt.style.color = '#af52de';
-    
-    // Habilita botões
     btnAlimentar.disabled = false;
+    panel.style.display = 'block';
     
-    // Exibe painel com sliders
-    simPanel.style.display = 'block';
+    logTerminal('[SYSTEM] MODO SIMULAÇÃO ATIVO.');
+    mostrarToast('Modo Simulação ativado!', 'ok');
     
-    logTerminal('[SYSTEM] MODO SIMULAÇÃO ATIVO. Sensores locais ativados.');
-    mostrarToast('Modo Simulação ativado com sucesso!', 'ok');
-    
-    // Inicializa valores da simulação a partir dos sliders
+    // Feed sliders initial states
     simularAlteracaoSensor('V2', document.getElementById('sim-slider-v2').value);
     simularAlteracaoSensor('V3', document.getElementById('sim-slider-v3').value);
     simularAlteracaoSensor('V4', document.getElementById('sim-slider-v4').value);
     simularAlteracaoSensor('V5', document.getElementById('sim-slider-v5').value);
   } else {
-    // Desativa simulação
-    btnSim.classList.remove('active');
-    btnSim.innerHTML = '<i data-lucide="play"></i>ATIVAR MODO SIMULAÇÃO';
-    
-    simPanel.style.display = 'none';
+    btn.textContent = 'Ativar';
+    btn.classList.remove('active');
+    panel.style.display = 'none';
     
     if (bombaSimulacaoInterval) {
       clearInterval(bombaSimulacaoInterval);
       bombaSimulacaoInterval = null;
-    }
-    
-    // Reset pump display button if active in simulation
-    if (bombaAtiva) {
-      bombaAtiva = false;
-      const btnBomba = document.getElementById('btn-bomba');
-      btnBomba.innerHTML = '<i data-lucide="droplet-off"></i>LIGAR BOMBA MANUAL';
-      btnBomba.style.background = 'rgba(255, 255, 255, 0.03)';
-      btnBomba.style.color = 'var(--text-secondary)';
-      btnBomba.style.borderColor = 'var(--border-color)';
     }
     
     connected = false;
@@ -757,13 +2438,12 @@ function toggleModoSimulacao() {
     logTerminal('[SYSTEM] Modo Simulação desativado.');
     mostrarToast('Modo Simulação desativado.', 'info');
   }
-  lucide.createIcons();
 }
 
 function simularAlteracaoSensor(pin, valor) {
   if (!modoSimulacao) return;
-  
   const num = Number(valor);
+  
   if (pin === 'V2') {
     document.getElementById('sim-val-v2').textContent = `${num}%`;
     atualizarDepRacao(num);
@@ -780,482 +2460,12 @@ function simularAlteracaoSensor(pin, valor) {
   }
 }
 
-// =====================================================
-// POLLING DE SENSORES (A CADA 2 SEGUNDOS)
-// =====================================================
-function iniciarPolling() {
-  if (pollingInterval) clearInterval(pollingInterval);
-  atualizarTudo(); // Executa imediatamente no início
-  pollingInterval = setInterval(atualizarTudo, 2000);
-}
-
-async function atualizarTudo() {
-  const online = await verificarOnline();
-  if (!online) {
-    if (connected) {
-      connected = false;
-      setStatus('offline');
-      document.getElementById('btn-alimentar').disabled = true;
-      logTerminal('[WARNING] Ligação perdida com o ESP32.');
-      mostrarToast('Conexão perdida com o ESP32.', 'warn');
-    }
-    return;
-  }
-
-  if (!connected) {
-    connected = true;
-    setStatus('online');
-    document.getElementById('btn-alimentar').disabled = false;
-    logTerminal('[SYSTEM] Ligação reestabelecida com o ESP32.');
-  }
-
-  // Lê os sensores e estados em paralelo
-  const [depRacao, depAgua, peso, agua] = await Promise.all([
-    lerPin(PINS.DEP_RACAO),
-    lerPin(PINS.DEP_AGUA),
-    lerPin(PINS.PESO),
-    lerPin(PINS.AGUA),
-  ]);
-
-  if (depRacao !== null) atualizarDepRacao(Number(depRacao));
-  if (depAgua  !== null) atualizarDepAgua(Number(depAgua));
-  if (peso     !== null) atualizarPeso(Number(peso));
-  if (agua     !== null) atualizarAgua(Number(agua));
-}
 
 // =====================================================
-// ATUALIZAR UI: DEPÓSITO RAÇÃO (V2)
-// =====================================================
-function atualizarDepRacao(p) {
-  const el = document.getElementById('nivel-val');
-  const liquid = document.getElementById('dep-racao-liquid');
-  const alerta = document.getElementById('alerta-racao');
-
-  liquid.style.height = `${p}%`;
-
-  let color;
-  if (p < 20) {
-    color = 'var(--accent-red)';
-  } else if (p < 60) {
-    color = 'var(--accent-orange)';
-  } else {
-    color = 'var(--accent-orange)';
-  }
-
-  el.innerHTML = `${p}<span class="unit">%</span>`;
-  el.style.color = color;
-
-  const isCritical = p < 20;
-  const wasVisible = alerta.classList.contains('visivel');
-  alerta.classList.toggle('visivel', isCritical);
-
-  if (isCritical && !wasVisible) {
-    logTerminal('[WARNING] Nível de ração do Depósito 1 abaixo de 20%!');
-  }
-}
-
-// =====================================================
-// ATUALIZAR UI: DEPÓSITO ÁGUA (V3)
-// =====================================================
-function atualizarDepAgua(p) {
-  const el = document.getElementById('dep-agua-val');
-  const liquid = document.getElementById('dep-agua-liquid');
-  const alerta = document.getElementById('alerta-dep-agua');
-
-  liquid.style.height = `${p}%`;
-  liquid.style.background = 'linear-gradient(180deg, #ff9500 0%, #ff9500 100%)';
-  liquid.style.boxShadow = 'var(--shadow-sm)';
-
-  let color;
-  if (p < 20) {
-    color = 'var(--accent-red)';
-  } else if (p < 60) {
-    color = 'var(--accent-orange)';
-  } else {
-    color = '#ff9500';
-  }
-
-  el.innerHTML = `${p}<span class="unit">%</span>`;
-  el.style.color = color;
-
-  const isEmpty = p < 20;
-  const wasVisible = alerta.classList.contains('visivel');
-  alerta.classList.toggle('visivel', isEmpty);
-
-  if (isEmpty && !wasVisible) {
-    logTerminal('[WARNING] Nível do depósito de água abaixo de 20%!');
-  }
-}
-
-// =====================================================
-// ATUALIZAR UI: TAÇA RAÇÃO BALANÇA (V4)
-// =====================================================
-function atualizarPeso(g) {
-  const el = document.getElementById('peso-val');
-  el.innerHTML = `${g.toFixed(1)} <span class="unit">g</span>`;
-  atualizarSparkline(g);
-  
-  // Set food bowl fill level based on weight (V4)
-  // Let's assume a full bowl is 150g (typical portion size)
-  const maxWeight = 150;
-  const pct = Math.min(Math.max((g / maxWeight) * 100, 0), 100);
-  const bowlFood = document.getElementById('bowl-food-liquid');
-  if (bowlFood) {
-    bowlFood.style.height = `${pct}%`;
-  }
-}
-
-function atualizarSparkline(newValue) {
-  // Se o valor for muito similar ao anterior, apenas atualizamos o último ponto para evitar "achatar" o gráfico
-  const lastVal = pesoHistorico[pesoHistorico.length - 1];
-  if (pesoHistorico.length > 0 && Math.abs(newValue - lastVal) < 1.0) {
-    pesoHistorico[pesoHistorico.length - 1] = newValue;
-  } else {
-    pesoHistorico.push(newValue);
-    if (pesoHistorico.length > 10) pesoHistorico.shift();
-  }
-
-  const width = 300; // Largura fixa baseada no viewBox para escala perfeita
-  const height = 48; // Altura fixa baseada no viewBox para escala perfeita
-  const maxVal = Math.max(...pesoHistorico, 120); // Teto de calibração mínimo 120g
-  const minVal = 0;
-  const range = maxVal - minVal;
-
-  const points = pesoHistorico.map((val, idx) => {
-    const x = (idx / (pesoHistorico.length - 1)) * width;
-    const y = height - 4 - ((val - minVal) / range) * (height - 8);
-    return `${x},${y}`;
-  });
-
-  const pathLine = document.getElementById('sparkline-path');
-  const pathBg = document.getElementById('sparkline-bg');
-
-  const lineD = `M ${points.join(' L ')}`;
-  pathLine.setAttribute('d', lineD);
-
-  const bgD = `${lineD} L ${width},${height} L 0,${height} Z`;
-  pathBg.setAttribute('d', bgD);
-}
-
-// =====================================================
-// ATUALIZAR UI: TAÇA DE ÁGUA (V5)
-// =====================================================
-function atualizarAgua(n) {
-  const label = document.getElementById('agua-label');
-  const liquid = document.getElementById('water-liquid');
-  const alerta = document.getElementById('alerta-agua');
-
-  const states = [
-    { text: 'SEM ÁGUA (0)', pct: 0,   top: '#ff3b30', bot: '#b3001e', glow: 'rgba(255, 23, 68, 0.4)' },
-    { text: 'NÍVEL BAIXO (1)', pct: 33,  top: '#ff9500', bot: '#d35400', glow: 'rgba(255, 140, 0, 0.3)' },
-    { text: 'NÍVEL ADEQUADO (2)', pct: 66,  top: '#34c759', bot: '#00a050', glow: 'rgba(0, 230, 118, 0.3)' },
-    { text: 'CHEIO (3)', pct: 100, top: '#007aff', bot: '#005bb5', glow: 'rgba(0, 242, 254, 0.4)' }
-  ];
-
-  const s = states[Math.min(n, 3)];
-  
-  label.textContent = s.text;
-  label.style.color = s.top;
-  
-  liquid.style.height = `${s.pct}%`;
-  // The water in the bowl is always blue/cyan
-  liquid.style.setProperty('--water-color-top', '#007aff');
-  liquid.style.setProperty('--water-color-bottom', '#005bb5');
-  liquid.style.setProperty('--water-glow', 'rgba(0, 242, 254, 0.4)');
-
-  const isEmpty = n === 0;
-  const wasVisible = alerta.classList.contains('visivel');
-  alerta.classList.toggle('visivel', isEmpty);
-
-  if (isEmpty && !wasVisible) {
-    logTerminal('[WARNING] Tigela de consumo de água vazia!');
-  }
-}
-
-// =====================================================
-// CORE INTERACTION ACTIONS
+// UTILS & REUSABLES
 // =====================================================
 
-// Manual Food Dispense (V1)
-async function darComida() {
-  if (!connected) return mostrarToast('Ligue o painel ao hardware primeiro!', 'error');
-
-  const btn = document.getElementById('btn-alimentar');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-element"></span>A DISPENSAR RAÇÃO...';
-  logTerminal('[STEPPER] A enviar trigger manual de dosagem (V1)...');
-
-  if (modoSimulacao) {
-    setTimeout(() => {
-      const sliderV4 = document.getElementById('sim-slider-v4');
-      let novoPeso = parseFloat(sliderV4.value) + 15.5;
-      if (novoPeso > 150) novoPeso = 150;
-      
-      sliderV4.value = novoPeso;
-      simularAlteracaoSensor('V4', novoPeso);
-      
-      mostrarToast('Simulação: Ração dispensada com sucesso!', 'ok');
-      logTerminal(`[STEPPER] Sucesso. Motor de passo rodou (+15.5g). Peso na taça: ${novoPeso.toFixed(1)}g.`);
-      registarHistorico('Manual');
-      
-      btn.disabled = false;
-      btn.innerHTML = '<i data-lucide="hand"></i>ATIVAR MOTOR DE PASSO (DEITAR COMIDA)';
-      lucide.createIcons();
-    }, 1500);
-    return;
-  }
-
-  const ok = await escreverPin(PINS.BOTAO, 1);
-
-  if (ok) {
-    mostrarToast('Ração dispensada com sucesso!', 'ok');
-    logTerminal('[STEPPER] Sucesso. Motor 28BYJ-48 rodando...');
-    registarHistorico('Manual');
-    
-    // Auto reset pulse just like the physical push-buttons handle it
-    setTimeout(() => escreverPin(PINS.BOTAO, 0), 1000);
-  } else {
-    mostrarToast('Falha ao acionar motor.', 'error');
-    logTerminal('[ERROR] Erro na requisição REST do motor.');
-  }
-
-  setTimeout(() => {
-    btn.disabled = false;
-    btn.innerHTML = '<i data-lucide="hand"></i>ATIVAR MOTOR DE PASSO (DEITAR COMIDA)';
-    lucide.createIcons();
-  }, 3000);
-}
-
-// Tare scale calibration (V6)
-async function realizarTara() {
-  if (!connected) return mostrarToast('Ligue o hardware primeiro!', 'error');
-  
-  const icon = document.getElementById('tara-icon');
-  icon.style.animation = 'spin 1s linear infinite';
-  
-  mostrarToast('A calibrar tara da balança...', 'info');
-  logTerminal('[HX711] A calibrar sensor de tara (V6)...');
-
-  if (modoSimulacao) {
-    setTimeout(() => {
-      const sliderV4 = document.getElementById('sim-slider-v4');
-      sliderV4.value = 0;
-      simularAlteracaoSensor('V4', 0);
-      icon.style.animation = 'none';
-      mostrarToast('Simulação: Tara concluída!', 'ok');
-      logTerminal('[HX711] Tara efetuada com sucesso (0.0g).');
-    }, 1500);
-    return;
-  }
-
-  const ok = await escreverPin(PINS.TARA, 1);
-  if (ok) {
-    setTimeout(() => {
-      escreverPin(PINS.TARA, 0);
-      icon.style.animation = 'none';
-      mostrarToast('Tara concluída!', 'ok');
-      logTerminal('[HX711] Tara efetuada com sucesso.');
-    }, 1500);
-  } else {
-    icon.style.animation = 'none';
-    mostrarToast('Erro ao efetuar tara.', 'error');
-  }
-}
-
-// Manual Water Pump Toggle (V9)
-async function toggleBomba() {
-  if (!connected) return mostrarToast('Ligue o hardware primeiro!', 'error');
-  
-  const btn = document.getElementById('btn-bomba');
-
-  if (modoSimulacao) {
-    bombaAtiva = !bombaAtiva;
-    if (bombaAtiva) {
-      btn.innerHTML = '<i data-lucide="droplet" class="spin-bomba"></i>DESLIGAR BOMBA';
-      btn.style.background = 'linear-gradient(135deg, #ff9500, #ff9500)';
-      btn.style.color = '#04060a';
-      btn.style.borderColor = '#ff9500';
-      mostrarToast('Simulação: Bomba de água ligada!', 'ok');
-      logTerminal('[BOMBA] Bomba manual de água ativa em Simulação.');
-      
-      bombaSimulacaoInterval = setInterval(() => {
-        const sliderV5 = document.getElementById('sim-slider-v5');
-        let val = parseInt(sliderV5.value);
-        if (val < 3) {
-          val++;
-          sliderV5.value = val;
-          simularAlteracaoSensor('V5', val);
-          logTerminal(`[BOMBA] Enchendo taça de água... Nível atual: ${val}`);
-        } else {
-          clearInterval(bombaSimulacaoInterval);
-          bombaSimulacaoInterval = null;
-          bombaAtiva = false;
-          btn.innerHTML = '<i data-lucide="droplet-off"></i>LIGAR BOMBA MANUAL';
-          btn.style.background = 'rgba(255, 255, 255, 0.03)';
-          btn.style.color = 'var(--text-secondary)';
-          btn.style.borderColor = 'var(--border-color)';
-          mostrarToast('Taça cheia! Bomba desligada automaticamente.', 'info');
-          logTerminal('[BOMBA] Sensor V5 detectou CHEIO. Desativação automática da Bomba.');
-          lucide.createIcons();
-        }
-      }, 1500);
-    } else {
-      if (bombaSimulacaoInterval) {
-        clearInterval(bombaSimulacaoInterval);
-        bombaSimulacaoInterval = null;
-      }
-      btn.innerHTML = '<i data-lucide="droplet-off"></i>LIGAR BOMBA MANUAL';
-      btn.style.background = 'rgba(255, 255, 255, 0.03)';
-      btn.style.color = 'var(--text-secondary)';
-      btn.style.borderColor = 'var(--border-color)';
-      mostrarToast('Simulação: Bomba de água desligada.', 'info');
-      logTerminal('[BOMBA] Bomba manual de água desligada.');
-    }
-    lucide.createIcons();
-    return;
-  }
-
-  const nextState = bombaAtiva ? 0 : 1;
-  logTerminal(`[BOMBA] A enviar comando manual para a Bomba (V9) -> ${nextState === 1 ? 'LIGAR' : 'DESLIGAR'}...`);
-  
-  const ok = await escreverPin(PINS.BOMBA, nextState);
-  if (ok) {
-    bombaAtiva = !bombaAtiva;
-    if (bombaAtiva) {
-      btn.innerHTML = '<i data-lucide="droplet" class="spin-bomba"></i>DESLIGAR BOMBA';
-      btn.style.background = 'linear-gradient(135deg, #ff9500, #ff9500)';
-      btn.style.color = '#04060a';
-      btn.style.borderColor = '#ff9500';
-      mostrarToast('Bomba de água manual ligada!', 'ok');
-      logTerminal('[BOMBA] Bomba manual de água ativa.');
-    } else {
-      btn.innerHTML = '<i data-lucide="droplet-off"></i>LIGAR BOMBA MANUAL';
-      btn.style.background = 'rgba(255, 255, 255, 0.03)';
-      btn.style.color = 'var(--text-secondary)';
-      btn.style.borderColor = 'var(--border-color)';
-      mostrarToast('Bomba de água manual desligada.', 'info');
-      logTerminal('[BOMBA] Bomba manual de água desligada.');
-    }
-    lucide.createIcons();
-  } else {
-    mostrarToast('Erro ao acionar bomba.', 'error');
-  }
-}
-
-// Write Schedules to ESP32 (EEPROM)
-async function salvarHorarios() {
-  if (!connected) return mostrarToast('Ligue o hardware primeiro!', 'error');
-
-  const h1 = document.getElementById('horario1').value;
-  const h2 = document.getElementById('horario2').value;
-
-  function toSeconds(t) {
-    const [h, m] = t.split(':').map(Number);
-    return h * 3600 + m * 60;
-  }
-
-  logTerminal(`[EEPROM] Gravação - Horário 1: ${h1} (${toSeconds(h1)}s desde 00:00)`);
-  logTerminal(`[EEPROM] Gravação - Horário 2: ${h2} (${toSeconds(h2)}s desde 00:00)`);
-
-  if (modoSimulacao) {
-    mostrarToast('Simulação: Horários guardados na EEPROM!', 'ok');
-    logTerminal('[SYSTEM] Agendamentos atualizados na EEPROM simulada do ESP32.');
-    return;
-  }
-
-  saveSupabaseSettings();
-  // Guardar na base de dados (Supabase)
-  try {
-    await supa.from('settings').upsert({ id: 1, schedule_1: h1, schedule_2: h2, auth_token: document.getElementById('auth-token').value });
-    logTerminal('[SUPABASE] Definições guardadas na cloud.');
-  } catch(e) {
-    console.error('Erro a guardar supabase:', e);
-  }
-
-  const ok1 = await escreverPin(PINS.HORARIO1, toSeconds(h1));
-  const ok2 = await escreverPin(PINS.HORARIO2, toSeconds(h2));
-
-  if (ok1 && ok2) {
-    mostrarToast('Horários guardados na EEPROM!', 'ok');
-    logTerminal('[SYSTEM] Agendamentos atualizados na EEPROM do ESP32.');
-  } else {
-    mostrarToast('Erro ao enviar agendamentos.', 'error');
-    logTerminal('[ERROR] Falha de gravação de agendamento no Blynk.');
-  }
-}
-
-// =====================================================
-// INTERFACE DE AGENDA E TIMELINE ANIMADA
-// =====================================================
-function atualizarMarkersTimeline() {
-  const t1 = document.getElementById('horario1').value;
-  const t2 = document.getElementById('horario2').value;
-
-  if (t1) {
-    const [h, m] = t1.split(':').map(Number);
-    const pct = ((h + m / 60) / 24) * 100;
-    const marker = document.getElementById('marker-h1');
-    marker.style.left = `${pct}%`;
-    marker.setAttribute('data-time', t1);
-  }
-
-  if (t2) {
-    const [h, m] = t2.split(':').map(Number);
-    const pct = ((h + m / 60) / 24) * 100;
-    const marker = document.getElementById('marker-h2');
-    marker.style.left = `${pct}%`;
-    marker.setAttribute('data-time', t2);
-  }
-}
-
-function setPresetTime(inputId, timeString) {
-  const input = document.getElementById(inputId);
-  input.value = timeString;
-  atualizarMarkersTimeline();
-  logTerminal(`[SCHEDULER] Horário rápido definido em ${inputId === 'horario1' ? 'Horário 1' : 'Horário 2'}: ${timeString}`);
-}
-
-// Histórico de Doseamentos Local
-function registarHistorico(source = 'Manual') {
-  const agora = new Date();
-  const hora = agora.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  const pesoElementText = document.getElementById('peso-val').textContent.replace('g','').trim();
-  const peso = isNaN(parseFloat(pesoElementText)) ? '0.0' : parseFloat(pesoElementText).toFixed(1);
-
-  historico.unshift({ hora, peso, source });
-  saveHistoryToSupabase(hora, peso, source);
-  if (historico.length > 5) historico.pop();
-
-  const ul = document.getElementById('historico-list');
-  ul.innerHTML = historico.map((r, i) => `
-    
-    <li class="xiaomi-timeline-item" style="animation-delay: ${i * 0.06}s">
-      <span class="x-time">${r.hora.substring(0,5)}</span>
-      <span class="x-desc">${r.source === 'Manual' ? 'Manual consumption' : 'Pet\'s consumption'} ${r.peso} g</span>
-    </li>
-  `).join('');
-
-  lucide.createIcons();
-}
-
-// Consola de telemetria
-function logTerminal(msg) {
-  const el = document.getElementById('terminal-body');
-  const now = new Date();
-  const timeStr = now.toLocaleTimeString('pt-PT', { hour12: false });
-
-  const div = document.createElement('div');
-  div.className = 'terminal-line';
-  div.innerHTML = `<span class="term-time">[${timeStr}]</span> ${msg}`;
-  el.appendChild(div);
-
-  while (el.childNodes.length > 25) {
-    el.removeChild(el.firstChild);
-  }
-  el.scrollTop = el.scrollHeight;
-}
-
-// Toast Popup Controller
+// Toast control
 let toastTimer;
 function mostrarToast(msg, tipo = 'info') {
   const el = document.getElementById('toast');
@@ -1263,37 +2473,49 @@ function mostrarToast(msg, tipo = 'info') {
   const icon = document.getElementById('toast-icon');
 
   text.textContent = msg;
+  el.className = 'toast-popup show';
   
-  el.className = 'show';
   icon.setAttribute('data-lucide', 'info');
-  
   if (tipo === 'error') {
     el.classList.add('error');
-    icon.setAttribute('data-lucide', 'x-circle');
-  } else if (tipo === 'warn') {
-    el.classList.add('warn');
     icon.setAttribute('data-lucide', 'alert-circle');
   } else if (tipo === 'ok') {
     el.classList.add('ok');
     icon.setAttribute('data-lucide', 'check-circle');
   }
-
-  lucide.createIcons();
   
+  lucide.createIcons();
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.style.display = 'none', 4000);
+  toastTimer = setTimeout(() => {
+    el.className = 'toast-popup';
+  }, 3000);
 }
 
+// Log directly into bottom sheet terminal panel
+function logTerminal(msg) {
+  const el = document.getElementById('terminal-body');
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('pt-PT', { hour12: false });
+  const div = document.createElement('div');
+  div.style.margin = '4px 0';
+  div.innerHTML = `<span style="color:#7d7d7d;">[${timeStr}]</span> ${msg}`;
+  el.appendChild(div);
+
+  while (el.childNodes.length > 20) {
+    el.removeChild(el.firstChild);
+  }
+  el.scrollTop = el.scrollHeight;
+}
+
+
 // =====================================================
-// 3D VIEW CONTROLLERS
+// 3D MODEL CONTROLS
 // =====================================================
 function toggle3DRotate() {
   const viewer = document.getElementById('modelo3d');
   const btn = document.getElementById('btn-rotate');
-  
   viewer.autoRotate = !viewer.autoRotate;
   btn.classList.toggle('active', viewer.autoRotate);
-  
   logTerminal(`[3D] Rotação automática ${viewer.autoRotate ? 'ligada' : 'desligada'}.`);
 }
 
@@ -1301,43 +2523,38 @@ function reset3DCamera() {
   const viewer = document.getElementById('modelo3d');
   viewer.cameraOrbit = 'unset';
   viewer.cameraTarget = 'unset';
-  logTerminal('[3D] Câmara 3D restaurada para o padrão.');
-  mostrarToast('Câmara 3D redefinida.', 'info');
+  logTerminal('[3D] Câmara redefinida.');
 }
 
 
-// Toggle 3D Model
-function toggle3DModel() {
-  const modelCard = document.getElementById('model-card-content');
-  const btnText = document.getElementById('toggle-3d-text');
-  if (modelCard.style.display === 'none') {
-    modelCard.style.display = 'block';
-    btnText.textContent = 'Hide 3D Model';
-  } else {
-    modelCard.style.display = 'none';
-    btnText.textContent = 'Show 3D Model';
-  }
-}
-
-// Initializer
+// =====================================================
+// PAGE LOAD INITIALIZER
+// =====================================================
 window.addEventListener('load', async () => {
-  // Load from DB first
+  // Load settings and history records from Supabase
   await loadSupabaseSettings();
   await loadSupabaseHistory();
-  // Lucide Icons
+  
+  // Render lucide icons
   lucide.createIcons();
   
-  // Fill Auth Token automatically on startup
-  const inp = document.getElementById('auth-token');
-  if (!inp.value) inp.value = 'sOOvSR9kmZxS_CMp5pvbqQHDbGvJczP1';
+  // Reconnect automatically to Blynk with loaded credentials
+  conectar();
 
-  // Initialize schedules visual timeline
-  atualizarMarkersTimeline();
-  
-  // Init scale sparkline empty with the last historical value
-  atualizarSparkline(pesoHistorico[pesoHistorico.length - 1] || 0);
-
-  // Resize listener for live sparkline widths
-  window.addEventListener('resize', () => atualizarSparkline(pesoHistorico[pesoHistorico.length - 1] || 0));
+  // If Supabase history is empty, populate local mock log values
+  if (historico.length === 0) {
+    historico.push(
+      { hora: '19:00', peso: 10, source: 'Schedule' },
+      { hora: '12:35', peso: 8, source: 'Pet' },
+      { hora: '12:32', peso: 4, source: 'Pet' },
+      { hora: '12:31', peso: 5, source: 'Pet' },
+      { hora: '08:03', peso: 11, source: 'Pet' },
+      { hora: '07:00', peso: 10, source: 'Schedule' }
+    );
+    renderHistorico();
+    atualizarTotalConsumoHoje();
+  }
 });
 </script>
+</body>
+</html>
