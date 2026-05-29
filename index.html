@@ -1459,21 +1459,9 @@
       <div class="wifi-list-container">
         <div class="wifi-list-header">Redes Wi-Fi que podem ser usadas para adicionar dispositivos (2.4G)</div>
         <div class="wifi-list-items" id="wifi-list-24g">
-          <div class="wifi-item" onclick="selecionarRedeWifi('REDE5-5G')">
-            <span>REDE5-5G</span>
-            <i data-lucide="wifi"></i>
-          </div>
-          <div class="wifi-item" onclick="selecionarRedeWifi('REDE5-2G')">
-            <span>REDE5-2G</span>
-            <i data-lucide="wifi"></i>
-          </div>
-          <div class="wifi-item" onclick="selecionarRedeWifi('VIVOFIBRA-A270')">
-            <span>VIVOFIBRA-A270</span>
-            <i data-lucide="wifi"></i>
-          </div>
-          <div class="wifi-item" onclick="selecionarRedeWifi('DIRECT-C1-HP Smart Tank 610')">
-            <span>DIRECT-C1-HP Smart Tank 610</span>
-            <i data-lucide="wifi"></i>
+          <div style="padding: 20px 24px; text-align: center; color: var(--text-sub); font-size: 13px;">
+            <i data-lucide="wifi-off" style="width:24px;height:24px;display:block;margin:0 auto 8px;color:#ccc;"></i>
+            Liga o ESP32 para detetar redes Wi-Fi disponíveis.
           </div>
         </div>
         
@@ -1604,8 +1592,8 @@ let connected = false;
 let pollingInterval = null;
 const historico = [];
 
-// Fallback sample values for chart demo
-const pesoHistorico = [0, 80, 75, 30, 0, 120, 110, 75, 10, 45];
+// Sensor weight history array - starts empty, filled by real sensor data
+const pesoHistorico = [];
 let bombaAtiva = false;
 let modoSimulacao = false;
 let bombaSimulacaoInterval = null;
@@ -2095,9 +2083,19 @@ async function openWifiScreen() {
   }
 
   if (!connected) {
-    mostrarToast('ESP32 desconectado. Mostrando redes padrão.', 'error');
-    logTerminal('[WiFiManager] Hardware offline. Mostrando redes padrão para demonstração.');
-    populateWifiList(['REDE5-5G', 'REDE5-2G', 'VIVOFIBRA-A270', 'DIRECT-C1-HP Smart Tank 610']);
+    mostrarToast('ESP32 desconectado. Liga o dispositivo para ver redes Wi-Fi.', 'error');
+    logTerminal('[WiFiManager] Hardware offline. Lista de redes Wi-Fi indisponível.');
+    // Clear list and show offline message
+    const container = document.getElementById('wifi-list-24g');
+    if (container) {
+      container.innerHTML = `
+        <div style="padding: 20px 24px; text-align: center; color: var(--text-sub); font-size: 13px;">
+          <i data-lucide="wifi-off" style="width:24px;height:24px;display:block;margin:0 auto 8px;color:#ccc;"></i>
+          Liga o ESP32 para detetar redes Wi-Fi disponíveis.
+        </div>
+      `;
+      lucide.createIcons();
+    }
     return;
   }
 
@@ -2119,8 +2117,8 @@ async function openWifiScreen() {
       logTerminal(`[WiFiManager] Lista de redes recebida: ${redes}`);
       mostrarToast('Redes Wi-Fi atualizadas!', 'ok');
     } else {
-      logTerminal('[WiFiManager] Sem resposta de redes do hardware. Mostrando redes padrão.');
-      populateWifiList(['REDE5-5G', 'REDE5-2G', 'VIVOFIBRA-A270', 'DIRECT-C1-HP Smart Tank 610']);
+      logTerminal('[WiFiManager] ESP32 não devolveu redes. Tenta novamente.');
+      mostrarToast('Nenhuma rede encontrada. Tenta novamente.', 'error');
     }
   }, 4000);
 }
@@ -2307,18 +2305,38 @@ function switchStatsTab(tabType) {
   document.getElementById('tab-day').classList.toggle('active', tabType === 'day');
   document.getElementById('tab-week').classList.toggle('active', tabType === 'week');
   
-  const textAmount = document.getElementById('stats-amount-eaten');
-  const textPortions = document.getElementById('stats-portions-dispensed');
   const dateLabel = document.getElementById('stats-current-date');
+  const today = new Date();
 
   if (tabType === 'day') {
-    textAmount.innerHTML = `32<span class="metric-unit">g</span>`;
-    textPortions.innerHTML = `2<span class="metric-unit">Portions</span>`;
-    dateLabel.textContent = '05/29';
+    // Show today's totals from historico
+    const todayStr = `${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
+    dateLabel.textContent = todayStr;
+
+    let sumDay = 0;
+    let countDay = 0;
+    historico.forEach(item => {
+      sumDay += parseFloat(item.peso) || 0;
+      countDay++;
+    });
+
+    document.getElementById('stats-amount-eaten').innerHTML = `${sumDay.toFixed(0)}<span class="metric-unit">g</span>`;
+    document.getElementById('stats-portions-dispensed').innerHTML = `${countDay}<span class="metric-unit">Portions</span>`;
   } else {
-    textAmount.innerHTML = `244<span class="metric-unit">g</span>`;
-    textPortions.innerHTML = `14<span class="metric-unit">Portions</span>`;
-    dateLabel.textContent = '05/23 - 05/29';
+    // Show week totals from historico (all entries)
+    const startStr = `${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()-6).padStart(2,'0')}`;
+    const endStr = `${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
+    dateLabel.textContent = `${startStr} - ${endStr}`;
+
+    let sumWeek = 0;
+    let countWeek = 0;
+    historico.forEach(item => {
+      sumWeek += parseFloat(item.peso) || 0;
+      countWeek++;
+    });
+
+    document.getElementById('stats-amount-eaten').innerHTML = `${sumWeek.toFixed(0)}<span class="metric-unit">g</span>`;
+    document.getElementById('stats-portions-dispensed').innerHTML = `${countWeek}<span class="metric-unit">Portions</span>`;
   }
   
   desenharSVGCharts();
@@ -2329,82 +2347,93 @@ function desenharSVGCharts() {
   const chartPort = document.getElementById('chart-portions-dispensed');
   if (!chartFood || !chartPort) return;
 
+  const emptyChartSVG = `
+    <svg class="chart-svg" viewBox="0 0 340 120">
+      <text x="170" y="65" fill="var(--text-sub)" font-size="11" text-anchor="middle">Sem dados disponíveis</text>
+      <line x1="20" y1="100" x2="330" y2="100" stroke="#f0f0f2" stroke-width="1"/>
+    </svg>
+  `;
+
+  if (historico.length === 0) {
+    chartFood.innerHTML = emptyChartSVG;
+    chartPort.innerHTML = emptyChartSVG;
+    return;
+  }
+
   if (currentStatsTab === 'day') {
-    // 2 Bars matching Screenshot 3: (09:00, 13:00)
+    // Build real bars from historico — map each entry to an hour-based X position
+    const maxPeso = Math.max(...historico.map(i => parseFloat(i.peso) || 0), 1);
+    const chartH = 90; // max bar height in px
+
+    const foodBars = historico.map(item => {
+      const peso = parseFloat(item.peso) || 0;
+      // Parse "HH:MM" to hour fraction 0-24
+      const parts = item.hora.split(':').map(Number);
+      const hourFrac = (parts[0] || 0) + (parts[1] || 0) / 60;
+      const x = Math.round(20 + (hourFrac / 24) * 300);
+      const barH = Math.round((peso / maxPeso) * chartH);
+      const y = 100 - barH;
+      return `<rect x="${x}" y="${y}" width="8" height="${barH}" rx="3" fill="var(--accent-orange)" />`;
+    }).join('');
+
     chartFood.innerHTML = `
       <svg class="chart-svg" viewBox="0 0 340 120">
-        <!-- Grid/Axis labels -->
-        <text x="5" y="15" fill="var(--text-sub)" font-size="10">17</text>
-        <text x="5" y="65" fill="var(--text-sub)" font-size="10">5</text>
-        
+        <text x="5" y="15" fill="var(--text-sub)" font-size="10">${maxPeso.toFixed(0)}g</text>
+        <text x="5" y="105" fill="var(--text-sub)" font-size="10">0g</text>
         <text x="30" y="115" fill="var(--text-sub)" font-size="9">01:00</text>
-        <text x="160" y="115" fill="var(--text-sub)" font-size="9">12:00</text>
-        <text x="290" y="115" fill="var(--text-sub)" font-size="9">24:00</text>
-
-        <!-- Vertical bars -->
-        <rect x="125" y="40" width="8" height="60" rx="3" fill="var(--accent-orange)" />
-        <rect x="175" y="30" width="8" height="70" rx="3" fill="var(--accent-orange)" />
+        <text x="155" y="115" fill="var(--text-sub)" font-size="9">12:00</text>
+        <text x="285" y="115" fill="var(--text-sub)" font-size="9">24:00</text>
+        <line x1="20" y1="100" x2="330" y2="100" stroke="#f0f0f2" stroke-width="1"/>
+        ${foodBars}
       </svg>
     `;
-    
-    // 1 Bar matching Screenshot 3: (07:00)
+
+    const portBars = historico.map((item, idx) => {
+      const parts = item.hora.split(':').map(Number);
+      const hourFrac = (parts[0] || 0) + (parts[1] || 0) / 60;
+      const x = Math.round(20 + (hourFrac / 24) * 300);
+      return `<rect x="${x}" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />`;
+    }).join('');
+
     chartPort.innerHTML = `
       <svg class="chart-svg" viewBox="0 0 340 120">
-        <text x="5" y="15" fill="var(--text-sub)" font-size="10">7</text>
-        <text x="5" y="100" fill="var(--text-sub)" font-size="10">0</text>
-        
+        <text x="5" y="15" fill="var(--text-sub)" font-size="10">${historico.length}</text>
+        <text x="5" y="105" fill="var(--text-sub)" font-size="10">0</text>
         <text x="30" y="115" fill="var(--text-sub)" font-size="9">01:00</text>
-        <text x="160" y="115" fill="var(--text-sub)" font-size="9">12:00</text>
-        <text x="290" y="115" fill="var(--text-sub)" font-size="9">24:00</text>
-
-        <rect x="115" y="35" width="8" height="65" rx="3" fill="var(--accent-orange)" />
+        <text x="155" y="115" fill="var(--text-sub)" font-size="9">12:00</text>
+        <text x="285" y="115" fill="var(--text-sub)" font-size="9">24:00</text>
+        <line x1="20" y1="100" x2="330" y2="100" stroke="#f0f0f2" stroke-width="1"/>
+        ${portBars}
       </svg>
     `;
   } else {
-    // Week view: 7 Bars representing weekly totals
+    // Week view: show axis labels only since we don't have day-level granularity
+    const weekLabels = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+    const xPositions = [40, 85, 130, 175, 220, 265, 310];
+    const labelSVG = weekLabels.map((l, i) => `<text x="${xPositions[i]}" y="115" fill="var(--text-sub)" font-size="9">${l}</text>`).join('');
+
+    const sumAll = historico.reduce((s, i) => s + (parseFloat(i.peso) || 0), 0);
+    const maxPeso = Math.max(sumAll, 1);
+    // Today's total as single bar on the last (rightmost) day column
+    const barH = Math.min(90, Math.round((sumAll / maxPeso) * 90));
+
     chartFood.innerHTML = `
       <svg class="chart-svg" viewBox="0 0 340 120">
-        <text x="5" y="15" fill="var(--text-sub)" font-size="10">50</text>
-        <text x="5" y="100" fill="var(--text-sub)" font-size="10">0</text>
-        
-        <text x="35" y="115" fill="var(--text-sub)" font-size="9">Seg</text>
-        <text x="80" y="115" fill="var(--text-sub)" font-size="9">Ter</text>
-        <text x="125" y="115" fill="var(--text-sub)" font-size="9">Qua</text>
-        <text x="170" y="115" fill="var(--text-sub)" font-size="9">Qui</text>
-        <text x="215" y="115" fill="var(--text-sub)" font-size="9">Sex</text>
-        <text x="260" y="115" fill="var(--text-sub)" font-size="9">Sáb</text>
-        <text x="305" y="115" fill="var(--text-sub)" font-size="9">Dom</text>
-
-        <rect x="40" y="45" width="8" height="55" rx="3" fill="var(--accent-orange)" />
-        <rect x="85" y="30" width="8" height="70" rx="3" fill="var(--accent-orange)" />
-        <rect x="130" y="55" width="8" height="45" rx="3" fill="var(--accent-orange)" />
-        <rect x="175" y="40" width="8" height="60" rx="3" fill="var(--accent-orange)" />
-        <rect x="220" y="25" width="8" height="75" rx="3" fill="var(--accent-orange)" />
-        <rect x="265" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
-        <rect x="310" y="35" width="8" height="65" rx="3" fill="var(--accent-orange)" />
+        <text x="5" y="15" fill="var(--text-sub)" font-size="10">${sumAll.toFixed(0)}g</text>
+        <text x="5" y="105" fill="var(--text-sub)" font-size="10">0g</text>
+        ${labelSVG}
+        <line x1="20" y1="100" x2="330" y2="100" stroke="#f0f0f2" stroke-width="1"/>
+        <rect x="${xPositions[6]}" y="${100 - barH}" width="8" height="${barH}" rx="3" fill="var(--accent-orange)" />
       </svg>
     `;
 
     chartPort.innerHTML = `
       <svg class="chart-svg" viewBox="0 0 340 120">
-        <text x="5" y="15" fill="var(--text-sub)" font-size="10">4</text>
-        <text x="5" y="100" fill="var(--text-sub)" font-size="10">0</text>
-        
-        <text x="35" y="115" fill="var(--text-sub)" font-size="9">Seg</text>
-        <text x="80" y="115" fill="var(--text-sub)" font-size="9">Ter</text>
-        <text x="125" y="115" fill="var(--text-sub)" font-size="9">Qua</text>
-        <text x="170" y="115" fill="var(--text-sub)" font-size="9">Qui</text>
-        <text x="215" y="115" fill="var(--text-sub)" font-size="9">Sex</text>
-        <text x="260" y="115" fill="var(--text-sub)" font-size="9">Sáb</text>
-        <text x="305" y="115" fill="var(--text-sub)" font-size="9">Dom</text>
-
-        <rect x="40" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
-        <rect x="85" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
-        <rect x="130" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
-        <rect x="175" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
-        <rect x="220" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
-        <rect x="265" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
-        <rect x="310" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
+        <text x="5" y="15" fill="var(--text-sub)" font-size="10">${historico.length}</text>
+        <text x="5" y="105" fill="var(--text-sub)" font-size="10">0</text>
+        ${labelSVG}
+        <line x1="20" y1="100" x2="330" y2="100" stroke="#f0f0f2" stroke-width="1"/>
+        <rect x="${xPositions[6]}" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
       </svg>
     `;
   }
