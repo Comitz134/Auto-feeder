@@ -1454,7 +1454,7 @@
       
       <div class="wifi-list-container">
         <div class="wifi-list-header">Redes Wi-Fi que podem ser usadas para adicionar dispositivos (2.4G)</div>
-        <div class="wifi-list-items">
+        <div class="wifi-list-items" id="wifi-list-24g">
           <div class="wifi-item" onclick="selecionarRedeWifi('REDE5-5G')">
             <span>REDE5-5G</span>
             <i data-lucide="wifi"></i>
@@ -1617,6 +1617,8 @@ const PINS = {
   HORARIO1:    'V7',  // Schedule 1 seconds from 00:00
   HORARIO2:    'V8',  // Schedule 2 seconds from 00:00
   BOMBA:       'V9',  // Water pump trigger
+  WIFI_LIST:   'V10', // Scanned wifi networks list (comma-separated string)
+  WIFI_SCAN:   'V11', // Wifi scan request trigger (pulse)
 };
 
 // Blynk REST API - Read Pin Value
@@ -2070,9 +2072,45 @@ function switchScreen(screenId) {
 }
 
 // Wi-Fi Screen Wizard
-function openWifiScreen() {
+async function openWifiScreen() {
   switchScreen('screen-wifi');
+  if (connected && !modoSimulacao) {
+    mostrarToast('A ler redes Wi-Fi do ESP32...', 'info');
+    logTerminal('[WiFiManager] A solicitar escaneamento de redes ao ESP32...');
+    
+    // Trigger wifi scan (V11)
+    await escreverPin(PINS.WIFI_SCAN, 1);
+    
+    // Pulse V11 off
+    setTimeout(() => escreverPin(PINS.WIFI_SCAN, 0), 1000);
+
+    // Fetch scanned list (V10) after 4 seconds
+    setTimeout(async () => {
+      const redes = await lerPin(PINS.WIFI_LIST);
+      if (redes && redes.toString().trim() !== '' && redes.toString() !== 'Nenhuma rede detetada') {
+        const arr = redes.toString().split(',');
+        populateWifiList(arr);
+        logTerminal(`[WiFiManager] Lista de redes recebida: ${redes}`);
+        mostrarToast('Redes Wi-Fi atualizadas!', 'ok');
+      } else {
+        logTerminal('[WiFiManager] Sem resposta de redes do hardware. Carregadas redes predefinidas.');
+      }
+    }, 4000);
+  }
 }
+
+function populateWifiList(arr) {
+  const container = document.getElementById('wifi-list-24g');
+  if (!container) return;
+  container.innerHTML = arr.map(ssid => `
+    <div class="wifi-item" onclick="selecionarRedeWifi('${ssid}')">
+      <span>${ssid}</span>
+      <i data-lucide="wifi"></i>
+    </div>
+  `).join('');
+  lucide.createIcons();
+}
+
 function closeWifiScreen() {
   switchScreen('screen-dashboard');
 }

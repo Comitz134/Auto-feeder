@@ -80,6 +80,8 @@ char pass[] = "G4HWAXEU";
 #define VPIN_HORARIO1 V7
 #define VPIN_HORARIO2 V8
 #define VPIN_BOMBA_MANUAL V9 // Botão manual da bomba no Blynk
+#define VPIN_WIFI_LIST V10   // Lista de SSIDs separados por vírgula (Envio)
+#define VPIN_WIFI_SCAN_TRIGGER V11 // Pedido de scan via painel (Recibo)
 
 // --- Objetos ---
 Stepper myStepper(STEPPER_STEPS, MOTOR_IN1, MOTOR_IN2, MOTOR_IN3,
@@ -558,6 +560,31 @@ BLYNK_WRITE(V9) {
     digitalWrite(BOMBA_GATE, LOW);
     estado.bombaAtiva = false;
     Serial.println("[Bomba] Desativada manualmente via Blynk");
+  }
+}
+
+// Escaneamento de redes Wi-Fi locais pedido pelo painel
+void escaniarWifi() {
+  Serial.println("[WiFi] A escaniar redes 2.4GHz...");
+  int n = WiFi.scanNetworks();
+  String lista = "";
+  if (n > 0) {
+    int limit = min(5, n); // Limita às 5 melhores redes
+    for (int i = 0; i < limit; ++i) {
+      lista += WiFi.SSID(i);
+      if (i < limit - 1) lista += ",";
+    }
+  } else {
+    lista = "Nenhuma rede detetada";
+  }
+  Blynk.virtualWrite(V10, lista);
+  Serial.println("[WiFi] Redes enviadas para o Blynk: " + lista);
+}
+
+// Receptor de gatilho para escaneamento de redes (V11)
+BLYNK_WRITE(V11) {
+  if (param.asInt() == 1) {
+    escaniarWifi();
   }
 }
 
