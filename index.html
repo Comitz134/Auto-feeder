@@ -1843,7 +1843,6 @@ function atualizarTotalConsumoHoje() {
       sum += parseFloat(item.peso) || 0;
     }
   });
-  if (sum === 0) sum = 32; // Default starting visual state
   document.getElementById('peso-val-display').innerHTML = `${sum.toFixed(0)}<span class="unit">g</span>`;
   document.getElementById('stats-amount-eaten').innerHTML = `${sum.toFixed(0)}<span class="unit">g</span>`;
   desenharSVGCharts();
@@ -2541,19 +2540,8 @@ window.addEventListener('load', async () => {
   // Reconnect automatically to Blynk with loaded credentials
   conectar();
 
-  // If Supabase history is empty, populate local mock log values
-  if (historico.length === 0) {
-    historico.push(
-      { hora: '19:00', peso: 10, source: 'Schedule' },
-      { hora: '12:35', peso: 8, source: 'Pet' },
-      { hora: '12:32', peso: 4, source: 'Pet' },
-      { hora: '12:31', peso: 5, source: 'Pet' },
-      { hora: '08:03', peso: 11, source: 'Pet' },
-      { hora: '07:00', peso: 10, source: 'Schedule' }
-    );
-    renderHistorico();
-    atualizarTotalConsumoHoje();
-  }
+  renderHistorico();
+  atualizarTotalConsumoHoje();
 });
 </script>
 </body>
