@@ -1,0 +1,19 @@
+{
+  "name": "Smart Pet Feeder",
+  "short_name": "Pet Feeder",
+  "description": "App local para controlar o alimentador e guardar o perfil nutricional do animal.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fff8ef",
+  "theme_color": "#ff9300",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

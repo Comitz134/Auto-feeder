@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Xiaomi Smart Pet Food Feeder 2</title>
+<meta name="theme-color" content="#ff9300">
+<link rel="manifest" href="manifest.json">
+<title>Smart Pet Feeder — Rafael & Rodrigo</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
 <!-- Supabase SDK -->
@@ -269,7 +271,7 @@
     cursor: pointer;
   }
 
-  /* BUTTONS styling matching Xiaomi app */
+  /* BUTTONS styling */
   .btn-orange-pill {
     background: var(--accent-orange);
     color: #ffffff;
@@ -947,6 +949,185 @@
     cursor: not-allowed;
   }
 
+  /* XIAOMI-LIKE PET PROFILE + NUTRITION */
+  .mi-page-title {
+    font-size: 29px;
+    font-weight: 400;
+    line-height: 1.18;
+    letter-spacing: 0;
+    padding: 4px 4px 22px;
+    color: var(--text-main);
+  }
+  .mi-form-list {
+    display: flex;
+    flex-direction: column;
+  }
+  .mi-form-row {
+    min-height: 58px;
+    display: grid;
+    grid-template-columns: minmax(96px, 1fr) minmax(120px, 1.4fr) 20px;
+    align-items: center;
+    gap: 8px;
+    border: 0;
+    background: transparent;
+    color: var(--text-main);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .mi-row-label {
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .mi-row-value {
+    color: var(--text-sub);
+    font-size: 13px;
+    text-align: right;
+    line-height: 1.2;
+  }
+  .mi-form-row i {
+    width: 18px;
+    height: 18px;
+    color: #b6b6ba;
+  }
+  .mi-helper {
+    color: var(--text-sub);
+    font-size: 11px;
+    line-height: 1.45;
+    padding: 0 4px 20px;
+  }
+  .nutrition-summary {
+    background: linear-gradient(180deg, #fff8ef 0%, #ffffff 100%);
+    border-radius: var(--radius-xl);
+    padding: 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    box-shadow: 0 2px 14px rgba(0,0,0,0.015);
+  }
+  .nutrition-summary .wide {
+    grid-column: 1 / -1;
+  }
+  .nutri-kpi-value {
+    font-size: 27px;
+    font-weight: 400;
+    line-height: 1;
+  }
+  .nutri-kpi-value small {
+    color: var(--text-sub);
+    font-size: 12px;
+    font-weight: 500;
+    margin-left: 3px;
+  }
+  .nutri-kpi-label {
+    color: var(--text-sub);
+    font-size: 11px;
+    margin-top: 5px;
+  }
+  .science-note {
+    color: var(--text-sub);
+    font-size: 11px;
+    line-height: 1.45;
+  }
+  .recommendation-card {
+    gap: 14px;
+  }
+  .recommendation-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  .recommendation-row strong {
+    font-size: 17px;
+    font-weight: 600;
+  }
+  .recommendation-row span {
+    color: var(--text-sub);
+    font-size: 12px;
+  }
+  .recommendation-pill {
+    background: var(--accent-orange-light);
+    color: var(--accent-orange);
+    border-radius: 99px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* LOCAL LOGIN */
+  .login-screen {
+    background: linear-gradient(180deg, var(--bg-top) 0%, #fff7ec 42%, var(--bg-bottom) 100%);
+    padding: 28px 24px 24px;
+    justify-content: space-between;
+  }
+  .login-brand {
+    padding-top: 22px;
+  }
+  .login-brand-mark {
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    background: var(--accent-orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    box-shadow: 0 12px 26px rgba(255, 147, 0, 0.28);
+  }
+  .login-brand-mark i {
+    width: 34px;
+    height: 34px;
+  }
+  .login-brand h1 {
+    font-size: 34px;
+    line-height: 1.08;
+    font-weight: 400;
+    margin-top: 28px;
+    letter-spacing: 0;
+  }
+  .login-brand p {
+    color: var(--text-sub);
+    font-size: 13px;
+    line-height: 1.45;
+    margin-top: 10px;
+    max-width: 290px;
+  }
+  .login-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 12px;
+  }
+  .login-input {
+    width: 100%;
+    height: 50px;
+    border: 0;
+    outline: none;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.82);
+    padding: 0 15px;
+    font: inherit;
+    color: var(--text-main);
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.035);
+  }
+  .login-input::placeholder {
+    color: #aaa;
+  }
+  .login-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .login-note {
+    color: var(--text-sub);
+    font-size: 11px;
+    line-height: 1.4;
+    text-align: center;
+    padding: 0 8px;
+  }
+
   /* TOAST */
   .toast-popup {
     position: absolute;
@@ -1009,14 +1190,32 @@
 <body>
 
 <div class="app-viewport">
+
+  <!-- SCREEN 0: LOCAL LOGIN -->
+  <div id="screen-login" class="app-screen login-screen active">
+    <div class="login-brand">
+      <div class="login-brand-mark"><i data-lucide="paw-print"></i></div>
+      <h1>Smart Pet<br>Feeder</h1>
+      <p>Entra no teu perfil para guardar no telemóvel os dados do animal, composição da ração e recomendações.</p>
+    </div>
+    <div class="login-panel">
+      <input class="login-input" id="login-name" autocomplete="username" placeholder="Utilizador">
+      <input class="login-input" id="login-pass" autocomplete="current-password" type="password" placeholder="Palavra-passe">
+      <div class="login-actions">
+        <button class="btn-orange-pill full-width" onclick="loginLocalUser()">Entrar</button>
+        <button class="btn-beige-pill" onclick="registerLocalUser()">Criar conta</button>
+      </div>
+      <p class="login-note">Os dados ficam guardados neste telemóvel/browser. Para sincronizar entre telemóveis é preciso ativar login cloud.</p>
+    </div>
+  </div>
   
   <!-- SCREEN 1: DASHBOARD -->
-  <div id="screen-dashboard" class="app-screen active">
+  <div id="screen-dashboard" class="app-screen">
     <!-- Header -->
     <header class="screen-header">
-      <button class="header-btn" onclick="mostrarToast('Xiaomi Smart Pet Feeder 2')"><i data-lucide="chevron-left"></i></button>
+      <button class="header-btn" onclick="mostrarToast('Smart Pet Feeder')"><i data-lucide="chevron-left"></i></button>
       <div class="header-title">
-        <h2>Smart Pet Feeder 2</h2>
+        <h2>Smart Pet Feeder</h2>
         <div class="status-badge"><span class="status-dot offline" id="dot"></span> <span id="conn-text">Disconnected</span></div>
       </div>
       <button class="header-btn" onclick="openSettingsSheet()"><i data-lucide="more-vertical"></i></button>
@@ -1078,6 +1277,20 @@
         <button class="btn-blue-pill" id="btn-bomba" onclick="toggleBomba()">Pump</button>
       </div>
 
+      <div class="app-card recommendation-card" onclick="switchScreen('screen-pet-profile')">
+        <div class="card-header" style="margin-bottom: 0;">
+          <h3>Recomendação alimentar</h3>
+          <i data-lucide="chevron-right" class="chevron-arrow"></i>
+        </div>
+        <div class="recommendation-row">
+          <div>
+            <strong id="dash-dose-day">-- g/dia</strong>
+            <span id="dash-dose-sub">Configura o animal e a ração</span>
+          </div>
+          <div class="recommendation-pill" id="dash-meals-pill">-- refeições</div>
+        </div>
+      </div>
+
       <!-- Today's feed log list -->
       <div class="app-card timeline-card" onclick="switchScreen('screen-statistics')">
         <div class="card-header">
@@ -1087,7 +1300,7 @@
         <ul class="feed-log-list" id="historico-list">
           <li class="feed-log-item">
             <span class="log-time">--:--</span>
-            <div class="log-text">No consumption records loaded</div>
+            <div class="log-text">Sem registos de alimentação</div>
           </li>
         </ul>
       </div>
@@ -1099,6 +1312,62 @@
           <span>Automatic feeding schedule</span>
         </div>
         <span class="action-text"><span id="sched-footer-status">Enable</span> <i data-lucide="chevron-right" class="chevron-arrow inline"></i></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN: PET PROFILE -->
+  <div id="screen-pet-profile" class="app-screen">
+    <header class="screen-header">
+      <button class="header-btn" onclick="switchScreen('screen-dashboard')"><i data-lucide="chevron-left"></i></button>
+      <div class="header-title"></div>
+      <button class="header-btn" onclick="guardarPerfilNutricional(); switchScreen('screen-dashboard');"><i data-lucide="check"></i></button>
+    </header>
+    <div class="screen-content scrollable">
+      <h1 class="mi-page-title">Informações do animal de estimação</h1>
+      <div class="mi-form-list">
+        <button class="mi-form-row" onclick="editarCampoPerfil('petName')"><span class="mi-row-label">Nome</span><span class="mi-row-value" id="petName-val">Emma</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('ageYears')"><span class="mi-row-label">Idade</span><span class="mi-row-value" id="ageYears-val">7 anos</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('species')"><span class="mi-row-label">Espécie</span><span class="mi-row-value" id="species-val">Gato</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('breed')"><span class="mi-row-label">Raça</span><span class="mi-row-value" id="breed-val">Pelo Curto</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('sex')"><span class="mi-row-label">Género</span><span class="mi-row-value" id="sex-val">Macho</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('neutered')"><span class="mi-row-label">Castrado</span><span class="mi-row-value" id="neutered-val">Sim</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('weightKg')"><span class="mi-row-label">Peso</span><span class="mi-row-value" id="weightKg-val">4.5 kg</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('activity')"><span class="mi-row-label">Atividade</span><span class="mi-row-value" id="activity-val">Normal</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="switchScreen('screen-food-composition')"><span class="mi-row-label">Comida</span><span class="mi-row-value" id="foodName-val">Outras marcas</span><i data-lucide="chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN: FOOD COMPOSITION -->
+  <div id="screen-food-composition" class="app-screen">
+    <header class="screen-header">
+      <button class="header-btn" onclick="switchScreen('screen-pet-profile')"><i data-lucide="chevron-left"></i></button>
+      <div class="header-title"></div>
+      <button class="header-btn" onclick="guardarPerfilNutricional(); switchScreen('screen-pet-profile');"><i data-lucide="check"></i></button>
+    </header>
+    <div class="screen-content scrollable">
+      <h1 class="mi-page-title">Outras marcas</h1>
+      <p class="mi-helper">Encontra a composição analítica na embalagem da ração e insere os valores em percentagem. A app estima a energia metabolizável e ajusta a dose diária.</p>
+      <div class="mi-form-list">
+        <button class="mi-form-row" onclick="editarCampoPerfil('foodName')"><span class="mi-row-label">Nome da comida</span><span class="mi-row-value" id="foodName2-val">Outras marcas</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('proteinPct')"><span class="mi-row-label">Proteína bruta</span><span class="mi-row-value" id="proteinPct-val">32%</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('fatPct')"><span class="mi-row-label">Gordura bruta</span><span class="mi-row-value" id="fatPct-val">14%</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('fiberPct')"><span class="mi-row-label">Fibra bruta</span><span class="mi-row-value" id="fiberPct-val">3%</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('ashPct')"><span class="mi-row-label">Cinzas brutas</span><span class="mi-row-value" id="ashPct-val">7%</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('moisturePct')"><span class="mi-row-label">Teor de humidade</span><span class="mi-row-value" id="moisturePct-val">10%</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('portionGram')"><span class="mi-row-label">Gramas por porção</span><span class="mi-row-value" id="portionGram-val">10 g</span><i data-lucide="chevron-right"></i></button>
+      </div>
+      <div class="nutrition-summary">
+        <div>
+          <div class="nutri-kpi-value" id="nutrition-kcalkg">--<small>kcal/kg</small></div>
+          <div class="nutri-kpi-label">Energia estimada</div>
+        </div>
+        <div>
+          <div class="nutri-kpi-value" id="nutrition-carbs">--<small>%</small></div>
+          <div class="nutri-kpi-label">Hidratos estimados</div>
+        </div>
+        <div class="wide science-note" id="science-note">Base: RER/MER veterinário + Atwater modificado. É uma estimativa para animais saudáveis; ajusta com veterinário se houver doença, obesidade, crescimento ou gestação.</div>
       </div>
     </div>
   </div>
@@ -1167,14 +1436,14 @@
           <span class="timeline-dot"></span>
           <div class="schedule-item-content">
             <input type="time" id="horario1" value="07:00" class="time-picker-input" onchange="atualizarSchedulesCount()">
-            <span class="schedule-details">Portions dispensed: <strong id="portion1-val">2</strong></span>
+            <span class="schedule-details">Dose recomendada: <strong id="portion1-val">--</strong></span>
           </div>
         </div>
         <div class="schedule-item">
           <span class="timeline-dot"></span>
           <div class="schedule-item-content">
             <input type="time" id="horario2" value="19:00" class="time-picker-input" onchange="atualizarSchedulesCount()">
-            <span class="schedule-details">Portions dispensed: <strong id="portion2-val">2</strong></span>
+            <span class="schedule-details">Dose recomendada: <strong id="portion2-val">--</strong></span>
           </div>
         </div>
       </div>
@@ -1274,7 +1543,7 @@
         </div>
 
         <div class="calibration-text-section">
-          <h3 class="step-title" id="calibration-step-title">Step 1</h3>
+          <h3 class="step-title" id="calibration-step-title">Passo 1</h3>
           <p class="step-desc" id="calibration-step-desc">Empty food bowl</p>
         </div>
       </div>
@@ -1382,6 +1651,14 @@
           <i data-lucide="scale"></i>
           <span>Calibrar Balança (Tara)</span>
         </div>
+        <div class="sheet-menu-item" onclick="switchScreen('screen-pet-profile'); closeSettingsSheet();">
+          <i data-lucide="paw-print"></i>
+          <span>Informacoes do Animal</span>
+        </div>
+        <div class="sheet-menu-item" onclick="switchScreen('screen-food-composition'); closeSettingsSheet();">
+          <i data-lucide="clipboard-list"></i>
+          <span>Composicao da Racao</span>
+        </div>
         <div class="sheet-menu-item" onclick="switchScreen('screen-3d-model'); closeSettingsSheet();">
           <i data-lucide="box"></i>
           <span>Visualizador 3D do Feeder</span>
@@ -1390,7 +1667,11 @@
           <i data-lucide="bar-chart-2"></i>
           <span>Estatísticas de Consumo</span>
         </div>
-        
+        <div class="sheet-menu-item" onclick="logoutLocalUser(); closeSettingsSheet();">
+          <i data-lucide="log-out"></i>
+          <span>Terminar sessao</span>
+        </div>
+
         <div class="sheet-divider"></div>
 
         <!-- Connection Settings -->
@@ -1459,9 +1740,21 @@
       <div class="wifi-list-container">
         <div class="wifi-list-header">Redes Wi-Fi que podem ser usadas para adicionar dispositivos (2.4G)</div>
         <div class="wifi-list-items" id="wifi-list-24g">
-          <div style="padding: 20px 24px; text-align: center; color: var(--text-sub); font-size: 13px;">
-            <i data-lucide="wifi-off" style="width:24px;height:24px;display:block;margin:0 auto 8px;color:#ccc;"></i>
-            Liga o ESP32 para detetar redes Wi-Fi disponíveis.
+          <div class="wifi-item" onclick="selecionarRedeWifi('REDE5-5G')">
+            <span>REDE5-5G</span>
+            <i data-lucide="wifi"></i>
+          </div>
+          <div class="wifi-item" onclick="selecionarRedeWifi('REDE5-2G')">
+            <span>REDE5-2G</span>
+            <i data-lucide="wifi"></i>
+          </div>
+          <div class="wifi-item" onclick="selecionarRedeWifi('VIVOFIBRA-A270')">
+            <span>VIVOFIBRA-A270</span>
+            <i data-lucide="wifi"></i>
+          </div>
+          <div class="wifi-item" onclick="selecionarRedeWifi('DIRECT-C1-HP Smart Tank 610')">
+            <span>DIRECT-C1-HP Smart Tank 610</span>
+            <i data-lucide="wifi"></i>
           </div>
         </div>
         
@@ -1492,6 +1785,227 @@
 const SUPABASE_URL = 'https://aztdelejqwoqcfodnxyx.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6dGRlbGVqcXdvcWNmb2RueHl4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNzE5ODcsImV4cCI6MjA5NTY0Nzk4N30.GXlhUReJoQM82lwepcn8sXCTlfjM5SD_y3yZVWFrLg4';
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const SCIENCE_SOURCES = [
+  'WSAVA Global Nutrition Guidelines: avaliacao nutricional individual e necessidades caloricas como ponto de partida.',
+  'AAHA 2021 Nutrition and Weight Management Guidelines: plano alimentar ajustado ao animal, BCS e evolucao do peso.',
+  'AAFCO/FEDIAF: energia metabolizavel estimada por Atwater modificado quando a embalagem nao indica kcal/kg.'
+];
+
+const DEFAULT_NUTRITION_PROFILE = {
+  petName: 'Emma',
+  ageYears: 7,
+  species: 'Gato',
+  breed: 'Pelo Curto',
+  sex: 'Macho',
+  neutered: 'Sim',
+  weightKg: 4.5,
+  activity: 'Normal',
+  foodName: 'Outras marcas',
+  proteinPct: 32,
+  fatPct: 14,
+  fiberPct: 3,
+  ashPct: 7,
+  moisturePct: 10,
+  portionGram: 10
+};
+
+let currentUserId = localStorage.getItem('smartFeederSession') || '';
+let nutritionProfile = carregarPerfilNutricional();
+let nutritionRecommendation = null;
+
+function normalizarUserId(nome) {
+  return String(nome || '').trim().toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+function getUsersStore() {
+  try {
+    return JSON.parse(localStorage.getItem('smartFeederUsers') || '{}');
+  } catch (e) {
+    return {};
+  }
+}
+
+async function hashPassword(password) {
+  const text = String(password || '');
+  if (window.crypto?.subtle) {
+    const bytes = new TextEncoder().encode(text);
+    const hash = await crypto.subtle.digest('SHA-256', bytes);
+    return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+  return btoa(unescape(encodeURIComponent(text)));
+}
+
+function perfilStorageKey() {
+  return currentUserId ? `smartFeederNutritionProfile:${currentUserId}` : 'smartFeederNutritionProfile';
+}
+
+function carregarPerfilNutricional() {
+  try {
+    const saved = localStorage.getItem(perfilStorageKey());
+    return saved ? { ...DEFAULT_NUTRITION_PROFILE, ...JSON.parse(saved) } : { ...DEFAULT_NUTRITION_PROFILE };
+  } catch (e) {
+    return { ...DEFAULT_NUTRITION_PROFILE };
+  }
+}
+
+function guardarPerfilNutricional() {
+  localStorage.setItem(perfilStorageKey(), JSON.stringify(nutritionProfile));
+  atualizarNutricioUI();
+  mostrarToast('Perfil nutricional guardado.', 'ok');
+}
+
+async function registerLocalUser() {
+  const nameInput = document.getElementById('login-name');
+  const passInput = document.getElementById('login-pass');
+  const userId = normalizarUserId(nameInput.value);
+  const password = passInput.value;
+  if (!userId || password.length < 4) {
+    return mostrarToast('Usa um utilizador e password com pelo menos 4 caracteres.', 'error');
+  }
+  const users = getUsersStore();
+  if (users[userId]) return mostrarToast('Esse utilizador ja existe neste telemovel.', 'error');
+  users[userId] = { id: userId, displayName: nameInput.value.trim(), passwordHash: await hashPassword(password), createdAt: new Date().toISOString() };
+  localStorage.setItem('smartFeederUsers', JSON.stringify(users));
+  currentUserId = userId;
+  localStorage.setItem('smartFeederSession', currentUserId);
+  nutritionProfile = carregarPerfilNutricional();
+  atualizarNutricioUI();
+  switchScreen('screen-dashboard');
+  mostrarToast('Conta criada neste telemovel.', 'ok');
+}
+
+async function loginLocalUser() {
+  const nameInput = document.getElementById('login-name');
+  const passInput = document.getElementById('login-pass');
+  const userId = normalizarUserId(nameInput.value);
+  const users = getUsersStore();
+  const user = users[userId];
+  if (!user || user.passwordHash !== await hashPassword(passInput.value)) {
+    return mostrarToast('Utilizador ou palavra-passe incorretos.', 'error');
+  }
+  currentUserId = userId;
+  localStorage.setItem('smartFeederSession', currentUserId);
+  nutritionProfile = carregarPerfilNutricional();
+  atualizarNutricioUI();
+  switchScreen('screen-dashboard');
+  mostrarToast(`Bem-vindo, ${user.displayName || userId}.`, 'ok');
+}
+
+function logoutLocalUser() {
+  currentUserId = '';
+  localStorage.removeItem('smartFeederSession');
+  document.getElementById('login-pass').value = '';
+  switchScreen('screen-login');
+  mostrarToast('Sessao terminada.', 'info');
+}
+
+function formatarNumero(valor, casas = 0) {
+  if (!Number.isFinite(valor)) return '--';
+  return Number(valor).toFixed(casas).replace('.', ',');
+}
+
+function calcularRecomendacaoNutricional() {
+  const p = nutritionProfile;
+  const weight = Math.max(0.5, Number(p.weightKg) || 0);
+  const protein = Math.max(0, Number(p.proteinPct) || 0);
+  const fat = Math.max(0, Number(p.fatPct) || 0);
+  const fiber = Math.max(0, Number(p.fiberPct) || 0);
+  const ash = Math.max(0, Number(p.ashPct) || 0);
+  const moisture = Math.max(0, Number(p.moisturePct) || 0);
+  const carbs = Math.max(0, 100 - protein - fat - fiber - ash - moisture);
+  const kcalKg = 10 * ((3.5 * protein) + (8.5 * fat) + (3.5 * carbs));
+  const kcalG = kcalKg / 1000;
+  const rer = 70 * Math.pow(weight, 0.75);
+  const species = String(p.species).toLowerCase();
+  const age = Number(p.ageYears) || 0;
+  const activity = String(p.activity).toLowerCase();
+  const neutered = String(p.neutered).toLowerCase().startsWith('s');
+
+  let factor;
+  if (species.includes('cao') || species.includes('cão') || species.includes('dog')) {
+    factor = neutered ? 1.6 : 1.8;
+    if (age > 0 && age < 1) factor = 2.5;
+    if (activity.includes('baixa')) factor -= 0.2;
+    if (activity.includes('alta')) factor += 0.4;
+  } else {
+    factor = neutered ? 1.2 : 1.4;
+    if (age > 0 && age < 1) factor = 2.5;
+    if (activity.includes('baixa')) factor -= 0.1;
+    if (activity.includes('alta')) factor += 0.2;
+  }
+
+  const mer = rer * Math.max(1, factor);
+  const gramsDay = kcalG > 0 ? mer / kcalG : 0;
+  const meals = age > 0 && age < 1 ? 4 : species.includes('gato') || species.includes('cat') ? 3 : 2;
+  const gramsMeal = gramsDay / meals;
+  const portionGram = Math.max(1, Number(p.portionGram) || 10);
+  const portionsDay = gramsDay / portionGram;
+  return { carbs, kcalKg, rer, mer, gramsDay, meals, gramsMeal, portionGram, portionsDay };
+}
+
+function atualizarNutricioUI() {
+  nutritionRecommendation = calcularRecomendacaoNutricional();
+  const p = nutritionProfile;
+  const r = nutritionRecommendation;
+  const setText = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  };
+
+  setText('petName-val', p.petName);
+  setText('ageYears-val', `${formatarNumero(Number(p.ageYears), Number(p.ageYears) % 1 ? 1 : 0)} anos`);
+  setText('species-val', p.species);
+  setText('breed-val', p.breed);
+  setText('sex-val', p.sex);
+  setText('neutered-val', p.neutered);
+  setText('weightKg-val', `${formatarNumero(Number(p.weightKg), 1)} kg`);
+  setText('activity-val', p.activity);
+  setText('foodName-val', p.foodName);
+  setText('foodName2-val', p.foodName);
+  setText('proteinPct-val', `${formatarNumero(Number(p.proteinPct), 1)}%`);
+  setText('fatPct-val', `${formatarNumero(Number(p.fatPct), 1)}%`);
+  setText('fiberPct-val', `${formatarNumero(Number(p.fiberPct), 1)}%`);
+  setText('ashPct-val', `${formatarNumero(Number(p.ashPct), 1)}%`);
+  setText('moisturePct-val', `${formatarNumero(Number(p.moisturePct), 1)}%`);
+  setText('portionGram-val', `${formatarNumero(Number(p.portionGram), 0)} g`);
+  setText('dash-dose-day', `${formatarNumero(r.gramsDay, 0)} g/dia`);
+  setText('dash-dose-sub', `${formatarNumero(r.mer, 0)} kcal/dia - ${formatarNumero(r.kcalKg, 0)} kcal/kg`);
+  setText('dash-meals-pill', `${r.meals} refeicoes`);
+  setText('science-note', `${SCIENCE_SOURCES.join(' ')} Estimativa para animais saudaveis; confirmar com veterinario se houver doenca, excesso/baixo peso, gestacao ou crescimento.`);
+
+  const kcalEl = document.getElementById('nutrition-kcalkg');
+  if (kcalEl) kcalEl.innerHTML = `${formatarNumero(r.kcalKg, 0)}<small>kcal/kg</small>`;
+  const carbsEl = document.getElementById('nutrition-carbs');
+  if (carbsEl) carbsEl.innerHTML = `${formatarNumero(r.carbs, 1)}<small>%</small>`;
+  atualizarSchedulesCount();
+}
+
+function editarCampoPerfil(campo) {
+  const labels = {
+    petName: 'Nome',
+    ageYears: 'Idade em anos',
+    species: 'Especie (Gato ou Cao)',
+    breed: 'Raca',
+    sex: 'Genero',
+    neutered: 'Castrado? (Sim ou Nao)',
+    weightKg: 'Peso em kg',
+    activity: 'Atividade (Baixa, Normal ou Alta)',
+    foodName: 'Nome da comida',
+    proteinPct: 'Proteina bruta (%)',
+    fatPct: 'Gordura bruta (%)',
+    fiberPct: 'Fibra bruta (%)',
+    ashPct: 'Cinzas brutas (%)',
+    moisturePct: 'Teor de humidade (%)',
+    portionGram: 'Gramas dispensadas por uma porcao do alimentador'
+  };
+  const atual = nutritionProfile[campo];
+  const novo = prompt(labels[campo], atual);
+  if (novo === null) return;
+  const numeric = ['ageYears', 'weightKg', 'proteinPct', 'fatPct', 'fiberPct', 'ashPct', 'moisturePct', 'portionGram'];
+  nutritionProfile[campo] = numeric.includes(campo) ? Math.max(0, Number(String(novo).replace(',', '.')) || 0) : novo.trim() || atual;
+  guardarPerfilNutricional();
+}
 
 // Load settings from Supabase
 async function loadSupabaseSettings() {
@@ -1592,8 +2106,8 @@ let connected = false;
 let pollingInterval = null;
 const historico = [];
 
-// Sensor weight history array - starts empty, filled by real sensor data
-const pesoHistorico = [];
+// Fallback sample values for chart demo
+const pesoHistorico = [0, 80, 75, 30, 0, 120, 110, 75, 10, 45];
 let bombaAtiva = false;
 let modoSimulacao = false;
 let bombaSimulacaoInterval = null;
@@ -1839,6 +2353,7 @@ function atualizarTotalConsumoHoje() {
   });
   document.getElementById('peso-val-display').innerHTML = `${sum.toFixed(0)}<span class="unit">g</span>`;
   document.getElementById('stats-amount-eaten').innerHTML = `${sum.toFixed(0)}<span class="unit">g</span>`;
+  atualizarSchedulesCount();
   desenharSVGCharts();
 }
 
@@ -1860,7 +2375,7 @@ async function darComida() {
     setTimeout(async () => {
       const sliderV4 = document.getElementById('sim-slider-v4');
       let currentVal = parseFloat(sliderV4.value);
-      let dispensedAmount = 16.0;
+      let dispensedAmount = (nutritionRecommendation || calcularRecomendacaoNutricional()).portionGram;
       let newVal = Math.min(150, currentVal + dispensedAmount);
       
       sliderV4.value = newVal;
@@ -1893,7 +2408,7 @@ async function darComida() {
     // Create new log entry
     const agora = new Date();
     const hora = agora.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
-    const pesoDispensed = 10.0; // Standard single portion size
+    const pesoDispensed = (nutritionRecommendation || calcularRecomendacaoNutricional()).portionGram;
     
     historico.unshift({ hora, peso: pesoDispensed, source: 'Manual' });
     if (historico.length > 6) historico.pop();
@@ -1982,7 +2497,7 @@ async function toggleBomba() {
 }
 
 // Scale calibration Tare Trigger (V6 Trigger)
-async function triggerTaraBalança() {
+async function triggerTaraBalanca() {
   if (!connected) return mostrarToast('Ligue o hardware primeiro!', 'error');
   logTerminal('[HX711] A calibrar sensor de tara (V6)...');
 
@@ -2083,19 +2598,9 @@ async function openWifiScreen() {
   }
 
   if (!connected) {
-    mostrarToast('ESP32 desconectado. Liga o dispositivo para ver redes Wi-Fi.', 'error');
-    logTerminal('[WiFiManager] Hardware offline. Lista de redes Wi-Fi indisponível.');
-    // Clear list and show offline message
-    const container = document.getElementById('wifi-list-24g');
-    if (container) {
-      container.innerHTML = `
-        <div style="padding: 20px 24px; text-align: center; color: var(--text-sub); font-size: 13px;">
-          <i data-lucide="wifi-off" style="width:24px;height:24px;display:block;margin:0 auto 8px;color:#ccc;"></i>
-          Liga o ESP32 para detetar redes Wi-Fi disponíveis.
-        </div>
-      `;
-      lucide.createIcons();
-    }
+    mostrarToast('ESP32 desconectado. Mostrando redes padrão.', 'error');
+    logTerminal('[WiFiManager] Hardware offline. Mostrando redes padrão para demonstração.');
+    populateWifiList(['REDE5-5G', 'REDE5-2G', 'VIVOFIBRA-A270', 'DIRECT-C1-HP Smart Tank 610']);
     return;
   }
 
@@ -2117,8 +2622,8 @@ async function openWifiScreen() {
       logTerminal(`[WiFiManager] Lista de redes recebida: ${redes}`);
       mostrarToast('Redes Wi-Fi atualizadas!', 'ok');
     } else {
-      logTerminal('[WiFiManager] ESP32 não devolveu redes. Tenta novamente.');
-      mostrarToast('Nenhuma rede encontrada. Tenta novamente.', 'error');
+      logTerminal('[WiFiManager] Sem resposta de redes do hardware. Mostrando redes padrão.');
+      populateWifiList(['REDE5-5G', 'REDE5-2G', 'VIVOFIBRA-A270', 'DIRECT-C1-HP Smart Tank 610']);
     }
   }, 4000);
 }
@@ -2160,11 +2665,11 @@ function avancarCalibracao() {
 
   if (calibrationState === 1) {
     // Step 1: Empty bowl calibration
-    triggerTaraBalança();
+    triggerTaraBalanca();
     mostrarToast('A calibrar tara (0g)...', 'info');
     
     calibrationState = 2;
-    title.textContent = 'Step 2';
+    title.textContent = 'Passo 2';
     desc.textContent = 'Place a 100g standard weight in the bowl';
     actionBtn.textContent = 'Calibrate 100g';
     
@@ -2197,7 +2702,7 @@ function atualizarCalibrationWizardStep() {
   const dot2 = document.getElementById('cal-dot-2');
   const dot3 = document.getElementById('cal-dot-3');
   
-  title.textContent = 'Step 1';
+  title.textContent = 'Passo 1';
   desc.textContent = 'Empty food bowl';
   actionBtn.textContent = 'Next';
   dot1.classList.add('active');
@@ -2270,18 +2775,27 @@ function toggleAutoFeeding(chk) {
 function atualizarSchedulesCount() {
   const h1 = document.getElementById('horario1').value;
   const h2 = document.getElementById('horario2').value;
+  const r = nutritionRecommendation || calcularRecomendacaoNutricional();
   
   let meals = 0;
-  let portions = 0;
+  if (h1) meals++;
+  if (h2) meals++;
+  const activeMeals = Math.max(1, meals);
+  const gramsPerSchedule = r.gramsDay / activeMeals;
+  const portionsPerSchedule = gramsPerSchedule / r.portionGram;
   
-  if (h1) { meals++; portions += 2; }
-  if (h2) { meals++; portions += 2; }
+  const portion1 = document.getElementById('portion1-val');
+  const portion2 = document.getElementById('portion2-val');
+  if (portion1) portion1.textContent = h1 ? `${formatarNumero(gramsPerSchedule, 0)} g (${formatarNumero(portionsPerSchedule, 1)} porções)` : '--';
+  if (portion2) portion2.textContent = h2 ? `${formatarNumero(gramsPerSchedule, 0)} g (${formatarNumero(portionsPerSchedule, 1)} porções)` : '--';
   
-  document.getElementById('meals-count').innerHTML = `${meals} <span class="stat-unit">Meals</span>`;
-  document.getElementById('portions-count').innerHTML = `${portions} <span class="stat-unit">Portions</span>`;
+  document.getElementById('meals-count').innerHTML = `${meals} <span class="stat-unit">Refeições</span>`;
+  document.getElementById('portions-count').innerHTML = `${formatarNumero(r.gramsDay, 0)} <span class="stat-unit">g/dia</span>`;
   
-  // Progress calc
-  document.getElementById('progress-val-display').textContent = `Feeding schedule progress 50%`;
+  const eatenText = document.getElementById('peso-val-display')?.textContent || '0';
+  const eaten = parseFloat(eatenText.replace(',', '.')) || 0;
+  const progress = r.gramsDay > 0 ? Math.min(100, Math.round((eaten / r.gramsDay) * 100)) : 0;
+  document.getElementById('progress-val-display').textContent = `Progresso da alimentação ${progress}%`;
 }
 
 // Settings bottom sheet menu
@@ -2305,38 +2819,18 @@ function switchStatsTab(tabType) {
   document.getElementById('tab-day').classList.toggle('active', tabType === 'day');
   document.getElementById('tab-week').classList.toggle('active', tabType === 'week');
   
+  const textAmount = document.getElementById('stats-amount-eaten');
+  const textPortions = document.getElementById('stats-portions-dispensed');
   const dateLabel = document.getElementById('stats-current-date');
-  const today = new Date();
 
   if (tabType === 'day') {
-    // Show today's totals from historico
-    const todayStr = `${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
-    dateLabel.textContent = todayStr;
-
-    let sumDay = 0;
-    let countDay = 0;
-    historico.forEach(item => {
-      sumDay += parseFloat(item.peso) || 0;
-      countDay++;
-    });
-
-    document.getElementById('stats-amount-eaten').innerHTML = `${sumDay.toFixed(0)}<span class="metric-unit">g</span>`;
-    document.getElementById('stats-portions-dispensed').innerHTML = `${countDay}<span class="metric-unit">Portions</span>`;
+    textAmount.innerHTML = `32<span class="metric-unit">g</span>`;
+    textPortions.innerHTML = `2<span class="metric-unit">Portions</span>`;
+    dateLabel.textContent = '05/29';
   } else {
-    // Show week totals from historico (all entries)
-    const startStr = `${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()-6).padStart(2,'0')}`;
-    const endStr = `${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
-    dateLabel.textContent = `${startStr} - ${endStr}`;
-
-    let sumWeek = 0;
-    let countWeek = 0;
-    historico.forEach(item => {
-      sumWeek += parseFloat(item.peso) || 0;
-      countWeek++;
-    });
-
-    document.getElementById('stats-amount-eaten').innerHTML = `${sumWeek.toFixed(0)}<span class="metric-unit">g</span>`;
-    document.getElementById('stats-portions-dispensed').innerHTML = `${countWeek}<span class="metric-unit">Portions</span>`;
+    textAmount.innerHTML = `244<span class="metric-unit">g</span>`;
+    textPortions.innerHTML = `14<span class="metric-unit">Portions</span>`;
+    dateLabel.textContent = '05/23 - 05/29';
   }
   
   desenharSVGCharts();
@@ -2347,93 +2841,82 @@ function desenharSVGCharts() {
   const chartPort = document.getElementById('chart-portions-dispensed');
   if (!chartFood || !chartPort) return;
 
-  const emptyChartSVG = `
-    <svg class="chart-svg" viewBox="0 0 340 120">
-      <text x="170" y="65" fill="var(--text-sub)" font-size="11" text-anchor="middle">Sem dados disponíveis</text>
-      <line x1="20" y1="100" x2="330" y2="100" stroke="#f0f0f2" stroke-width="1"/>
-    </svg>
-  `;
-
-  if (historico.length === 0) {
-    chartFood.innerHTML = emptyChartSVG;
-    chartPort.innerHTML = emptyChartSVG;
-    return;
-  }
-
   if (currentStatsTab === 'day') {
-    // Build real bars from historico — map each entry to an hour-based X position
-    const maxPeso = Math.max(...historico.map(i => parseFloat(i.peso) || 0), 1);
-    const chartH = 90; // max bar height in px
-
-    const foodBars = historico.map(item => {
-      const peso = parseFloat(item.peso) || 0;
-      // Parse "HH:MM" to hour fraction 0-24
-      const parts = item.hora.split(':').map(Number);
-      const hourFrac = (parts[0] || 0) + (parts[1] || 0) / 60;
-      const x = Math.round(20 + (hourFrac / 24) * 300);
-      const barH = Math.round((peso / maxPeso) * chartH);
-      const y = 100 - barH;
-      return `<rect x="${x}" y="${y}" width="8" height="${barH}" rx="3" fill="var(--accent-orange)" />`;
-    }).join('');
-
+    // 2 Bars matching Screenshot 3: (09:00, 13:00)
     chartFood.innerHTML = `
       <svg class="chart-svg" viewBox="0 0 340 120">
-        <text x="5" y="15" fill="var(--text-sub)" font-size="10">${maxPeso.toFixed(0)}g</text>
-        <text x="5" y="105" fill="var(--text-sub)" font-size="10">0g</text>
+        <!-- Grid/Axis labels -->
+        <text x="5" y="15" fill="var(--text-sub)" font-size="10">17</text>
+        <text x="5" y="65" fill="var(--text-sub)" font-size="10">5</text>
+        
         <text x="30" y="115" fill="var(--text-sub)" font-size="9">01:00</text>
-        <text x="155" y="115" fill="var(--text-sub)" font-size="9">12:00</text>
-        <text x="285" y="115" fill="var(--text-sub)" font-size="9">24:00</text>
-        <line x1="20" y1="100" x2="330" y2="100" stroke="#f0f0f2" stroke-width="1"/>
-        ${foodBars}
+        <text x="160" y="115" fill="var(--text-sub)" font-size="9">12:00</text>
+        <text x="290" y="115" fill="var(--text-sub)" font-size="9">24:00</text>
+
+        <!-- Vertical bars -->
+        <rect x="125" y="40" width="8" height="60" rx="3" fill="var(--accent-orange)" />
+        <rect x="175" y="30" width="8" height="70" rx="3" fill="var(--accent-orange)" />
       </svg>
     `;
-
-    const portBars = historico.map((item, idx) => {
-      const parts = item.hora.split(':').map(Number);
-      const hourFrac = (parts[0] || 0) + (parts[1] || 0) / 60;
-      const x = Math.round(20 + (hourFrac / 24) * 300);
-      return `<rect x="${x}" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />`;
-    }).join('');
-
+    
+    // 1 Bar matching Screenshot 3: (07:00)
     chartPort.innerHTML = `
       <svg class="chart-svg" viewBox="0 0 340 120">
-        <text x="5" y="15" fill="var(--text-sub)" font-size="10">${historico.length}</text>
-        <text x="5" y="105" fill="var(--text-sub)" font-size="10">0</text>
+        <text x="5" y="15" fill="var(--text-sub)" font-size="10">7</text>
+        <text x="5" y="100" fill="var(--text-sub)" font-size="10">0</text>
+        
         <text x="30" y="115" fill="var(--text-sub)" font-size="9">01:00</text>
-        <text x="155" y="115" fill="var(--text-sub)" font-size="9">12:00</text>
-        <text x="285" y="115" fill="var(--text-sub)" font-size="9">24:00</text>
-        <line x1="20" y1="100" x2="330" y2="100" stroke="#f0f0f2" stroke-width="1"/>
-        ${portBars}
+        <text x="160" y="115" fill="var(--text-sub)" font-size="9">12:00</text>
+        <text x="290" y="115" fill="var(--text-sub)" font-size="9">24:00</text>
+
+        <rect x="115" y="35" width="8" height="65" rx="3" fill="var(--accent-orange)" />
       </svg>
     `;
   } else {
-    // Week view: show axis labels only since we don't have day-level granularity
-    const weekLabels = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
-    const xPositions = [40, 85, 130, 175, 220, 265, 310];
-    const labelSVG = weekLabels.map((l, i) => `<text x="${xPositions[i]}" y="115" fill="var(--text-sub)" font-size="9">${l}</text>`).join('');
-
-    const sumAll = historico.reduce((s, i) => s + (parseFloat(i.peso) || 0), 0);
-    const maxPeso = Math.max(sumAll, 1);
-    // Today's total as single bar on the last (rightmost) day column
-    const barH = Math.min(90, Math.round((sumAll / maxPeso) * 90));
-
+    // Week view: 7 Bars representing weekly totals
     chartFood.innerHTML = `
       <svg class="chart-svg" viewBox="0 0 340 120">
-        <text x="5" y="15" fill="var(--text-sub)" font-size="10">${sumAll.toFixed(0)}g</text>
-        <text x="5" y="105" fill="var(--text-sub)" font-size="10">0g</text>
-        ${labelSVG}
-        <line x1="20" y1="100" x2="330" y2="100" stroke="#f0f0f2" stroke-width="1"/>
-        <rect x="${xPositions[6]}" y="${100 - barH}" width="8" height="${barH}" rx="3" fill="var(--accent-orange)" />
+        <text x="5" y="15" fill="var(--text-sub)" font-size="10">50</text>
+        <text x="5" y="100" fill="var(--text-sub)" font-size="10">0</text>
+        
+        <text x="35" y="115" fill="var(--text-sub)" font-size="9">Seg</text>
+        <text x="80" y="115" fill="var(--text-sub)" font-size="9">Ter</text>
+        <text x="125" y="115" fill="var(--text-sub)" font-size="9">Qua</text>
+        <text x="170" y="115" fill="var(--text-sub)" font-size="9">Qui</text>
+        <text x="215" y="115" fill="var(--text-sub)" font-size="9">Sex</text>
+        <text x="260" y="115" fill="var(--text-sub)" font-size="9">Sáb</text>
+        <text x="305" y="115" fill="var(--text-sub)" font-size="9">Dom</text>
+
+        <rect x="40" y="45" width="8" height="55" rx="3" fill="var(--accent-orange)" />
+        <rect x="85" y="30" width="8" height="70" rx="3" fill="var(--accent-orange)" />
+        <rect x="130" y="55" width="8" height="45" rx="3" fill="var(--accent-orange)" />
+        <rect x="175" y="40" width="8" height="60" rx="3" fill="var(--accent-orange)" />
+        <rect x="220" y="25" width="8" height="75" rx="3" fill="var(--accent-orange)" />
+        <rect x="265" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
+        <rect x="310" y="35" width="8" height="65" rx="3" fill="var(--accent-orange)" />
       </svg>
     `;
 
     chartPort.innerHTML = `
       <svg class="chart-svg" viewBox="0 0 340 120">
-        <text x="5" y="15" fill="var(--text-sub)" font-size="10">${historico.length}</text>
-        <text x="5" y="105" fill="var(--text-sub)" font-size="10">0</text>
-        ${labelSVG}
-        <line x1="20" y1="100" x2="330" y2="100" stroke="#f0f0f2" stroke-width="1"/>
-        <rect x="${xPositions[6]}" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
+        <text x="5" y="15" fill="var(--text-sub)" font-size="10">4</text>
+        <text x="5" y="100" fill="var(--text-sub)" font-size="10">0</text>
+        
+        <text x="35" y="115" fill="var(--text-sub)" font-size="9">Seg</text>
+        <text x="80" y="115" fill="var(--text-sub)" font-size="9">Ter</text>
+        <text x="125" y="115" fill="var(--text-sub)" font-size="9">Qua</text>
+        <text x="170" y="115" fill="var(--text-sub)" font-size="9">Qui</text>
+        <text x="215" y="115" fill="var(--text-sub)" font-size="9">Sex</text>
+        <text x="260" y="115" fill="var(--text-sub)" font-size="9">Sáb</text>
+        <text x="305" y="115" fill="var(--text-sub)" font-size="9">Dom</text>
+
+        <rect x="40" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
+        <rect x="85" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
+        <rect x="130" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
+        <rect x="175" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
+        <rect x="220" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
+        <rect x="265" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
+        <rect x="310" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
       </svg>
     `;
   }
@@ -2449,7 +2932,7 @@ function renderHistorico() {
     ul.innerHTML = `
       <li class="feed-log-item">
         <span class="log-time">--:--</span>
-        <div class="log-text">No consumption records loaded</div>
+        <div class="log-text">Sem registos de alimentação</div>
       </li>
     `;
     return;
@@ -2463,11 +2946,11 @@ function renderHistorico() {
     let textDesc = '';
     
     if (isManual) {
-      textDesc = `Manual dispensing portions: <strong>${r.peso} g</strong>`;
+      textDesc = `Dispensa manual: <strong>${r.peso} g</strong>`;
     } else if (isScheduled) {
-      textDesc = `Scheduled to be dispensed portions: <strong>${r.peso} g</strong>`;
+      textDesc = `Dispensa agendada: <strong>${r.peso} g</strong>`;
     } else {
-      textDesc = `Pet's consumption <strong>${r.peso} g</strong>`;
+      textDesc = `Consumo registado: <strong>${r.peso} g</strong>`;
     }
 
     return `
@@ -2475,7 +2958,7 @@ function renderHistorico() {
         <span class="log-time">${r.hora.substring(0,5)}</span>
         <div class="log-text">
           <span>${textDesc}</span>
-          ${isScheduled ? '<span class="log-subtext">Enabled ></span>' : ''}
+          ${isScheduled ? '<span class="log-subtext">Ativo ›</span>' : ''}
         </div>
       </li>
     `;
@@ -2623,12 +3106,28 @@ function reset3DCamera() {
 // PAGE LOAD INITIALIZER
 // =====================================================
 window.addEventListener('load', async () => {
+  if (currentUserId) {
+    const users = getUsersStore();
+    const loginName = document.getElementById('login-name');
+    if (loginName && users[currentUserId]) loginName.value = users[currentUserId].displayName || currentUserId;
+    switchScreen('screen-dashboard');
+  } else {
+    switchScreen('screen-login');
+  }
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./service-worker.js').catch(() => {
+      logTerminal('[PWA] Service worker indisponivel neste ambiente.');
+    });
+  }
+
   // Load settings and history records from Supabase
   await loadSupabaseSettings();
   await loadSupabaseHistory();
   
   // Render lucide icons
   lucide.createIcons();
+  atualizarNutricioUI();
   
   // Reconnect automatically to Blynk with loaded credentials
   conectar();
