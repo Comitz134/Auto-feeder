@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smart-pet-feeder-v1';
+const CACHE_NAME = 'smart-pet-feeder-v2';
 const APP_ASSETS = [
   './',
   './index.html',

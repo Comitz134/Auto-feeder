@@ -1128,6 +1128,61 @@
     padding: 0 8px;
   }
 
+  .edit-sheet-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .edit-field-label {
+    color: var(--text-sub);
+    font-size: 12px;
+    padding-left: 2px;
+  }
+  .edit-input {
+    width: 100%;
+    min-height: 52px;
+    border: 0;
+    outline: none;
+    border-radius: 14px;
+    background: #f4f4f6;
+    padding: 0 15px;
+    font: inherit;
+    font-size: 17px;
+    color: var(--text-main);
+  }
+  .edit-options {
+    display: grid;
+    gap: 10px;
+  }
+  .edit-option {
+    min-height: 48px;
+    border: 0;
+    border-radius: 14px;
+    background: #f4f4f6;
+    color: var(--text-main);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+  }
+  .edit-option.active {
+    background: var(--accent-orange-light);
+    color: var(--accent-orange);
+  }
+  .edit-option i {
+    width: 18px;
+    height: 18px;
+  }
+  .edit-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 6px;
+  }
+
   /* TOAST */
   .toast-popup {
     position: absolute;
@@ -1199,7 +1254,7 @@
       <p>Entra no teu perfil para guardar no telemóvel os dados do animal, composição da ração e recomendações.</p>
     </div>
     <div class="login-panel">
-      <input class="login-input" id="login-name" autocomplete="username" placeholder="Utilizador">
+      <input class="login-input" id="login-name" autocomplete="email" inputmode="email" type="email" placeholder="Email">
       <input class="login-input" id="login-pass" autocomplete="current-password" type="password" placeholder="Palavra-passe">
       <div class="login-actions">
         <button class="btn-orange-pill full-width" onclick="loginLocalUser()">Entrar</button>
@@ -1769,6 +1824,22 @@
     </div>
   </div>
 
+  <!-- PROFILE EDIT BOTTOM SHEET -->
+  <div id="profile-edit-sheet" class="bottom-sheet-overlay" onclick="closeProfileEditSheet(event)">
+    <div class="bottom-sheet-content">
+      <div class="drag-handle"></div>
+      <h3 class="sheet-title" id="profile-edit-title">Editar</h3>
+      <div class="edit-sheet-form">
+        <div class="edit-field-label" id="profile-edit-label">Valor</div>
+        <div id="profile-edit-control"></div>
+        <div class="edit-actions">
+          <button class="btn-beige-pill" onclick="closeProfileEditSheet()">Cancelar</button>
+          <button class="btn-orange-pill full-width" onclick="saveProfileEditValue()">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- TOAST -->
   <div id="toast" class="toast-popup">
     <div class="toast-content">
@@ -1810,31 +1881,29 @@ const DEFAULT_NUTRITION_PROFILE = {
   portionGram: 10
 };
 
-let currentUserId = localStorage.getItem('smartFeederSession') || '';
+let currentUserId = '';
 let nutritionProfile = carregarPerfilNutricional();
 let nutritionRecommendation = null;
+let activeEditField = null;
+let activeEditValue = '';
 
-function normalizarUserId(nome) {
-  return String(nome || '').trim().toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '');
-}
-
-function getUsersStore() {
-  try {
-    return JSON.parse(localStorage.getItem('smartFeederUsers') || '{}');
-  } catch (e) {
-    return {};
-  }
-}
-
-async function hashPassword(password) {
-  const text = String(password || '');
-  if (window.crypto?.subtle) {
-    const bytes = new TextEncoder().encode(text);
-    const hash = await crypto.subtle.digest('SHA-256', bytes);
-    return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
-  }
-  return btoa(unescape(encodeURIComponent(text)));
-}
+const PROFILE_FIELDS = {
+  petName: { label: 'Nome', type: 'text' },
+  ageYears: { label: 'Idade em anos', type: 'number', step: '0.1', suffix: 'anos' },
+  species: { label: 'Espécie', type: 'choice', options: ['Gato', 'Cão'] },
+  breed: { label: 'Raça', type: 'text' },
+  sex: { label: 'Género', type: 'choice', options: ['Macho', 'Fêmea'] },
+  neutered: { label: 'Castrado', type: 'choice', options: ['Sim', 'Não'] },
+  weightKg: { label: 'Peso', type: 'number', step: '0.1', suffix: 'kg' },
+  activity: { label: 'Atividade', type: 'choice', options: ['Baixa', 'Normal', 'Alta'] },
+  foodName: { label: 'Nome da comida', type: 'text' },
+  proteinPct: { label: 'Proteína bruta', type: 'number', step: '0.1', suffix: '%' },
+  fatPct: { label: 'Gordura bruta', type: 'number', step: '0.1', suffix: '%' },
+  fiberPct: { label: 'Fibra bruta', type: 'number', step: '0.1', suffix: '%' },
+  ashPct: { label: 'Cinzas brutas', type: 'number', step: '0.1', suffix: '%' },
+  moisturePct: { label: 'Teor de humidade', type: 'number', step: '0.1', suffix: '%' },
+  portionGram: { label: 'Gramas por porção', type: 'number', step: '1', suffix: 'g' }
+};
 
 function perfilStorageKey() {
   return currentUserId ? `smartFeederNutritionProfile:${currentUserId}` : 'smartFeederNutritionProfile';
@@ -1852,52 +1921,90 @@ function carregarPerfilNutricional() {
 function guardarPerfilNutricional() {
   localStorage.setItem(perfilStorageKey(), JSON.stringify(nutritionProfile));
   atualizarNutricioUI();
+  saveCloudPetProfile();
   mostrarToast('Perfil nutricional guardado.', 'ok');
 }
 
 async function registerLocalUser() {
   const nameInput = document.getElementById('login-name');
   const passInput = document.getElementById('login-pass');
-  const userId = normalizarUserId(nameInput.value);
+  const email = nameInput.value.trim();
   const password = passInput.value;
-  if (!userId || password.length < 4) {
-    return mostrarToast('Usa um utilizador e password com pelo menos 4 caracteres.', 'error');
+  if (!email.includes('@') || password.length < 6) {
+    return mostrarToast('Usa um email válido e password com pelo menos 6 caracteres.', 'error');
   }
-  const users = getUsersStore();
-  if (users[userId]) return mostrarToast('Esse utilizador ja existe neste telemovel.', 'error');
-  users[userId] = { id: userId, displayName: nameInput.value.trim(), passwordHash: await hashPassword(password), createdAt: new Date().toISOString() };
-  localStorage.setItem('smartFeederUsers', JSON.stringify(users));
-  currentUserId = userId;
-  localStorage.setItem('smartFeederSession', currentUserId);
-  nutritionProfile = carregarPerfilNutricional();
-  atualizarNutricioUI();
-  switchScreen('screen-dashboard');
-  mostrarToast('Conta criada neste telemovel.', 'ok');
+  const { data, error } = await supa.auth.signUp({
+    email,
+    password,
+    options: { data: { display_name: email.split('@')[0] } }
+  });
+  if (error) return mostrarToast(error.message, 'error');
+  if (data.session?.user) {
+    await enterAuthenticatedApp(data.session.user);
+    mostrarToast('Conta criada na Supabase.', 'ok');
+  } else {
+    mostrarToast('Conta criada. Confirma o email antes de entrar.', 'ok');
+  }
 }
 
 async function loginLocalUser() {
   const nameInput = document.getElementById('login-name');
   const passInput = document.getElementById('login-pass');
-  const userId = normalizarUserId(nameInput.value);
-  const users = getUsersStore();
-  const user = users[userId];
-  if (!user || user.passwordHash !== await hashPassword(passInput.value)) {
-    return mostrarToast('Utilizador ou palavra-passe incorretos.', 'error');
-  }
-  currentUserId = userId;
-  localStorage.setItem('smartFeederSession', currentUserId);
-  nutritionProfile = carregarPerfilNutricional();
-  atualizarNutricioUI();
-  switchScreen('screen-dashboard');
-  mostrarToast(`Bem-vindo, ${user.displayName || userId}.`, 'ok');
+  const email = nameInput.value.trim();
+  const password = passInput.value;
+  const { data, error } = await supa.auth.signInWithPassword({ email, password });
+  if (error) return mostrarToast('Email ou palavra-passe incorretos.', 'error');
+  await enterAuthenticatedApp(data.user);
+  mostrarToast(`Bem-vindo, ${email}.`, 'ok');
 }
 
-function logoutLocalUser() {
+async function enterAuthenticatedApp(user) {
+  currentUserId = user.id;
+  nutritionProfile = carregarPerfilNutricional();
+  await loadCloudPetProfile();
+  atualizarNutricioUI();
+  switchScreen('screen-dashboard');
+}
+
+async function logoutLocalUser() {
+  await supa.auth.signOut();
   currentUserId = '';
-  localStorage.removeItem('smartFeederSession');
   document.getElementById('login-pass').value = '';
   switchScreen('screen-login');
   mostrarToast('Sessao terminada.', 'info');
+}
+
+async function loadCloudPetProfile() {
+  if (!currentUserId) return;
+  try {
+    const { data, error } = await supa
+      .from('pet_profiles')
+      .select('profile')
+      .eq('user_id', currentUserId)
+      .maybeSingle();
+    if (error) throw error;
+    if (data?.profile) {
+      nutritionProfile = { ...DEFAULT_NUTRITION_PROFILE, ...data.profile };
+      localStorage.setItem(perfilStorageKey(), JSON.stringify(nutritionProfile));
+    }
+  } catch (e) {
+    logTerminal('[SUPABASE] Perfil do animal nao carregou. A usar cache local.');
+  }
+}
+
+async function saveCloudPetProfile() {
+  if (!currentUserId) return;
+  try {
+    const { error } = await supa.from('pet_profiles').upsert({
+      user_id: currentUserId,
+      profile: nutritionProfile,
+      updated_at: new Date().toISOString()
+    });
+    if (error) throw error;
+    logTerminal('[SUPABASE] Perfil do animal sincronizado.');
+  } catch (e) {
+    logTerminal('[SUPABASE] Erro ao sincronizar perfil do animal.');
+  }
 }
 
 function formatarNumero(valor, casas = 0) {
@@ -1982,29 +2089,72 @@ function atualizarNutricioUI() {
 }
 
 function editarCampoPerfil(campo) {
-  const labels = {
-    petName: 'Nome',
-    ageYears: 'Idade em anos',
-    species: 'Especie (Gato ou Cao)',
-    breed: 'Raca',
-    sex: 'Genero',
-    neutered: 'Castrado? (Sim ou Nao)',
-    weightKg: 'Peso em kg',
-    activity: 'Atividade (Baixa, Normal ou Alta)',
-    foodName: 'Nome da comida',
-    proteinPct: 'Proteina bruta (%)',
-    fatPct: 'Gordura bruta (%)',
-    fiberPct: 'Fibra bruta (%)',
-    ashPct: 'Cinzas brutas (%)',
-    moisturePct: 'Teor de humidade (%)',
-    portionGram: 'Gramas dispensadas por uma porcao do alimentador'
-  };
-  const atual = nutritionProfile[campo];
-  const novo = prompt(labels[campo], atual);
-  if (novo === null) return;
-  const numeric = ['ageYears', 'weightKg', 'proteinPct', 'fatPct', 'fiberPct', 'ashPct', 'moisturePct', 'portionGram'];
-  nutritionProfile[campo] = numeric.includes(campo) ? Math.max(0, Number(String(novo).replace(',', '.')) || 0) : novo.trim() || atual;
+  const config = PROFILE_FIELDS[campo];
+  if (!config) return;
+  activeEditField = campo;
+  activeEditValue = nutritionProfile[campo];
+  document.getElementById('profile-edit-title').textContent = config.label;
+  document.getElementById('profile-edit-label').textContent = config.suffix ? `${config.label} (${config.suffix})` : config.label;
+  const control = document.getElementById('profile-edit-control');
+
+  if (config.type === 'choice') {
+    control.innerHTML = `
+      <div class="edit-options">
+        ${config.options.map(option => `
+          <button class="edit-option ${String(activeEditValue) === option ? 'active' : ''}" onclick="selectProfileEditOption('${option.replace(/'/g, "\\'")}')">
+            <span>${option}</span>
+            ${String(activeEditValue) === option ? '<i data-lucide="check"></i>' : ''}
+          </button>
+        `).join('')}
+      </div>
+    `;
+  } else {
+    const inputType = config.type === 'number' ? 'number' : 'text';
+    const inputMode = config.type === 'number' ? 'decimal' : 'text';
+    control.innerHTML = `<input class="edit-input" id="profile-edit-input" type="${inputType}" inputmode="${inputMode}" step="${config.step || '1'}" value="${String(activeEditValue ?? '').replace(/"/g, '&quot;')}">`;
+    setTimeout(() => document.getElementById('profile-edit-input')?.focus(), 150);
+  }
+
+  document.getElementById('profile-edit-sheet').classList.add('active');
+  lucide.createIcons();
+}
+
+function selectProfileEditOption(value) {
+  activeEditValue = value;
+  const config = PROFILE_FIELDS[activeEditField];
+  const control = document.getElementById('profile-edit-control');
+  control.innerHTML = `
+    <div class="edit-options">
+      ${config.options.map(option => `
+        <button class="edit-option ${option === value ? 'active' : ''}" onclick="selectProfileEditOption('${option.replace(/'/g, "\\'")}')">
+          <span>${option}</span>
+          ${option === value ? '<i data-lucide="check"></i>' : ''}
+        </button>
+      `).join('')}
+    </div>
+  `;
+  lucide.createIcons();
+}
+
+function closeProfileEditSheet(e) {
+  if (!e || e.target.id === 'profile-edit-sheet' || e.target.closest('.drag-handle')) {
+    document.getElementById('profile-edit-sheet').classList.remove('active');
+    activeEditField = null;
+  }
+}
+
+function saveProfileEditValue() {
+  if (!activeEditField) return;
+  const config = PROFILE_FIELDS[activeEditField];
+  let novo = config.type === 'choice' ? activeEditValue : document.getElementById('profile-edit-input')?.value;
+  if (config.type === 'number') {
+    novo = Math.max(0, Number(String(novo).replace(',', '.')) || 0);
+  } else {
+    novo = String(novo || '').trim() || nutritionProfile[activeEditField];
+  }
+  nutritionProfile[activeEditField] = novo;
   guardarPerfilNutricional();
+  closeProfileEditSheet();
 }
 
 // Load settings from Supabase
@@ -3106,19 +3256,19 @@ function reset3DCamera() {
 // PAGE LOAD INITIALIZER
 // =====================================================
 window.addEventListener('load', async () => {
-  if (currentUserId) {
-    const users = getUsersStore();
-    const loginName = document.getElementById('login-name');
-    if (loginName && users[currentUserId]) loginName.value = users[currentUserId].displayName || currentUserId;
-    switchScreen('screen-dashboard');
-  } else {
-    switchScreen('screen-login');
-  }
-
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./service-worker.js').catch(() => {
       logTerminal('[PWA] Service worker indisponivel neste ambiente.');
     });
+  }
+
+  const { data: { session } } = await supa.auth.getSession();
+  if (session?.user) {
+    const loginName = document.getElementById('login-name');
+    if (loginName) loginName.value = session.user.email || '';
+    await enterAuthenticatedApp(session.user);
+  } else {
+    switchScreen('screen-login');
   }
 
   // Load settings and history records from Supabase
