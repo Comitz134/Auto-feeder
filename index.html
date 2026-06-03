@@ -1381,15 +1381,15 @@
     <div class="screen-content scrollable">
       <h1 class="mi-page-title">Informações do animal de estimação</h1>
       <div class="mi-form-list">
-        <button class="mi-form-row" onclick="editarCampoPerfil('petName')"><span class="mi-row-label">Nome</span><span class="mi-row-value" id="petName-val">Emma</span><i data-lucide="chevron-right"></i></button>
-        <button class="mi-form-row" onclick="editarCampoPerfil('ageYears')"><span class="mi-row-label">Idade</span><span class="mi-row-value" id="ageYears-val">7 anos</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('petName')"><span class="mi-row-label">Nome</span><span class="mi-row-value" id="petName-val">--</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('ageYears')"><span class="mi-row-label">Idade</span><span class="mi-row-value" id="ageYears-val">--</span><i data-lucide="chevron-right"></i></button>
         <button class="mi-form-row" onclick="editarCampoPerfil('species')"><span class="mi-row-label">Espécie</span><span class="mi-row-value" id="species-val">Gato</span><i data-lucide="chevron-right"></i></button>
-        <button class="mi-form-row" onclick="editarCampoPerfil('breed')"><span class="mi-row-label">Raça</span><span class="mi-row-value" id="breed-val">Pelo Curto</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('breed')"><span class="mi-row-label">Raça</span><span class="mi-row-value" id="breed-val">--</span><i data-lucide="chevron-right"></i></button>
         <button class="mi-form-row" onclick="editarCampoPerfil('sex')"><span class="mi-row-label">Género</span><span class="mi-row-value" id="sex-val">Macho</span><i data-lucide="chevron-right"></i></button>
         <button class="mi-form-row" onclick="editarCampoPerfil('neutered')"><span class="mi-row-label">Castrado</span><span class="mi-row-value" id="neutered-val">Sim</span><i data-lucide="chevron-right"></i></button>
-        <button class="mi-form-row" onclick="editarCampoPerfil('weightKg')"><span class="mi-row-label">Peso</span><span class="mi-row-value" id="weightKg-val">4.5 kg</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('weightKg')"><span class="mi-row-label">Peso</span><span class="mi-row-value" id="weightKg-val">--</span><i data-lucide="chevron-right"></i></button>
         <button class="mi-form-row" onclick="editarCampoPerfil('activity')"><span class="mi-row-label">Atividade</span><span class="mi-row-value" id="activity-val">Normal</span><i data-lucide="chevron-right"></i></button>
-        <button class="mi-form-row" onclick="switchScreen('screen-food-composition')"><span class="mi-row-label">Comida</span><span class="mi-row-value" id="foodName-val">Outras marcas</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="switchScreen('screen-food-composition')"><span class="mi-row-label">Comida</span><span class="mi-row-value" id="foodName-val">--</span><i data-lucide="chevron-right"></i></button>
       </div>
     </div>
   </div>
@@ -1402,16 +1402,16 @@
       <button class="header-btn" onclick="guardarPerfilNutricional(); switchScreen('screen-pet-profile');"><i data-lucide="check"></i></button>
     </header>
     <div class="screen-content scrollable">
-      <h1 class="mi-page-title">Outras marcas</h1>
+      <h1 class="mi-page-title" id="foodName2-title">--</h1>
       <p class="mi-helper">Encontra a composição analítica na embalagem da ração e insere os valores em percentagem. A app estima a energia metabolizável e ajusta a dose diária.</p>
       <div class="mi-form-list">
-        <button class="mi-form-row" onclick="editarCampoPerfil('foodName')"><span class="mi-row-label">Nome da comida</span><span class="mi-row-value" id="foodName2-val">Outras marcas</span><i data-lucide="chevron-right"></i></button>
-        <button class="mi-form-row" onclick="editarCampoPerfil('proteinPct')"><span class="mi-row-label">Proteína bruta</span><span class="mi-row-value" id="proteinPct-val">32%</span><i data-lucide="chevron-right"></i></button>
-        <button class="mi-form-row" onclick="editarCampoPerfil('fatPct')"><span class="mi-row-label">Gordura bruta</span><span class="mi-row-value" id="fatPct-val">14%</span><i data-lucide="chevron-right"></i></button>
-        <button class="mi-form-row" onclick="editarCampoPerfil('fiberPct')"><span class="mi-row-label">Fibra bruta</span><span class="mi-row-value" id="fiberPct-val">3%</span><i data-lucide="chevron-right"></i></button>
-        <button class="mi-form-row" onclick="editarCampoPerfil('ashPct')"><span class="mi-row-label">Cinzas brutas</span><span class="mi-row-value" id="ashPct-val">7%</span><i data-lucide="chevron-right"></i></button>
-        <button class="mi-form-row" onclick="editarCampoPerfil('moisturePct')"><span class="mi-row-label">Teor de humidade</span><span class="mi-row-value" id="moisturePct-val">10%</span><i data-lucide="chevron-right"></i></button>
-        <button class="mi-form-row" onclick="editarCampoPerfil('portionGram')"><span class="mi-row-label">Gramas por porção</span><span class="mi-row-value" id="portionGram-val">10 g</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('foodName')"><span class="mi-row-label">Nome da comida</span><span class="mi-row-value" id="foodName2-val">--</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('proteinPct')"><span class="mi-row-label">Proteína bruta</span><span class="mi-row-value" id="proteinPct-val">--</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('fatPct')"><span class="mi-row-label">Gordura bruta</span><span class="mi-row-value" id="fatPct-val">--</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('fiberPct')"><span class="mi-row-label">Fibra bruta</span><span class="mi-row-value" id="fiberPct-val">--</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('ashPct')"><span class="mi-row-label">Cinzas brutas</span><span class="mi-row-value" id="ashPct-val">--</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('moisturePct')"><span class="mi-row-label">Teor de humidade</span><span class="mi-row-value" id="moisturePct-val">--</span><i data-lucide="chevron-right"></i></button>
+        <button class="mi-form-row" onclick="editarCampoPerfil('portionGram')"><span class="mi-row-label">Gramas por porção</span><span class="mi-row-value" id="portionGram-val">--</span><i data-lucide="chevron-right"></i></button>
       </div>
       <div class="nutrition-summary">
         <div>
@@ -1733,7 +1733,7 @@
         <div class="sheet-settings-group">
           <h4>Blynk Cloud Server</h4>
           <div class="input-inline-row">
-            <input type="text" id="auth-token" placeholder="Blynk Auth Token" value="sOOvSR9kmZxS_CMp5pvbqQHDbGvJczP1" onchange="saveSettingsSupabaseDirect()">
+            <input type="text" id="auth-token" placeholder="Blynk Auth Token" value="" onchange="saveSettingsSupabaseDirect()">
             <input type="text" id="blynk-server" placeholder="Blynk Server" value="blynk.cloud" onchange="saveSettingsSupabaseDirect()">
           </div>
           <button class="btn-orange-pill full-width" style="padding: 12px; font-size: 13px;" onclick="conectar(); closeSettingsSheet();">Reconectar ao Blynk</button>
@@ -1795,30 +1795,13 @@
       <div class="wifi-list-container">
         <div class="wifi-list-header">Redes Wi-Fi que podem ser usadas para adicionar dispositivos (2.4G)</div>
         <div class="wifi-list-items" id="wifi-list-24g">
-          <div class="wifi-item" onclick="selecionarRedeWifi('REDE5-5G')">
-            <span>REDE5-5G</span>
-            <i data-lucide="wifi"></i>
-          </div>
-          <div class="wifi-item" onclick="selecionarRedeWifi('REDE5-2G')">
-            <span>REDE5-2G</span>
-            <i data-lucide="wifi"></i>
-          </div>
-          <div class="wifi-item" onclick="selecionarRedeWifi('VIVOFIBRA-A270')">
-            <span>VIVOFIBRA-A270</span>
-            <i data-lucide="wifi"></i>
-          </div>
-          <div class="wifi-item" onclick="selecionarRedeWifi('DIRECT-C1-HP Smart Tank 610')">
-            <span>DIRECT-C1-HP Smart Tank 610</span>
-            <i data-lucide="wifi"></i>
+          <div class="wifi-item" style="color: var(--text-sub); font-size:13px; padding: 12px 20px;">
+            Nenhuma rede encontrada. Liga o ESP32 e usa o botão Scan, ou ativa o Modo Simulação.
           </div>
         </div>
         
         <div class="wifi-list-header bg-gray">Redes Wi-Fi que não podem ser usadas para adicionar dispositivos (5G)</div>
-        <div class="wifi-list-items disabled">
-          <div class="wifi-item">
-            <span>VIVOFIBRA-A270-5G</span>
-            <i data-lucide="wifi"></i>
-          </div>
+        <div class="wifi-list-items disabled" id="wifi-list-5g">
         </div>
       </div>
     </div>
@@ -1864,21 +1847,21 @@ const SCIENCE_SOURCES = [
 ];
 
 const DEFAULT_NUTRITION_PROFILE = {
-  petName: 'Emma',
-  ageYears: 7,
+  petName: '',
+  ageYears: '',
   species: 'Gato',
-  breed: 'Pelo Curto',
+  breed: '',
   sex: 'Macho',
   neutered: 'Sim',
-  weightKg: 4.5,
+  weightKg: '',
   activity: 'Normal',
-  foodName: 'Outras marcas',
-  proteinPct: 32,
-  fatPct: 14,
-  fiberPct: 3,
-  ashPct: 7,
-  moisturePct: 10,
-  portionGram: 10
+  foodName: '',
+  proteinPct: '',
+  fatPct: '',
+  fiberPct: '',
+  ashPct: '',
+  moisturePct: '',
+  portionGram: 0   // 0 = calculado automaticamente pela fórmula científica
 };
 
 let currentUserId = '';
@@ -2014,16 +1997,25 @@ function formatarNumero(valor, casas = 0) {
 
 function calcularRecomendacaoNutricional() {
   const p = nutritionProfile;
-  const weight = Math.max(0.5, Number(p.weightKg) || 0);
+  const weight = Number(p.weightKg) || 0;
   const protein = Math.max(0, Number(p.proteinPct) || 0);
   const fat = Math.max(0, Number(p.fatPct) || 0);
   const fiber = Math.max(0, Number(p.fiberPct) || 0);
   const ash = Math.max(0, Number(p.ashPct) || 0);
   const moisture = Math.max(0, Number(p.moisturePct) || 0);
+
+  // Verifica se temos dados mínimos para calcular
+  const hasWeight = weight > 0;
+  const hasComposition = (protein + fat) > 0;
+
+  if (!hasWeight) {
+    return { carbs: 0, kcalKg: 0, rer: 0, mer: 0, gramsDay: 0, meals: 0, gramsMeal: 0, portionGram: 0, portionsDay: 0, hasData: false };
+  }
+
   const carbs = Math.max(0, 100 - protein - fat - fiber - ash - moisture);
-  const kcalKg = 10 * ((3.5 * protein) + (8.5 * fat) + (3.5 * carbs));
+  const kcalKg = hasComposition ? 10 * ((3.5 * protein) + (8.5 * fat) + (3.5 * carbs)) : 0;
   const kcalG = kcalKg / 1000;
-  const rer = 70 * Math.pow(weight, 0.75);
+  const rer = 70 * Math.pow(Math.max(0.5, weight), 0.75);
   const species = String(p.species).toLowerCase();
   const age = Number(p.ageYears) || 0;
   const activity = String(p.activity).toLowerCase();
@@ -2045,10 +2037,14 @@ function calcularRecomendacaoNutricional() {
   const mer = rer * Math.max(1, factor);
   const gramsDay = kcalG > 0 ? mer / kcalG : 0;
   const meals = age > 0 && age < 1 ? 4 : species.includes('gato') || species.includes('cat') ? 3 : 2;
-  const gramsMeal = gramsDay / meals;
-  const portionGram = Math.max(1, Number(p.portionGram) || 10);
-  const portionsDay = gramsDay / portionGram;
-  return { carbs, kcalKg, rer, mer, gramsDay, meals, gramsMeal, portionGram, portionsDay };
+  const gramsMeal = gramsDay > 0 ? gramsDay / meals : 0;
+
+  // portionGram: usa o valor guardado pelo utilizador, ou sugere gramsMeal calculado
+  const savedPortion = Number(p.portionGram) || 0;
+  const portionGram = savedPortion > 0 ? savedPortion : Math.max(1, Math.round(gramsMeal));
+  const portionsDay = portionGram > 0 && gramsDay > 0 ? gramsDay / portionGram : 0;
+
+  return { carbs, kcalKg, rer, mer, gramsDay, meals, gramsMeal, portionGram, portionsDay, hasData: true };
 }
 
 function atualizarNutricioUI() {
@@ -2060,31 +2056,67 @@ function atualizarNutricioUI() {
     if (el) el.textContent = value;
   };
 
-  setText('petName-val', p.petName);
-  setText('ageYears-val', `${formatarNumero(Number(p.ageYears), Number(p.ageYears) % 1 ? 1 : 0)} anos`);
+  // Campos do perfil do animal — mostrar '--' se vazio
+  setText('petName-val', p.petName || '--');
+  const ageNum = Number(p.ageYears);
+  setText('ageYears-val', ageNum > 0 ? `${formatarNumero(ageNum, ageNum % 1 ? 1 : 0)} anos` : '--');
   setText('species-val', p.species);
-  setText('breed-val', p.breed);
+  setText('breed-val', p.breed || '--');
   setText('sex-val', p.sex);
   setText('neutered-val', p.neutered);
-  setText('weightKg-val', `${formatarNumero(Number(p.weightKg), 1)} kg`);
+  const weightNum = Number(p.weightKg);
+  setText('weightKg-val', weightNum > 0 ? `${formatarNumero(weightNum, 1)} kg` : '--');
   setText('activity-val', p.activity);
-  setText('foodName-val', p.foodName);
-  setText('foodName2-val', p.foodName);
-  setText('proteinPct-val', `${formatarNumero(Number(p.proteinPct), 1)}%`);
-  setText('fatPct-val', `${formatarNumero(Number(p.fatPct), 1)}%`);
-  setText('fiberPct-val', `${formatarNumero(Number(p.fiberPct), 1)}%`);
-  setText('ashPct-val', `${formatarNumero(Number(p.ashPct), 1)}%`);
-  setText('moisturePct-val', `${formatarNumero(Number(p.moisturePct), 1)}%`);
-  setText('portionGram-val', `${formatarNumero(Number(p.portionGram), 0)} g`);
-  setText('dash-dose-day', `${formatarNumero(r.gramsDay, 0)} g/dia`);
-  setText('dash-dose-sub', `${formatarNumero(r.mer, 0)} kcal/dia - ${formatarNumero(r.kcalKg, 0)} kcal/kg`);
-  setText('dash-meals-pill', `${r.meals} refeicoes`);
-  setText('science-note', `${SCIENCE_SOURCES.join(' ')} Estimativa para animais saudaveis; confirmar com veterinario se houver doenca, excesso/baixo peso, gestacao ou crescimento.`);
+  setText('foodName-val', p.foodName || '--');
+  setText('foodName2-val', p.foodName || '--');
+  setText('foodName2-title', p.foodName || 'Composição da ração');
+
+  // Composição da ração — mostrar '--' se vazio
+  const protNum = Number(p.proteinPct);
+  const fatNum = Number(p.fatPct);
+  const fibNum = Number(p.fiberPct);
+  const ashNum = Number(p.ashPct);
+  const moistNum = Number(p.moisturePct);
+  setText('proteinPct-val', protNum > 0 ? `${formatarNumero(protNum, 1)}%` : '--');
+  setText('fatPct-val', fatNum > 0 ? `${formatarNumero(fatNum, 1)}%` : '--');
+  setText('fiberPct-val', fibNum > 0 ? `${formatarNumero(fibNum, 1)}%` : '--');
+  setText('ashPct-val', ashNum > 0 ? `${formatarNumero(ashNum, 1)}%` : '--');
+  setText('moisturePct-val', moistNum > 0 ? `${formatarNumero(moistNum, 1)}%` : '--');
+
+  // Gramas por porção: se o utilizador definiu um valor usa-o; senão mostra sugestão científica
+  const savedPortion = Number(p.portionGram) || 0;
+  const portionEl = document.getElementById('portionGram-val');
+  if (portionEl) {
+    if (savedPortion > 0) {
+      portionEl.textContent = `${formatarNumero(savedPortion, 0)} g`;
+      portionEl.title = '';
+    } else if (r.hasData && r.gramsMeal > 0) {
+      portionEl.textContent = `~${formatarNumero(r.gramsMeal, 0)} g (sugestão)`;
+      portionEl.title = 'Valor calculado automaticamente com base no peso, espécie, idade e atividade (WSAVA/AAHA). Toca para definir um valor personalizado.';
+      portionEl.style.color = 'var(--accent-orange)';
+    } else {
+      portionEl.textContent = '--';
+      portionEl.title = '';
+    }
+  }
+
+  // Dashboard — estatísticas de dose
+  if (r.hasData && r.gramsDay > 0) {
+    setText('dash-dose-day', `${formatarNumero(r.gramsDay, 0)} g/dia`);
+    setText('dash-dose-sub', `${formatarNumero(r.mer, 0)} kcal/dia · ${formatarNumero(r.kcalKg, 0)} kcal/kg ração`);
+    setText('dash-meals-pill', `${r.meals} refeições`);
+  } else {
+    setText('dash-dose-day', '-- g/dia');
+    setText('dash-dose-sub', 'Preenche o perfil do animal para ver a recomendação');
+    setText('dash-meals-pill', '-- refeições');
+  }
+
+  setText('science-note', `${SCIENCE_SOURCES.join(' ')} Estimativa para animais saudáveis; confirmar com veterinário se houver doença, excesso/baixo peso, gestação ou crescimento.`);
 
   const kcalEl = document.getElementById('nutrition-kcalkg');
-  if (kcalEl) kcalEl.innerHTML = `${formatarNumero(r.kcalKg, 0)}<small>kcal/kg</small>`;
+  if (kcalEl) kcalEl.innerHTML = r.hasData && r.kcalKg > 0 ? `${formatarNumero(r.kcalKg, 0)}<small>kcal/kg</small>` : `--<small>kcal/kg</small>`;
   const carbsEl = document.getElementById('nutrition-carbs');
-  if (carbsEl) carbsEl.innerHTML = `${formatarNumero(r.carbs, 1)}<small>%</small>`;
+  if (carbsEl) carbsEl.innerHTML = r.hasData ? `${formatarNumero(r.carbs, 1)}<small>%</small>` : `--<small>%</small>`;
   atualizarSchedulesCount();
 }
 
@@ -2159,21 +2191,32 @@ function saveProfileEditValue() {
 
 // Load settings from Supabase
 async function loadSupabaseSettings() {
+  if (!currentUserId) return;
   try {
-    const { data: settings, error } = await supa.from('settings').select('*').eq('id', 1).single();
+    const { data: settings, error } = await supa
+      .from('settings')
+      .select('*')
+      .eq('user_id', currentUserId)
+      .maybeSingle();
     if (error) throw error;
     if (settings) {
       if (settings.auth_token) {
-        document.getElementById('auth-token').value = settings.auth_token;
+        AUTH = settings.auth_token;
+        const tokenEl = document.getElementById('auth-token');
+        if (tokenEl) tokenEl.value = settings.auth_token;
       }
       if (settings.schedule_1) {
-        document.getElementById('horario1').value = settings.schedule_1;
+        const s1 = document.getElementById('horario1');
+        if (s1) s1.value = settings.schedule_1;
       }
       if (settings.schedule_2) {
-        document.getElementById('horario2').value = settings.schedule_2;
+        const s2 = document.getElementById('horario2');
+        if (s2) s2.value = settings.schedule_2;
       }
       atualizarSchedulesCount();
       logTerminal('[SUPABASE] Definições cloud carregadas com sucesso.');
+    } else {
+      logTerminal('[SUPABASE] Sem definições guardadas para esta conta.');
     }
   } catch (e) {
     console.error('[Supabase] Erro a carregar settings:', e);
@@ -2183,8 +2226,14 @@ async function loadSupabaseSettings() {
 
 // Load logs from Supabase
 async function loadSupabaseHistory() {
+  if (!currentUserId) return; // Não carrega sem sessão autenticada
   try {
-    const { data: logs, error } = await supa.from('history').select('*').order('created_at', { ascending: false }).limit(6);
+    const { data: logs, error } = await supa
+      .from('history')
+      .select('*')
+      .eq('user_id', currentUserId)
+      .order('created_at', { ascending: false })
+      .limit(50);
     if (error) throw error;
     if (logs && logs.length > 0) {
       historico.length = 0; // Clear
@@ -2192,12 +2241,17 @@ async function loadSupabaseHistory() {
         historico.push({
           hora: log.hora,
           peso: log.peso,
-          source: log.source
+          source: log.source,
+          created_at: log.created_at
         });
       });
       renderHistorico();
       logTerminal('[SUPABASE] Histórico cloud descarregado com sucesso.');
       atualizarTotalConsumoHoje();
+    } else {
+      historico.length = 0;
+      renderHistorico();
+      logTerminal('[SUPABASE] Sem registos de alimentação para esta conta.');
     }
   } catch (e) {
     console.error('[Supabase] Erro a obter histórico:', e);
@@ -2207,16 +2261,17 @@ async function loadSupabaseHistory() {
 
 // Save settings to Supabase
 async function saveSupabaseSettings() {
-  const token = document.getElementById('auth-token').value.trim();
-  const h1 = document.getElementById('horario1').value;
-  const h2 = document.getElementById('horario2').value;
+  if (!currentUserId) return;
+  const token = document.getElementById('auth-token')?.value.trim() || '';
+  const h1 = document.getElementById('horario1')?.value || '';
+  const h2 = document.getElementById('horario2')?.value || '';
   try {
     const { error } = await supa.from('settings').upsert({
-      id: 1,
+      user_id: currentUserId,
       auth_token: token,
       schedule_1: h1,
       schedule_2: h2
-    });
+    }, { onConflict: 'user_id' });
     if (error) throw error;
     logTerminal('[SUPABASE] Definições guardadas com sucesso.');
   } catch (e) {
@@ -2232,8 +2287,10 @@ async function saveSettingsSupabaseDirect() {
 
 // Save a single log event to Supabase
 async function saveHistoryToSupabase(hora, peso, source) {
+  if (!currentUserId) return;
   try {
     const { error } = await supa.from('history').insert([{
+      user_id: currentUserId,
       hora: hora,
       peso: parseFloat(peso),
       source: source
@@ -2250,7 +2307,7 @@ async function saveHistoryToSupabase(hora, peso, source) {
 // =====================================================
 // BLYNK GLOBAL HARDWARE DATA CONTROLLER
 // =====================================================
-let AUTH   = 'sOOvSR9kmZxS_CMp5pvbqQHDbGvJczP1';
+let AUTH   = '';
 let SERVER = 'blynk.cloud';
 let connected = false;
 let pollingInterval = null;
@@ -2321,7 +2378,7 @@ async function conectar() {
     toggleModoSimulacao();
   }
   const tokenInput = document.getElementById('auth-token').value.trim();
-  AUTH   = tokenInput || 'sOOvSR9kmZxS_CMp5pvbqQHDbGvJczP1';
+  AUTH   = tokenInput || '';
   SERVER = document.getElementById('blynk-server').value.trim() || 'blynk.cloud';
 
   setStatus('connecting');
@@ -2748,9 +2805,9 @@ async function openWifiScreen() {
   }
 
   if (!connected) {
-    mostrarToast('ESP32 desconectado. Mostrando redes padrão.', 'error');
-    logTerminal('[WiFiManager] Hardware offline. Mostrando redes padrão para demonstração.');
-    populateWifiList(['REDE5-5G', 'REDE5-2G', 'VIVOFIBRA-A270', 'DIRECT-C1-HP Smart Tank 610']);
+    mostrarToast('ESP32 desconectado. Liga o hardware para ver as redes reais.', 'error');
+    logTerminal('[WiFiManager] Hardware offline. Liga o ESP32 para obter a lista de redes Wi-Fi.');
+    populateWifiList([]);
     return;
   }
 
@@ -2772,8 +2829,8 @@ async function openWifiScreen() {
       logTerminal(`[WiFiManager] Lista de redes recebida: ${redes}`);
       mostrarToast('Redes Wi-Fi atualizadas!', 'ok');
     } else {
-      logTerminal('[WiFiManager] Sem resposta de redes do hardware. Mostrando redes padrão.');
-      populateWifiList(['REDE5-5G', 'REDE5-2G', 'VIVOFIBRA-A270', 'DIRECT-C1-HP Smart Tank 610']);
+      logTerminal('[WiFiManager] Sem resposta de redes do hardware. Verifica se o ESP32 está ligado.');
+      populateWifiList([]);
     }
   }, 4000);
 }
@@ -2781,8 +2838,12 @@ async function openWifiScreen() {
 function populateWifiList(arr) {
   const container = document.getElementById('wifi-list-24g');
   if (!container) return;
+  if (!arr || arr.length === 0) {
+    container.innerHTML = `<div style="color: var(--text-sub); font-size:13px; padding: 12px 20px;">Nenhuma rede encontrada. Liga o ESP32 e usa o botão Scan.</div>`;
+    return;
+  }
   container.innerHTML = arr.map(ssid => `
-    <div class="wifi-item" onclick="selecionarRedeWifi('${ssid}')">
+    <div class="wifi-item" onclick="selecionarRedeWifi('${ssid.replace(/'/g, "\\'")}')">
       <span>${ssid}</span>
       <i data-lucide="wifi"></i>
     </div>
@@ -2972,15 +3033,32 @@ function switchStatsTab(tabType) {
   const textAmount = document.getElementById('stats-amount-eaten');
   const textPortions = document.getElementById('stats-portions-dispensed');
   const dateLabel = document.getElementById('stats-current-date');
+  const today = new Date();
 
   if (tabType === 'day') {
-    textAmount.innerHTML = `32<span class="metric-unit">g</span>`;
-    textPortions.innerHTML = `2<span class="metric-unit">Portions</span>`;
-    dateLabel.textContent = '05/29';
+    // Total comido hoje a partir do histórico real
+    const todayStr = today.toISOString().substring(0,10);
+    const todayEntries = historico.filter(r => {
+      // r.hora pode ser "HH:MM" ou timestamp completo
+      const d = r.created_at ? r.created_at.substring(0,10) : todayStr;
+      return d === todayStr;
+    });
+    const totalHoje = todayEntries.reduce((acc, r) => acc + (Number(r.peso) || 0), 0);
+    const porcoes = todayEntries.length;
+    textAmount.innerHTML = totalHoje > 0 ? `${Math.round(totalHoje)}<span class="metric-unit">g</span>` : `0<span class="metric-unit">g</span>`;
+    textPortions.innerHTML = `${porcoes}<span class="metric-unit">Porções</span>`;
+    const dd = String(today.getDate()).padStart(2,'0');
+    const mm = String(today.getMonth()+1).padStart(2,'0');
+    dateLabel.textContent = `${dd}/${mm}`;
   } else {
-    textAmount.innerHTML = `244<span class="metric-unit">g</span>`;
-    textPortions.innerHTML = `14<span class="metric-unit">Portions</span>`;
-    dateLabel.textContent = '05/23 - 05/29';
+    // Total da semana
+    const totalSemana = historico.reduce((acc, r) => acc + (Number(r.peso) || 0), 0);
+    const porcoesSemana = historico.length;
+    textAmount.innerHTML = totalSemana > 0 ? `${Math.round(totalSemana)}<span class="metric-unit">g</span>` : `0<span class="metric-unit">g</span>`;
+    textPortions.innerHTML = `${porcoesSemana}<span class="metric-unit">Porções</span>`;
+    const d1 = new Date(today); d1.setDate(today.getDate() - 6);
+    const fmt = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+    dateLabel.textContent = `${fmt(d1)} - ${fmt(today)}`;
   }
   
   desenharSVGCharts();
@@ -2991,84 +3069,113 @@ function desenharSVGCharts() {
   const chartPort = document.getElementById('chart-portions-dispensed');
   if (!chartFood || !chartPort) return;
 
+  const CHART_W = 340, CHART_H = 100, BAR_W = 8, BOTTOM_Y = 100;
+  const emptyChart = (labels, labelType) => `
+    <svg class="chart-svg" viewBox="0 0 ${CHART_W} 120">
+      <text x="5" y="15" fill="var(--text-sub)" font-size="10">0</text>
+      ${labels.map((l, i) => `<text x="${35 + i * 45}" y="115" fill="var(--text-sub)" font-size="9">${l}</text>`).join('')}
+      <text x="50%" y="55" text-anchor="middle" fill="var(--text-sub)" font-size="11">Sem dados</text>
+    </svg>`;
+
   if (currentStatsTab === 'day') {
-    // 2 Bars matching Screenshot 3: (09:00, 13:00)
+    const today = new Date();
+    const todayStr = today.toISOString().substring(0,10);
+    const todayEntries = historico.filter(r => {
+      const d = r.created_at ? r.created_at.substring(0,10) : todayStr;
+      return d === todayStr;
+    });
+
+    if (todayEntries.length === 0) {
+      chartFood.innerHTML = emptyChart(['01:00','06:00','12:00','18:00','24:00'], 'hora');
+      chartPort.innerHTML = emptyChart(['01:00','06:00','12:00','18:00','24:00'], 'hora');
+      return;
+    }
+
+    // Group by hour
+    const byHour = Array(24).fill(0);
+    const countByHour = Array(24).fill(0);
+    todayEntries.forEach(r => {
+      const h = parseInt((r.hora || '00:00').split(':')[0]) || 0;
+      byHour[h] += Number(r.peso) || 0;
+      countByHour[h]++;
+    });
+    const maxG = Math.max(...byHour, 1);
+    const maxP = Math.max(...countByHour, 1);
+
+    // Render bars at proportional x positions (0-24h mapped to chart width 20-320)
+    const barsFood = byHour.map((g, h) => {
+      if (g === 0) return '';
+      const x = 20 + Math.round((h / 24) * 290);
+      const barH = Math.round((g / maxG) * CHART_H);
+      return `<rect x="${x}" y="${BOTTOM_Y - barH}" width="${BAR_W}" height="${barH}" rx="3" fill="var(--accent-orange)" />`;
+    }).join('');
+    const barsPort = countByHour.map((c, h) => {
+      if (c === 0) return '';
+      const x = 20 + Math.round((h / 24) * 290);
+      const barH = Math.round((c / maxP) * CHART_H);
+      return `<rect x="${x}" y="${BOTTOM_Y - barH}" width="${BAR_W}" height="${barH}" rx="3" fill="var(--accent-orange)" />`;
+    }).join('');
+
     chartFood.innerHTML = `
-      <svg class="chart-svg" viewBox="0 0 340 120">
-        <!-- Grid/Axis labels -->
-        <text x="5" y="15" fill="var(--text-sub)" font-size="10">17</text>
-        <text x="5" y="65" fill="var(--text-sub)" font-size="10">5</text>
-        
-        <text x="30" y="115" fill="var(--text-sub)" font-size="9">01:00</text>
-        <text x="160" y="115" fill="var(--text-sub)" font-size="9">12:00</text>
-        <text x="290" y="115" fill="var(--text-sub)" font-size="9">24:00</text>
-
-        <!-- Vertical bars -->
-        <rect x="125" y="40" width="8" height="60" rx="3" fill="var(--accent-orange)" />
-        <rect x="175" y="30" width="8" height="70" rx="3" fill="var(--accent-orange)" />
-      </svg>
-    `;
-    
-    // 1 Bar matching Screenshot 3: (07:00)
+      <svg class="chart-svg" viewBox="0 0 ${CHART_W} 120">
+        <text x="5" y="15" fill="var(--text-sub)" font-size="10">${Math.round(maxG)}g</text>
+        <text x="5" y="105" fill="var(--text-sub)" font-size="10">0</text>
+        <text x="18" y="115" fill="var(--text-sub)" font-size="9">00:00</text>
+        <text x="148" y="115" fill="var(--text-sub)" font-size="9">12:00</text>
+        <text x="280" y="115" fill="var(--text-sub)" font-size="9">24:00</text>
+        ${barsFood}
+      </svg>`;
     chartPort.innerHTML = `
-      <svg class="chart-svg" viewBox="0 0 340 120">
-        <text x="5" y="15" fill="var(--text-sub)" font-size="10">7</text>
-        <text x="5" y="100" fill="var(--text-sub)" font-size="10">0</text>
-        
-        <text x="30" y="115" fill="var(--text-sub)" font-size="9">01:00</text>
-        <text x="160" y="115" fill="var(--text-sub)" font-size="9">12:00</text>
-        <text x="290" y="115" fill="var(--text-sub)" font-size="9">24:00</text>
+      <svg class="chart-svg" viewBox="0 0 ${CHART_W} 120">
+        <text x="5" y="15" fill="var(--text-sub)" font-size="10">${maxP}</text>
+        <text x="5" y="105" fill="var(--text-sub)" font-size="10">0</text>
+        <text x="18" y="115" fill="var(--text-sub)" font-size="9">00:00</text>
+        <text x="148" y="115" fill="var(--text-sub)" font-size="9">12:00</text>
+        <text x="280" y="115" fill="var(--text-sub)" font-size="9">24:00</text>
+        ${barsPort}
+      </svg>`;
 
-        <rect x="115" y="35" width="8" height="65" rx="3" fill="var(--accent-orange)" />
-      </svg>
-    `;
   } else {
-    // Week view: 7 Bars representing weekly totals
-    chartFood.innerHTML = `
-      <svg class="chart-svg" viewBox="0 0 340 120">
-        <text x="5" y="15" fill="var(--text-sub)" font-size="10">50</text>
-        <text x="5" y="100" fill="var(--text-sub)" font-size="10">0</text>
-        
-        <text x="35" y="115" fill="var(--text-sub)" font-size="9">Seg</text>
-        <text x="80" y="115" fill="var(--text-sub)" font-size="9">Ter</text>
-        <text x="125" y="115" fill="var(--text-sub)" font-size="9">Qua</text>
-        <text x="170" y="115" fill="var(--text-sub)" font-size="9">Qui</text>
-        <text x="215" y="115" fill="var(--text-sub)" font-size="9">Sex</text>
-        <text x="260" y="115" fill="var(--text-sub)" font-size="9">Sáb</text>
-        <text x="305" y="115" fill="var(--text-sub)" font-size="9">Dom</text>
+    // Week view: group by day of week from historico
+    const dias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+    const byDay = Array(7).fill(0);
+    const countByDay = Array(7).fill(0);
+    const today = new Date();
+    const todayStr = today.toISOString().substring(0,10);
+    historico.forEach(r => {
+      const ds = r.created_at ? r.created_at.substring(0,10) : todayStr;
+      const d = new Date(ds + 'T00:00:00');
+      const dow = d.getDay();
+      byDay[dow] += Number(r.peso) || 0;
+      countByDay[dow]++;
+    });
+    const maxG = Math.max(...byDay, 1);
+    const maxP = Math.max(...countByDay, 1);
 
-        <rect x="40" y="45" width="8" height="55" rx="3" fill="var(--accent-orange)" />
-        <rect x="85" y="30" width="8" height="70" rx="3" fill="var(--accent-orange)" />
-        <rect x="130" y="55" width="8" height="45" rx="3" fill="var(--accent-orange)" />
-        <rect x="175" y="40" width="8" height="60" rx="3" fill="var(--accent-orange)" />
-        <rect x="220" y="25" width="8" height="75" rx="3" fill="var(--accent-orange)" />
-        <rect x="265" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
-        <rect x="310" y="35" width="8" height="65" rx="3" fill="var(--accent-orange)" />
-      </svg>
-    `;
+    const xPositions = [40, 85, 130, 175, 220, 265, 310];
+    const barsFood = byDay.map((g, i) => {
+      const barH = Math.round((g / maxG) * CHART_H);
+      return g > 0 ? `<rect x="${xPositions[i]}" y="${BOTTOM_Y - barH}" width="${BAR_W}" height="${barH}" rx="3" fill="var(--accent-orange)" />` : '';
+    }).join('');
+    const barsPort = countByDay.map((c, i) => {
+      const barH = Math.round((c / maxP) * CHART_H);
+      return c > 0 ? `<rect x="${xPositions[i]}" y="${BOTTOM_Y - barH}" width="${BAR_W}" height="${barH}" rx="3" fill="var(--accent-orange)" />` : '';
+    }).join('');
+    const labels = dias.map((d, i) => `<text x="${xPositions[i]}" y="115" fill="var(--text-sub)" font-size="9">${d}</text>`).join('');
 
-    chartPort.innerHTML = `
-      <svg class="chart-svg" viewBox="0 0 340 120">
-        <text x="5" y="15" fill="var(--text-sub)" font-size="10">4</text>
-        <text x="5" y="100" fill="var(--text-sub)" font-size="10">0</text>
-        
-        <text x="35" y="115" fill="var(--text-sub)" font-size="9">Seg</text>
-        <text x="80" y="115" fill="var(--text-sub)" font-size="9">Ter</text>
-        <text x="125" y="115" fill="var(--text-sub)" font-size="9">Qua</text>
-        <text x="170" y="115" fill="var(--text-sub)" font-size="9">Qui</text>
-        <text x="215" y="115" fill="var(--text-sub)" font-size="9">Sex</text>
-        <text x="260" y="115" fill="var(--text-sub)" font-size="9">Sáb</text>
-        <text x="305" y="115" fill="var(--text-sub)" font-size="9">Dom</text>
-
-        <rect x="40" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
-        <rect x="85" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
-        <rect x="130" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
-        <rect x="175" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
-        <rect x="220" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
-        <rect x="265" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
-        <rect x="310" y="50" width="8" height="50" rx="3" fill="var(--accent-orange)" />
-      </svg>
-    `;
+    const noData = byDay.every(v => v === 0);
+    chartFood.innerHTML = noData ? emptyChart(dias, 'dia') : `
+      <svg class="chart-svg" viewBox="0 0 ${CHART_W} 120">
+        <text x="5" y="15" fill="var(--text-sub)" font-size="10">${Math.round(maxG)}g</text>
+        <text x="5" y="105" fill="var(--text-sub)" font-size="10">0</text>
+        ${labels}${barsFood}
+      </svg>`;
+    chartPort.innerHTML = noData ? emptyChart(dias, 'dia') : `
+      <svg class="chart-svg" viewBox="0 0 ${CHART_W} 120">
+        <text x="5" y="15" fill="var(--text-sub)" font-size="10">${maxP}</text>
+        <text x="5" y="105" fill="var(--text-sub)" font-size="10">0</text>
+        ${labels}${barsPort}
+      </svg>`;
   }
 }
 
@@ -3078,6 +3185,7 @@ function desenharSVGCharts() {
 // =====================================================
 function renderHistorico() {
   const ul = document.getElementById('historico-list');
+  if (!ul) return;
   if (historico.length === 0) {
     ul.innerHTML = `
       <li class="feed-log-item">
@@ -3087,25 +3195,28 @@ function renderHistorico() {
     `;
     return;
   }
-  
+
   ul.innerHTML = historico.map((r, i) => {
-    const isManual = r.source.toLowerCase().includes('manual');
-    const isScheduled = r.source.toLowerCase().includes('sched') || r.source.toLowerCase().includes('agenda') || r.source.toLowerCase().includes('horario');
-    
+    const src = (r.source || '').toLowerCase();
+    const isManual = src.includes('manual');
+    const isScheduled = src.includes('sched') || src.includes('agenda') || src.includes('horario');
+    const hora = (r.hora || '--:--').substring(0, 5);
+    const peso = Number(r.peso) > 0 ? Number(r.peso).toFixed(0) : '?';
+
     let itemClass = isScheduled ? 'feed-log-item scheduled' : 'feed-log-item';
     let textDesc = '';
-    
+
     if (isManual) {
-      textDesc = `Dispensa manual: <strong>${r.peso} g</strong>`;
+      textDesc = `Dispensa manual: <strong>${peso} g</strong>`;
     } else if (isScheduled) {
-      textDesc = `Dispensa agendada: <strong>${r.peso} g</strong>`;
+      textDesc = `Dispensa agendada: <strong>${peso} g</strong>`;
     } else {
-      textDesc = `Consumo registado: <strong>${r.peso} g</strong>`;
+      textDesc = `Consumo registado: <strong>${peso} g</strong>`;
     }
 
     return `
       <li class="${itemClass}" style="animation: slideUp 0.2s ease forwards; animation-delay: ${i * 0.05}s">
-        <span class="log-time">${r.hora.substring(0,5)}</span>
+        <span class="log-time">${hora}</span>
         <div class="log-text">
           <span>${textDesc}</span>
           ${isScheduled ? '<span class="log-subtext">Ativo ›</span>' : ''}
@@ -3266,22 +3377,19 @@ window.addEventListener('load', async () => {
   if (session?.user) {
     const loginName = document.getElementById('login-name');
     if (loginName) loginName.value = session.user.email || '';
+    // enterAuthenticatedApp sets currentUserId, loads cloud pet profile and switches screen
     await enterAuthenticatedApp(session.user);
+    // Now load settings and history (needs currentUserId)
+    await loadSupabaseSettings();
+    await loadSupabaseHistory();
+    conectar();
   } else {
     switchScreen('screen-login');
   }
 
-  // Load settings and history records from Supabase
-  await loadSupabaseSettings();
-  await loadSupabaseHistory();
-  
-  // Render lucide icons
+  // Render icons and UI
   lucide.createIcons();
   atualizarNutricioUI();
-  
-  // Reconnect automatically to Blynk with loaded credentials
-  conectar();
-
   renderHistorico();
   atualizarTotalConsumoHoje();
 });
