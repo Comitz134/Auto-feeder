@@ -264,7 +264,11 @@ static int adcMediana() {
 
 int lerNivelAgua() {
   int raw = adcMediana();
-  Serial.printf("[Agua] ADC mediana=%d\n", raw);
+  static int ultimoRaw = -999;
+  if (raw != ultimoRaw) {
+    Serial.printf("[Agua] ADC mediana=%d\n", raw);
+    ultimoRaw = raw;
+  }
   if (raw < AGUA_LIM_VAZIO) return 0;  // Sem água
   if (raw < AGUA_LIM_BAIXO) return 1;  // Baixo
   if (raw < AGUA_LIM_OK)    return 2;  // OK
