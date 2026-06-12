@@ -1,0 +1,107 @@
+flowchart TD
+  A[Inicio / reset] --> B[setup()]
+
+  subgraph SG1[setup]
+    B --> B1[Inicia Serial]
+    B1 --> B2[EEPROM.begin + eepromCarregar]
+    B2 --> B3[Configura motor,<br/>sensores e bomba]
+    B3 --> B4[Inicia balanca e faz tara]
+    B4 --> B5[Inicia TFT e desenha ecra]
+    B5 --> B6[Tenta ligar ao Wi-Fi]
+    B6 --> B7{Wi-Fi ligado?}
+    B7 -->|Sim| B8[Blynk.config + Blynk.connect]
+    B7 -->|Nao| B9[Continua offline]
+    B8 --> B10[Ativa timers]
+    B9 --> B10
+  end
+
+  B10 --> C[loop()]
+  C --> D[Blynk.run()]
+  C --> E[timer.run()]
+
+  subgraph SG2[Eventos Blynk]
+    D --> D1{Evento?}
+    D1 -->|BLYNK_CONNECTED| D2[rtc.begin + Blynk.syncAll]
+    D1 -->|V1| F[darComida()]
+    D1 -->|V6| D3[realizarTara()]
+    D1 -->|V7 ou V8| D4[Atualiza horario,<br/>guarda EEPROM,<br/>atualiza ecra]
+    D1 -->|V9| D5[Liga ou desliga bomba]
+    D1 -->|V11| D6[Scan Wi-Fi e envia SSIDs]
+  end
+
+  subgraph SG3[Timers]
+    E --> E1{Timer vencido?}
+    E1 -->|2 s| G[tarefaSensores()]
+    E1 -->|10 s| H[verificarHorarios()]
+  end
+
+  subgraph SG4[verificarHorarios]
+    H --> H1{Ha horarios definidos?}
+    H1 -->|Nao| H9[Fim]
+    H1 -->|Sim| H2{Segundo atual < 30?}
+    H2 -->|Nao| H9
+    H2 -->|Sim| H3{Hora/minuto coincide<br/>com H1 ou H2<br/>e ainda nao executou<br/>nesse minuto?}
+    H3 -->|Sim| F
+    H3 -->|Nao| H9
+  end
+
+  subgraph SG5[tarefaSensores]
+    G --> G1[Ler deposito 1]
+    G1 --> G2{Valor valido e alterado?}
+    G2 -->|Sim| G3[Atualiza ecra + Blynk V2]
+    G2 -->|Nao| G4[Segue]
+    G3 --> G4
+    G4 --> G5{Dep1 < 20%?}
+    G5 -->|Sim| G6[Envia alerta]
+    G5 -->|Nao| G7[Segue]
+    G6 --> G7
+
+    G7 --> G8[Ler deposito 2]
+    G8 --> G9{Valor valido e alterado?}
+    G9 -->|Sim| G10[Atualiza ecra + Blynk V3]
+    G9 -->|Nao| G11[Segue]
+    G10 --> G11
+    G11 --> G12{Dep2 < 20%?}
+    G12 -->|Sim| G13[Envia alerta]
+    G12 -->|Nao| G14[Segue]
+    G13 --> G14
+
+    G14 --> G15[Ler peso]
+    G15 --> G16{Peso valido e alterado?}
+    G16 -->|Sim| G17[Atualiza ecra + Blynk V4]
+    G16 -->|Nao| G18[Segue]
+    G17 --> G18
+
+    G18 --> G19[Ler nivel de agua<br/>com mediana + debounce]
+    G19 --> G20{Nivel mudou?}
+    G20 -->|Sim| G21[Atualiza ecra + Blynk V5<br/>e chama gerarBomba()]
+    G20 -->|Nao| G22[Segue]
+    G21 --> G22
+
+    G22 --> G23{Bomba em timeout?}
+    G23 -->|Sim| G24[Desliga bomba]
+    G23 -->|Nao| G25[Segue]
+    G24 --> G25
+
+    G25 --> G26{Agua vazia?}
+    G26 -->|Sim| G27[Envia alerta]
+    G26 -->|Nao| G28[Segue]
+    G27 --> G28
+
+    G28 --> G29{Estado online mudou?}
+    G29 -->|Sim| G30[Atualiza indicador Wi-Fi]
+    G29 -->|Nao| G31[Fim]
+    G30 --> G31
+  end
+
+  subgraph SG6[darComida]
+    F --> F1{Ja esta a alimentar?}
+    F1 -->|Sim| F9[Fim]
+    F1 -->|Nao| F2[Mostra mensagem no TFT]
+    F2 --> F3[Roda motor 1 porcao]
+    F3 --> F4[Desliga bobines]
+    F4 --> F5[Guarda hora da refeicao]
+    F5 --> F6[Regista refeicao no historico]
+    F6 --> F7[Atualiza ecra]
+    F7 --> F9
+  end

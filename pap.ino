@@ -1,7 +1,14 @@
-#define BLYNK_TEMPLATE_ID "TMPL5mbVhAiea"
-#define BLYNK_TEMPLATE_NAME "LED ESP32"
-#define BLYNK_PRINT Serial
+// =============================================================
+// SMART PET FEEDER — Versão Melhorada
+// Rafael Esteves Nunes & Rodrigo Guimarães | Colégio de Gaia 2026
+// =============================================================
 
+// ─── Identificação Blynk ─────────────────────────────────────
+#define BLYNK_TEMPLATE_ID   "TMPL5mbVhAiea"
+#define BLYNK_TEMPLATE_NAME "Smart Pet Feeder"
+#define BLYNK_PRINT         Serial
+
+// ─── Bibliotecas ─────────────────────────────────────────────
 #include <BlynkSimpleEsp32.h>
 #include <EEPROM.h>
 #include <HX711.h>
@@ -9,319 +16,326 @@
 #include <Stepper.h>
 #include <TFT_eSPI.h>
 #include <WiFi.h>
-#include <WiFiManager.h> // Configuração Wi-Fi dinâmica
 #include <WiFiClient.h>
 #include <WidgetRTC.h>
 #include <esp_wifi.h>
 
-// --- Credenciais ---
-char auth[] = "sOOvSR9kmZxS_CMp5pvbqQHDbGvJczP1";
-char ssid[] = "NOS-3CF6";
-char pass[] = "G4HWAXEU";
+// =============================================================
+// CREDENCIAIS  ← Alterar conforme necessário
+// =============================================================
+const char AUTH[] = "sOOvSR9kmZxS_CMp5pvbqQHDbGvJczP1";
+const char SSID[] = "NOS-3CF6";
+const char PASS[] = "G4HWAXEU";
 
-// --- Pinos ---
-#define TRIG_GERAL 33 // Depósito 1
-#define ECHO_GERAL 26
-#define TRIG_AGUA 32 // Depósito 2
-#define ECHO_AGUA 35
-#define MOTOR_IN1 13
-#define MOTOR_IN2 14
-#define MOTOR_IN3 12
-#define MOTOR_IN4 27
-#define HX711_DT 16
-#define HX711_SCK 17
-#define SENSOR_AGUA_PIN 34
-#define BOMBA_GATE 25
+// =============================================================
+// PINOS
+// =============================================================
+// Sensores ultrassónicos
+constexpr uint8_t TRIG_DEP1   = 33;
+constexpr uint8_t ECHO_DEP1   = 26;
+constexpr uint8_t TRIG_DEP2   = 32;
+constexpr uint8_t ECHO_DEP2   = 35;
 
-// --- Constantes Sensor Ultrassónico ---
-#define DIST_CHEIO 5
-#define DIST_VAZIO 40
-#define DIST_MAX 100
-#define LEITURAS_MEDIA 5
+// Motor de passo
+constexpr uint8_t MOTOR_IN1   = 13;
+constexpr uint8_t MOTOR_IN2   = 14;
+constexpr uint8_t MOTOR_IN3   = 12;
+constexpr uint8_t MOTOR_IN4   = 27;
 
-// --- Motor ---
-#define STEPPER_STEPS 2048
-#define STEPPER_SPEED 15
-#define PORCAO_STEPS 1024
+// Célula de carga
+constexpr uint8_t HX711_DT    = 16;
+constexpr uint8_t HX711_SCK   = 17;
 
-// --- Alertas ---
-#define NIVEL_CRITICO 20
-#define NIVEL_BAIXO 60
+// Sensor de água e bomba
+constexpr uint8_t SENSOR_AGUA = 34;  // input-only, sem pull-up interno
+constexpr uint8_t BOMBA_PIN   = 25;
 
-// --- Célula de Carga ---
-#define FATOR_CALIBRACAO 420.0f
-#define TARA_AUTOMATICA true
+// =============================================================
+// CONSTANTES DE CONFIGURAÇÃO
+// =============================================================
+// Sensor ultrassónico (cm)
+constexpr int DIST_CHEIO        = 5;
+constexpr int DIST_VAZIO        = 40;
+constexpr int DIST_INVALIDA     = 100;
+constexpr int LEITURAS_MEDIA    = 5;
 
-// --- Sensor de Água ---
-#define AGUA_LIMIAR_BAIXO 1000
-#define AGUA_LIMIAR_CHEIO 3000
-#define AGUA_DEBOUNCE 3
-#define TEMPO_BOMBA_MAX 10000
+// Motor
+constexpr int STEPPER_STEPS     = 2048;
+constexpr int STEPPER_SPEED_RPM = 15;
+constexpr int PORCAO_STEPS      = 1024;   // meia volta = 1 porção
 
-// --- Temporizadores ---
-#define INTERVALO_SENSOR 2000
-#define INTERVALO_ALERTA 30000
+// Alertas de nível de ração (%)
+constexpr int NIVEL_CRITICO     = 20;
+constexpr int NIVEL_BAIXO       = 60;
 
-// --- EEPROM ---
-#define EEPROM_SIZE 64
-#define EEPROM_ADDR_H1H 0    // Horário 1 hora
-#define EEPROM_ADDR_H1M 1    // Horário 1 minuto
-#define EEPROM_ADDR_H2H 2    // Horário 2 hora
-#define EEPROM_ADDR_H2M 3    // Horário 2 minuto
-#define EEPROM_VALID_FLAG 42 // Valor mágico para validar EEPROM
+// Célula de carga
+constexpr float FATOR_CALIBRACAO = 420.0f;
+constexpr bool  TARA_NO_BOOT     = true;
 
-// --- Pinos Virtuais Blynk ---
-#define VPIN_BOTAO V1
-#define VPIN_NIVEL_RACAO1 V2
-#define VPIN_NIVEL_RACAO2 V3
-#define VPIN_PESO V4
-#define VPIN_AGUA V5
-#define VPIN_TARA V6
-#define VPIN_HORARIO1 V7
-#define VPIN_HORARIO2 V8
-#define VPIN_BOMBA_MANUAL V9 // Botão manual da bomba no Blynk
-#define VPIN_WIFI_LIST V10   // Lista de SSIDs separados por vírgula (Envio)
-#define VPIN_WIFI_SCAN_TRIGGER V11 // Pedido de scan via painel (Recibo)
+// Sensor de água (valores ADC 0–4095)
+constexpr int AGUA_LIM_VAZIO    = 500;   // abaixo → SEM ÁGUA
+constexpr int AGUA_LIM_BAIXO    = 1500;  // abaixo → BAIXO
+constexpr int AGUA_LIM_OK       = 3000;  // abaixo → OK, acima → CHEIO
+constexpr int AGUA_DEBOUNCE     = 3;     // leituras consecutivas para confirmar
+constexpr uint32_t BOMBA_TIMEOUT_MS = 10000UL;
 
-// --- Objetos ---
-Stepper myStepper(STEPPER_STEPS, MOTOR_IN1, MOTOR_IN2, MOTOR_IN3,
-                  MOTOR_IN4);
-TFT_eSPI tft = TFT_eSPI();
+// Temporizadores
+constexpr uint32_t INTERVALO_SENSOR_MS  = 2000UL;
+constexpr uint32_t INTERVALO_HORARIO_MS = 10000UL;
+constexpr uint32_t INTERVALO_ALERTA_MS  = 30000UL;
+
+// EEPROM
+constexpr int EEPROM_SIZE      = 64;
+constexpr uint8_t EEPROM_MAGIC = 0x42;   // valor mágico de validação
+constexpr int ADDR_H1H         = 0;
+constexpr int ADDR_H1M         = 1;
+constexpr int ADDR_H2H         = 2;
+constexpr int ADDR_H2M         = 3;
+constexpr int ADDR_MAGIC       = 4;
+
+// Histórico
+constexpr int MAX_HISTORICO    = 5;
+
+// Pinos Virtuais Blynk
+constexpr int VP_ALIMENTAR     = V1;
+constexpr int VP_DEP1          = V2;
+constexpr int VP_DEP2          = V3;
+constexpr int VP_PESO          = V4;
+constexpr int VP_AGUA          = V5;
+constexpr int VP_TARA          = V6;
+constexpr int VP_HORARIO1      = V7;
+constexpr int VP_HORARIO2      = V8;
+constexpr int VP_BOMBA_MANUAL  = V9;
+constexpr int VP_WIFI_REDES    = V10;
+constexpr int VP_WIFI_SCAN     = V11;
+
+// =============================================================
+// OBJECTOS GLOBAIS
+// =============================================================
+Stepper* motor = nullptr;  // Inicializado em setup() para evitar crash no arranque
+TFT_eSPI tft;
 WidgetRTC rtc;
 BlynkTimer timer;
 HX711 balanca;
 
-// --- Histórico ---
-#define MAX_HISTORICO 5
+// =============================================================
+// ESTRUTURAS DE DADOS
+// =============================================================
 struct Refeicao {
-  int hora, minuto;
-  float peso;
+  uint8_t hora;
+  uint8_t minuto;
+  float   peso;
 };
+
+struct EstadoSistema {
+  // Sensores
+  int   dep1Perc        = -1;
+  int   dep2Perc        = -1;
+  float pesoAtual       = 0.0f;
+  int   nivelAgua       = -1;  // -1 = ainda não lido
+
+  // Debounce água
+  int   aguaLeitura     = -1;
+  int   aguaContador    = 0;
+
+  // Bomba
+  bool      bombaAtiva  = false;
+  uint32_t  tempoBomba  = 0;
+
+  // Alimentação
+  bool    alimentando   = false;
+  uint8_t ultimaH       = 0;
+  uint8_t ultimaM       = 0;
+
+  // Wi-Fi / Blynk
+  bool online           = false;
+
+  // Alertas (throttle)
+  bool     alertaDep1   = false;
+  bool     alertaDep2   = false;
+  bool     alertaAgua   = false;
+  uint32_t tsAlertaDep1 = 0;
+  uint32_t tsAlertaDep2 = 0;
+  uint32_t tsAlertaAgua = 0;
+} est;
+
+// Histórico de refeições
 Refeicao historico[MAX_HISTORICO];
 int totalRefeicoes = 0;
 
-// --- Horários ---
-int horario1H = -1, horario1M = -1;
-int horario2H = -1, horario2M = -1;
+// Horários programados (-1 = não definido)
+int8_t hor1H = -1, hor1M = -1;
+int8_t hor2H = -1, hor2M = -1;
 
-// --- Estado Global ---
-struct Estado {
-  int percRacao1 = -1;
-  int percRacao2 = -1;
-  float pesoAtual = 0.0f;
-  int nivelAgua = 0;
-  int nivelAguaAnterior = 0;
-  int nivelAguaContador = 0;
-  int ultimaH = 0;
-  int ultimaM = 0;
-  bool alimentando = false;
-  bool bombaAtiva = false;
-  unsigned long tempoBomba = 0;
-  bool online = false;
-  bool alertaRacao1 = false;
-  bool alertaRacao2 = false;
-  bool alertaAgua = false;
-  unsigned long ultimoAlertaRacao1 = 0;
-  unsigned long ultimoAlertaRacao2 = 0;
-  unsigned long ultimoAlertaAgua = 0;
-} estado;
-
-// =====================================================================
-// EEPROM — Guardar e carregar horários
-// =====================================================================
-
+// =============================================================
+// EEPROM — persistência de horários
+// =============================================================
 void eepromGuardar() {
-  EEPROM.write(EEPROM_ADDR_H1H, (uint8_t)(horario1H < 0 ? 255 : horario1H));
-  EEPROM.write(EEPROM_ADDR_H1M, (uint8_t)(horario1M < 0 ? 255 : horario1M));
-  EEPROM.write(EEPROM_ADDR_H2H, (uint8_t)(horario2H < 0 ? 255 : horario2H));
-  EEPROM.write(EEPROM_ADDR_H2M, (uint8_t)(horario2M < 0 ? 255 : horario2M));
-  EEPROM.write(4, EEPROM_VALID_FLAG); // flag de validade
+  EEPROM.write(ADDR_H1H,  (uint8_t)(hor1H < 0 ? 0xFF : hor1H));
+  EEPROM.write(ADDR_H1M,  (uint8_t)(hor1M < 0 ? 0xFF : hor1M));
+  EEPROM.write(ADDR_H2H,  (uint8_t)(hor2H < 0 ? 0xFF : hor2H));
+  EEPROM.write(ADDR_H2M,  (uint8_t)(hor2M < 0 ? 0xFF : hor2M));
+  EEPROM.write(ADDR_MAGIC, EEPROM_MAGIC);
   EEPROM.commit();
-  Serial.println("[EEPROM] Horários guardados.");
+  Serial.println(F("[EEPROM] Horários guardados."));
 }
 
 void eepromCarregar() {
-  uint8_t flag = EEPROM.read(4);
-  if (flag != EEPROM_VALID_FLAG) {
-    Serial.println("[EEPROM] Sem dados válidos — a usar defaults.");
+  if (EEPROM.read(ADDR_MAGIC) != EEPROM_MAGIC) {
+    Serial.println(F("[EEPROM] Sem dados válidos — defaults aplicados."));
     return;
   }
-  uint8_t h1h = EEPROM.read(EEPROM_ADDR_H1H);
-  uint8_t h1m = EEPROM.read(EEPROM_ADDR_H1M);
-  uint8_t h2h = EEPROM.read(EEPROM_ADDR_H2H);
-  uint8_t h2m = EEPROM.read(EEPROM_ADDR_H2M);
-
-  horario1H = (h1h == 255) ? -1 : h1h;
-  horario1M = (h1m == 255) ? -1 : h1m;
-  horario2H = (h2h == 255) ? -1 : h2h;
-  horario2M = (h2m == 255) ? -1 : h2m;
-
-  Serial.printf("[EEPROM] H1=%02d:%02d  H2=%02d:%02d\n", horario1H, horario1M,
-                horario2H, horario2M);
+  auto rd = [](int addr) -> int8_t {
+    uint8_t v = EEPROM.read(addr);
+    return (v == 0xFF) ? -1 : (int8_t)v;
+  };
+  hor1H = rd(ADDR_H1H); hor1M = rd(ADDR_H1M);
+  hor2H = rd(ADDR_H2H); hor2M = rd(ADDR_H2M);
+  Serial.printf(F("[EEPROM] H1=%02d:%02d  H2=%02d:%02d\n"),
+                hor1H, hor1M, hor2H, hor2M);
 }
 
-// =====================================================================
-// UTILITÁRIOS
-// =====================================================================
+// =============================================================
+// UTILITÁRIOS — Sensor Ultrassónico
+// =============================================================
 
-const char *labelAgua(int n) {
-  switch (n) {
-  case 0:
-    return "SEM AGUA";
-  case 1:
-    return "BAIXO   ";
-  case 2:
-    return "OK      ";
-  default:
-    return "CHEIO   ";
-  }
-}
-
-uint16_t corAgua(int n) {
-  switch (n) {
-  case 0:
-    return TFT_RED;
-  case 1:
-    return TFT_ORANGE;
-  case 2:
-    return TFT_GREEN;
-  default:
-    return TFT_CYAN;
-  }
-}
-
-uint16_t corPorNivel(int p) {
-  if (p < NIVEL_CRITICO)
-    return TFT_RED;
-  if (p < NIVEL_BAIXO)
-    return TFT_YELLOW;
-  return TFT_GREEN;
-}
-
-// =====================================================================
-// SENSORES ULTRASSÓNICOS
-// =====================================================================
-
-int lerDistanciaRaw(int trigPin, int echoPin) {
-  digitalWrite(trigPin, LOW);
+// Leitura única (retorna -1 se inválida)
+static int lerDistRaw(uint8_t trig, uint8_t echo) {
+  digitalWrite(trig, LOW);
   delayMicroseconds(2);
-  digitalWrite(trigPin, HIGH);
+  digitalWrite(trig, HIGH);
   delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
-  long dur = pulseIn(echoPin, HIGH, 30000);
-  return (dur == 0) ? -1 : (int)(dur * 0.034f / 2);
+  digitalWrite(trig, LOW);
+  long dur = pulseIn(echo, HIGH, 30000UL);
+  if (dur == 0) return -1;
+  int d = (int)(dur * 0.0170f);  // cm = us * velocidade_som / 2
+  return (d > 0 && d < DIST_INVALIDA) ? d : -1;
 }
 
-int lerDistanciaFiltrada(int trigPin, int echoPin) {
+// Média de leituras válidas
+int lerDistFiltrada(uint8_t trig, uint8_t echo) {
   int soma = 0, validas = 0;
   for (int i = 0; i < LEITURAS_MEDIA; i++) {
-    int d = lerDistanciaRaw(trigPin, echoPin);
-    if (d > 0 && d < DIST_MAX) {
-      soma += d;
-      validas++;
-    }
+    int d = lerDistRaw(trig, echo);
+    if (d > 0) { soma += d; validas++; }
     delay(10);
   }
   return (validas > 0) ? (soma / validas) : -1;
 }
 
-// =====================================================================
-// CÉLULA DE CARGA
-// =====================================================================
+// Converte distância em percentagem de enchimento
+int distParaPerc(int dist) {
+  if (dist < 0) return -1;
+  return constrain(map(dist, DIST_CHEIO, DIST_VAZIO, 100, 0), 0, 100);
+}
 
+// =============================================================
+// UTILITÁRIOS — Célula de Carga
+// =============================================================
 float lerPeso() {
-  if (!balanca.is_ready())
-    return -1.0f;
-  float raw = balanca.get_units(5);
-  return (raw < 0) ? 0 : raw;
+  if (!balanca.is_ready()) return -1.0f;
+  float v = balanca.get_units(5);
+  return (v < 0.0f) ? 0.0f : v;
 }
 
 void realizarTara() {
-  if (!balanca.is_ready())
-    return;
+  if (!balanca.is_ready()) return;
   tft.setTextColor(TFT_YELLOW, TFT_BLACK);
   tft.drawString("TARA...", 10, 355, 2);
   balanca.tare(10);
   tft.fillRect(0, 352, 290, 22, TFT_BLACK);
-  Serial.println("[Balanca] Tara feita.");
+  Serial.println(F("[Balanca] Tara realizada."));
 }
 
-// =====================================================================
-// SENSOR DE ÁGUA
-// =====================================================================
+// =============================================================
+// UTILITÁRIOS — Sensor de Água (ADC + debounce)
+// =============================================================
 
-int lerNivelAgua() {
-  int leituras[5];
-  for (int i = 0; i < 5; i++) {
-    leituras[i] = analogRead(SENSOR_AGUA_PIN);
-    delay(10);
-  }
+// Mediana de 5 amostras
+static int adcMediana() {
+  int buf[5];
+  for (int i = 0; i < 5; i++) { buf[i] = analogRead(SENSOR_AGUA); delay(10); }
+  // Bubble sort simples
   for (int i = 0; i < 4; i++)
     for (int j = i + 1; j < 5; j++)
-      if (leituras[i] > leituras[j]) {
-        int tmp = leituras[i];
-        leituras[i] = leituras[j];
-        leituras[j] = tmp;
-      }
-  int raw = leituras[2];
-  Serial.printf("[Agua] ADC mediana: %d\n", raw);
-  if (raw < AGUA_LIMIAR_BAIXO)
-    return 0;
-  if (raw < AGUA_LIMIAR_BAIXO + 500)
-    return 1;
-  if (raw < AGUA_LIMIAR_CHEIO)
-    return 2;
-  return 3;
+      if (buf[i] > buf[j]) { int t = buf[i]; buf[i] = buf[j]; buf[j] = t; }
+  return buf[2];
 }
 
-// =====================================================================
+int lerNivelAgua() {
+  int raw = adcMediana();
+  Serial.printf("[Agua] ADC mediana=%d\n", raw);
+  if (raw < AGUA_LIM_VAZIO) return 0;  // Sem água
+  if (raw < AGUA_LIM_BAIXO) return 1;  // Baixo
+  if (raw < AGUA_LIM_OK)    return 2;  // OK
+  return 3;                             // Cheio
+}
+
+// =============================================================
 // BOMBA DE ÁGUA
-// =====================================================================
+// =============================================================
+void gerarBomba(int nivel) {
+  uint32_t agora = millis();
 
-void controlarBomba(int nivelAgua) {
-  unsigned long agora = millis();
-
-  // Liga se nível baixo ou sem água
-  if (nivelAgua <= 1 && !estado.bombaAtiva) {
-    digitalWrite(BOMBA_GATE, HIGH);
-    estado.bombaAtiva = true;
-    estado.tempoBomba = agora;
-    Serial.println("[Bomba] LIGADA");
+  // Ligar se nível ≤ 1 e bomba desligada
+  if (nivel <= 1 && !est.bombaAtiva) {
+    digitalWrite(BOMBA_PIN, HIGH);
+    est.bombaAtiva  = true;
+    est.tempoBomba  = agora;
+    Serial.println(F("[Bomba] LIGADA — nível baixo"));
     if (Blynk.connected())
       Blynk.logEvent("bomba_ligada", "Bomba de agua ativada!");
   }
 
-  // Desliga se nível reposto ou timeout de segurança
-  if (estado.bombaAtiva &&
-      (nivelAgua > 1 || agora - estado.tempoBomba > TEMPO_BOMBA_MAX)) {
-    digitalWrite(BOMBA_GATE, LOW);
-    estado.bombaAtiva = false;
-    Serial.println("[Bomba] DESLIGADA");
+  // Desligar se nível OK ou timeout de segurança
+  bool timeout = (agora - est.tempoBomba > BOMBA_TIMEOUT_MS);
+  if (est.bombaAtiva && (nivel > 1 || timeout)) {
+    digitalWrite(BOMBA_PIN, LOW);
+    est.bombaAtiva = false;
+    Serial.println(timeout ? F("[Bomba] DESLIGADA — timeout")
+                           : F("[Bomba] DESLIGADA — nível OK"));
   }
 }
 
-// =====================================================================
-// DISPLAY — INTERFACE COM DOIS DEPÓSITOS
-// =====================================================================
+// =============================================================
+// DISPLAY
+// =============================================================
+static const char* labelAgua(int n) {
+  switch (n) {
+    case 0:  return "SEM AGUA";
+    case 1:  return "BAIXO   ";
+    case 2:  return "OK      ";
+    default: return "CHEIO   ";
+  }
+}
+
+static uint16_t corAgua(int n) {
+  switch (n) {
+    case 0:  return TFT_RED;
+    case 1:  return TFT_ORANGE;
+    case 2:  return TFT_GREEN;
+    default: return TFT_CYAN;
+  }
+}
+
+static uint16_t corNivel(int p) {
+  if (p < NIVEL_CRITICO) return TFT_RED;
+  if (p < NIVEL_BAIXO)   return TFT_YELLOW;
+  return TFT_GREEN;
+}
 
 void atualizarHorariosEcra() {
   tft.fillRect(0, 335, 295, 22, TFT_BLACK);
   tft.setTextColor(TFT_CYAN, TFT_BLACK);
-  char h1[8], h2[8];
-  if (horario1H >= 0)
-    sprintf(h1, "%02d:%02d", horario1H, horario1M);
-  else
-    sprintf(h1, "--:--");
-  if (horario2H >= 0)
-    sprintf(h2, "%02d:%02d", horario2H, horario2M);
-  else
-    sprintf(h2, "--:--");
-  char buf[30];
-  sprintf(buf, "%s  |  %s", h1, h2);
+  char h1[6], h2[6];
+  snprintf(h1, sizeof(h1), hor1H >= 0 ? "%02d:%02d" : "--:--", hor1H, hor1M);
+  snprintf(h2, sizeof(h2), hor2H >= 0 ? "%02d:%02d" : "--:--", hor2H, hor2M);
+  char buf[32];
+  snprintf(buf, sizeof(buf), "%s  |  %s", h1, h2);
   tft.drawString(buf, 10, 338, 2);
 }
 
-void desenharInterfaceBase() {
+void desenharBase() {
   tft.fillScreen(TFT_BLACK);
 
   // Barra de topo
@@ -332,207 +346,276 @@ void desenharInterfaceBase() {
   tft.print("SMART PET FEEDER");
 
   // Labels coluna esquerda
-  tft.setTextColor(tft.color565(130, 130, 130), TFT_BLACK);
-  tft.drawString("PESO TIGELA", 10, 50, 2);
-  tft.drawString("NIVEL AGUA", 10, 115, 2);
+  const uint16_t cinza = tft.color565(130, 130, 130);
+  tft.setTextColor(cinza, TFT_BLACK);
+  tft.drawString("PESO TIGELA",  10,  50, 2);
+  tft.drawString("NIVEL AGUA",   10, 115, 2);
   tft.drawString("ULT. REFEIC.", 10, 180, 2);
-  tft.drawString("HORARIOS", 10, 320, 2);
+  tft.drawString("HORARIOS",     10, 320, 2);
 
-  // Linhas divisórias coluna esquerda
-  tft.drawFastHLine(5, 105, 285, tft.color565(50, 50, 50));
-  tft.drawFastHLine(5, 170, 285, tft.color565(50, 50, 50));
-  tft.drawFastHLine(5, 230, 285, tft.color565(50, 50, 50));
-  tft.drawFastHLine(5, 313, 285, tft.color565(50, 50, 50));
+  // Linhas divisórias
+  const uint16_t divCor = tft.color565(50, 50, 50);
+  tft.drawFastHLine(5, 105, 285, divCor);
+  tft.drawFastHLine(5, 170, 285, divCor);
+  tft.drawFastHLine(5, 230, 285, divCor);
+  tft.drawFastHLine(5, 313, 285, divCor);
 
-  // ── DOIS TANQUES lado a lado ──────────────────────────────────────
-  // Tanque 1 (esquerda da zona direita)
-  tft.drawRoundRect(295, 48, 85, 272, 8, tft.color565(80, 80, 80));
-  tft.setTextColor(tft.color565(130, 130, 130), TFT_BLACK);
+  // Depósitos (tanques visuais)
+  const uint16_t bordaCor = tft.color565(80, 80, 80);
+  tft.drawRoundRect(295, 48,  85, 272, 8, bordaCor);
+  tft.drawRoundRect(390, 48,  85, 272, 8, bordaCor);
+  tft.setTextColor(cinza, TFT_BLACK);
   tft.drawString("DEP1", 313, 53, 2);
-
-  // Tanque 2 (direita da zona direita)
-  tft.drawRoundRect(390, 48, 85, 272, 8, tft.color565(80, 80, 80));
   tft.drawString("DEP2", 408, 53, 2);
 
-  // Marcas de escala em ambos os tanques
+  // Marcas de escala (25 / 50 / 75 %)
   for (int p = 25; p <= 75; p += 25) {
     int y = map(p, 0, 100, 314, 70);
-    tft.drawFastHLine(296, y, 8, tft.color565(80, 80, 80));
-    tft.drawFastHLine(391, y, 8, tft.color565(80, 80, 80));
+    tft.drawFastHLine(296, y, 8, bordaCor);
+    tft.drawFastHLine(391, y, 8, bordaCor);
   }
 
   atualizarHorariosEcra();
 }
 
-void atualizarTanque(int x, int w, int p, int tanqueNum) {
-  uint16_t cor = corPorNivel(p);
-  int innerX = x + 5;
-  int innerW = w - 10;
-  int topY = 70;
-  int bottomY = 315;
-  int altura = bottomY - topY;
-  int barH = map(p, 0, 100, 0, altura);
+void atualizarTanque(int xOuter, int w, int perc) {
+  if (perc < 0) return;
+  int xi  = xOuter + 5, wi = w - 10;
+  int tY  = 70, bY = 315, alt = bY - tY;
+  int barH = map(constrain(perc, 0, 100), 0, 100, 0, alt);
+  uint16_t cor = corNivel(perc);
 
-  // Limpa área vazia (topo)
-  tft.fillRect(innerX, topY, innerW, altura - barH, TFT_BLACK);
-  // Barra colorida (baixo)
+  tft.fillRect(xi, tY, wi, alt - barH, TFT_BLACK);          // vazio (cima)
   if (barH > 0)
-    tft.fillRect(innerX, bottomY - barH, innerW, barH, cor);
+    tft.fillRect(xi, bY - barH, wi, barH, cor);              // cheio (baixo)
 
-  // Percentagem dentro do tanque
-  tft.fillRect(innerX, bottomY - barH + 2, innerW, 18, cor);
-  if (barH > 20) {
+  // Percentagem dentro da barra (se houver espaço)
+  if (barH > 22) {
     tft.setTextColor(TFT_BLACK, cor);
     char buf[5];
-    sprintf(buf, "%d%%", p);
+    snprintf(buf, sizeof(buf), "%d%%", perc);
     int tw = tft.textWidth(buf, 1);
-    tft.drawString(buf, x + (w - tw) / 2, bottomY - barH + 4, 1);
+    tft.drawString(buf, xOuter + (w - tw) / 2, bY - barH + 5, 1);
   }
 }
 
-void atualizarNivelRacaoEcra(int p1, int p2) {
-  atualizarTanque(295, 85, p1, 1);
-  atualizarTanque(390, 85, p2, 2);
+void atualizarDepositos(int p1, int p2) {
+  atualizarTanque(295, 85, p1 < 0 ? 0 : p1);
+  atualizarTanque(390, 85, p2 < 0 ? 0 : p2);
 }
 
-void atualizarPeso(float peso) {
+void atualizarPesoEcra(float peso) {
   tft.fillRect(10, 62, 280, 36, TFT_BLACK);
-  char buf[14];
-  sprintf(buf, (peso < 0) ? "  ----  " : "%6.1f g", peso);
+  char buf[16];
+  snprintf(buf, sizeof(buf), peso < 0 ? "  ----  " : "%6.1f g", peso);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.drawString(buf, 10, 65, 4);
 }
 
-void atualizarAgua(int nivel) {
+void atualizarAguaEcra(int nivel) {
   uint16_t cor = corAgua(nivel);
   tft.fillRect(10, 127, 280, 36, TFT_BLACK);
   tft.setTextColor(cor, TFT_BLACK);
   tft.drawString(labelAgua(nivel), 10, 130, 4);
-
-  // Ícone bomba ativa
-  if (estado.bombaAtiva) {
+  if (est.bombaAtiva) {
     tft.setTextColor(TFT_CYAN, TFT_BLACK);
     tft.drawString("BOMBA ON", 160, 130, 4);
   }
 }
 
-void atualizarHoraRefeicao() {
+void atualizarUltimaRefeicao() {
   char buf[14];
-  if (estado.ultimaH == 0 && estado.ultimaM == 0)
-    sprintf(buf, "  --:--");
+  if (est.ultimaH == 0 && est.ultimaM == 0)
+    snprintf(buf, sizeof(buf), "  --:--");
   else
-    sprintf(buf, "  %02d:%02d h", estado.ultimaH, estado.ultimaM);
+    snprintf(buf, sizeof(buf), "  %02d:%02d h", est.ultimaH, est.ultimaM);
   tft.fillRect(10, 192, 280, 32, TFT_BLACK);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.drawString(buf, 10, 195, 4);
 }
 
-void atualizarStatusWifi(bool online) {
-  uint16_t bg = online ? tft.color565(0, 70, 0) : tft.color565(70, 0, 0);
-  uint16_t fg = online ? TFT_GREEN : TFT_RED;
+void atualizarWifiEcra(bool online) {
+  uint16_t bg = online ? tft.color565(0, 70, 0)  : tft.color565(70, 0, 0);
+  uint16_t fg = online ? TFT_GREEN               : TFT_RED;
   tft.fillRect(358, 10, 115, 22, bg);
   tft.setTextColor(fg, bg);
   tft.drawString(online ? " ONLINE " : " OFFLINE", 362, 14, 2);
 }
 
-// =====================================================================
-// HISTÓRICO
-// =====================================================================
-
+// =============================================================
+// HISTÓRICO DE REFEIÇÕES
+// =============================================================
 void registarRefeicao(float peso) {
   for (int i = MAX_HISTORICO - 1; i > 0; i--)
     historico[i] = historico[i - 1];
-  historico[0] = {hour(), minute(), peso};
-  if (totalRefeicoes < MAX_HISTORICO)
-    totalRefeicoes++;
+  historico[0] = { (uint8_t)hour(), (uint8_t)minute(), peso };
+  if (totalRefeicoes < MAX_HISTORICO) totalRefeicoes++;
 }
 
-// =====================================================================
+// =============================================================
 // ALIMENTAÇÃO
-// =====================================================================
-
+// =============================================================
 void darComida() {
-  if (estado.alimentando)
-    return;
-  estado.alimentando = true;
+  if (est.alimentando) return;
+  est.alimentando = true;
 
   tft.setTextColor(TFT_ORANGE, TFT_BLACK);
-  tft.drawString("A DEITAR COMIDA...", 10, 355, 2);
+  tft.drawString("A DISPENSAR RACAO...", 10, 355, 2);
 
-  myStepper.setSpeed(STEPPER_SPEED);
-  myStepper.step(PORCAO_STEPS);
+  motor->setSpeed(STEPPER_SPEED_RPM);
+  motor->step(PORCAO_STEPS);
+
+  // Desligar bobines para evitar aquecimento
   digitalWrite(MOTOR_IN1, LOW);
   digitalWrite(MOTOR_IN2, LOW);
   digitalWrite(MOTOR_IN3, LOW);
   digitalWrite(MOTOR_IN4, LOW);
 
-  estado.ultimaH = hour();
-  estado.ultimaM = minute();
-  registarRefeicao(estado.pesoAtual);
-  atualizarHoraRefeicao();
+  est.ultimaH = (uint8_t)hour();
+  est.ultimaM = (uint8_t)minute();
+  registarRefeicao(est.pesoAtual);
+  atualizarUltimaRefeicao();
 
   tft.fillRect(0, 352, 290, 22, TFT_BLACK);
-  estado.alimentando = false;
+  est.alimentando = false;
+  Serial.printf("[Motor] Porção dispensada às %02d:%02d | %.1fg na tigela\n",
+                est.ultimaH, est.ultimaM, est.pesoAtual);
 }
 
-// =====================================================================
-// HORÁRIOS
-// =====================================================================
-
+// =============================================================
+// VERIFICAÇÃO DE HORÁRIOS
+// =============================================================
 void verificarHorarios() {
-  if (horario1H < 0 && horario2H < 0)
-    return;
+  if (hor1H < 0 && hor2H < 0) return;
 
-  int h = hour();
-  int m = minute();
-  int s = second();
+  int h = hour(), m = minute(), s = second();
+  // Só atua na primeira metade do minuto (s < 30)
+  if (s >= 30) return;
 
-  Serial.printf("[Horarios] %02d:%02d:%02d | H1=%02d:%02d | H2=%02d:%02d\n", h,
-                m, s, horario1H, horario1M, horario2H, horario2M);
+  static int8_t ultimoH1 = -1, ultimoH2 = -1;
 
-  if (s > 30)
-    return;
-
-  static int ultimoH1 = -1;
-  static int ultimoH2 = -1;
-
-  if (horario1H >= 0 && h == horario1H && m == horario1M && ultimoH1 != m) {
-    Serial.println("[Horario 1] A dar comida!");
+  if (hor1H >= 0 && h == hor1H && m == hor1M && ultimoH1 != m) {
+    Serial.println(F("[Horario 1] Hora de dar comida!"));
     ultimoH1 = m;
     darComida();
   }
-  if (horario2H >= 0 && h == horario2H && m == horario2M && ultimoH2 != m) {
-    Serial.println("[Horario 2] A dar comida!");
+  if (hor2H >= 0 && h == hor2H && m == hor2M && ultimoH2 != m) {
+    Serial.println(F("[Horario 2] Hora de dar comida!"));
     ultimoH2 = m;
     darComida();
   }
 }
 
-// =====================================================================
-// BLYNK
-// =====================================================================
+// =============================================================
+// TAREFA PRINCIPAL — Leitura de sensores
+// =============================================================
+void tarefaSensores() {
+  uint32_t agora = millis();
 
+  // ── Depósito 1 (ração) ──────────────────────────────────────
+  int d1 = lerDistFiltrada(TRIG_DEP1, ECHO_DEP1);
+  int p1 = distParaPerc(d1);
+  if (p1 >= 0 && p1 != est.dep1Perc) {
+    est.dep1Perc = p1;
+    atualizarDepositos(est.dep1Perc, est.dep2Perc);
+    if (Blynk.connected()) Blynk.virtualWrite(VP_DEP1, p1);
+  }
+  if (p1 >= 0 && p1 < NIVEL_CRITICO && Blynk.connected()) {
+    if (!est.alertaDep1 || agora - est.tsAlertaDep1 > INTERVALO_ALERTA_MS) {
+      Blynk.logEvent("nivel_baixo", "Deposito 1: nivel de racao critico (<20%)!");
+      est.alertaDep1    = true;
+      est.tsAlertaDep1  = agora;
+    }
+  } else if (p1 >= NIVEL_CRITICO) est.alertaDep1 = false;
+
+  // ── Depósito 2 ──────────────────────────────────────────────
+  int d2 = lerDistFiltrada(TRIG_DEP2, ECHO_DEP2);
+  int p2 = distParaPerc(d2);
+  if (p2 >= 0 && p2 != est.dep2Perc) {
+    est.dep2Perc = p2;
+    atualizarDepositos(est.dep1Perc, est.dep2Perc);
+    if (Blynk.connected()) Blynk.virtualWrite(VP_DEP2, p2);
+  }
+  if (p2 >= 0 && p2 < NIVEL_CRITICO && Blynk.connected()) {
+    if (!est.alertaDep2 || agora - est.tsAlertaDep2 > INTERVALO_ALERTA_MS) {
+      Blynk.logEvent("nivel_baixo2", "Deposito 2: nivel de racao critico (<20%)!");
+      est.alertaDep2    = true;
+      est.tsAlertaDep2  = agora;
+    }
+  } else if (p2 >= NIVEL_CRITICO) est.alertaDep2 = false;
+
+  // ── Célula de carga ─────────────────────────────────────────
+  float peso = lerPeso();
+  if (peso >= 0.0f && fabsf(peso - est.pesoAtual) > 0.5f) {
+    est.pesoAtual = peso;
+    atualizarPesoEcra(est.pesoAtual);
+    if (Blynk.connected()) Blynk.virtualWrite(VP_PESO, est.pesoAtual);
+  }
+
+  delay(50);  // Separação temporal — reduz interferência no ADC
+
+  // ── Sensor de água (mediana + debounce) ────────────────────
+  int novoNivel = lerNivelAgua();
+  if (novoNivel == est.aguaLeitura) {
+    est.aguaContador++;
+  } else {
+    est.aguaLeitura  = novoNivel;
+    est.aguaContador = 0;
+  }
+  if (est.aguaContador >= AGUA_DEBOUNCE && novoNivel != est.nivelAgua) {
+    est.nivelAgua = novoNivel;
+    atualizarAguaEcra(est.nivelAgua);
+    gerarBomba(est.nivelAgua);
+    if (Blynk.connected()) Blynk.virtualWrite(VP_AGUA, est.nivelAgua);
+  }
+
+  // Timeout de segurança da bomba (mesmo sem mudança de nível)
+  if (est.bombaAtiva && agora - est.tempoBomba > BOMBA_TIMEOUT_MS) {
+    digitalWrite(BOMBA_PIN, LOW);
+    est.bombaAtiva = false;
+    atualizarAguaEcra(est.nivelAgua);
+    Serial.println(F("[Bomba] Timeout de segurança — desligada forçosamente."));
+  }
+
+  // Alerta água vazia
+  if (est.nivelAgua == 0 && Blynk.connected()) {
+    if (!est.alertaAgua || agora - est.tsAlertaAgua > INTERVALO_ALERTA_MS) {
+      Blynk.logEvent("sem_agua", "Bebedouro vazio!");
+      est.alertaAgua   = true;
+      est.tsAlertaAgua = agora;
+    }
+  } else if (est.nivelAgua > 0) est.alertaAgua = false;
+
+  // ── Estado Wi-Fi ────────────────────────────────────────────
+  bool agOra = Blynk.connected();
+  if (agOra != est.online) {
+    est.online = agOra;
+    atualizarWifiEcra(est.online);
+  }
+}
+
+// =============================================================
+// BLYNK — Callbacks
+// =============================================================
 BLYNK_CONNECTED() {
   rtc.begin();
   Blynk.syncAll();
+  Serial.println(F("[Blynk] Ligado ao servidor."));
 }
 
-BLYNK_WRITE(V1) {
-  if (param.asInt() == 1)
-    darComida();
+BLYNK_DISCONNECTED() {
+  Serial.println(F("[Blynk] Desligado do servidor."));
 }
 
-BLYNK_WRITE(V6) {
-  if (param.asInt() == 1)
-    realizarTara();
-}
+BLYNK_WRITE(V1) { if (param.asInt() == 1) darComida(); }
+BLYNK_WRITE(V6) { if (param.asInt() == 1) realizarTara(); }
 
 BLYNK_WRITE(V7) {
   TimeInputParam t(param);
   if (t.hasStartTime()) {
-    horario1H = t.getStartHour();
-    horario1M = t.getStartMinute();
-    Serial.printf("[Horario 1] %02d:%02d\n", horario1H, horario1M);
+    hor1H = t.getStartHour();
+    hor1M = t.getStartMinute();
+    Serial.printf("[Horario 1] Definido: %02d:%02d\n", hor1H, hor1M);
     eepromGuardar();
     atualizarHorariosEcra();
   }
@@ -541,245 +624,123 @@ BLYNK_WRITE(V7) {
 BLYNK_WRITE(V8) {
   TimeInputParam t(param);
   if (t.hasStartTime()) {
-    horario2H = t.getStartHour();
-    horario2M = t.getStartMinute();
-    Serial.printf("[Horario 2] %02d:%02d\n", horario2H, horario2M);
+    hor2H = t.getStartHour();
+    hor2M = t.getStartMinute();
+    Serial.printf("[Horario 2] Definido: %02d:%02d\n", hor2H, hor2M);
     eepromGuardar();
     atualizarHorariosEcra();
   }
 }
 
-// Botão manual da bomba no Blynk
 BLYNK_WRITE(V9) {
-  if (param.asInt() == 1) {
-    digitalWrite(BOMBA_GATE, HIGH);
-    estado.bombaAtiva = true;
-    estado.tempoBomba = millis();
-    Serial.println("[Bomba] Ativada manualmente via Blynk");
-  } else {
-    digitalWrite(BOMBA_GATE, LOW);
-    estado.bombaAtiva = false;
-    Serial.println("[Bomba] Desativada manualmente via Blynk");
-  }
+  bool ligar = (param.asInt() == 1);
+  digitalWrite(BOMBA_PIN, ligar ? HIGH : LOW);
+  est.bombaAtiva = ligar;
+  if (ligar) est.tempoBomba = millis();
+  Serial.printf("[Bomba] %s manualmente via Blynk.\n", ligar ? "LIGADA" : "DESLIGADA");
+  atualizarAguaEcra(est.nivelAgua);
 }
 
-// Escaneamento de redes Wi-Fi locais pedido pelo painel
-void escaniarWifi() {
-  Serial.println("[WiFi] A escaniar redes 2.4GHz...");
-  int n = WiFi.scanNetworks();
-  String lista = "";
-  if (n > 0) {
-    int limit = min(5, n); // Limita às 5 melhores redes
-    for (int i = 0; i < limit; ++i) {
-      lista += WiFi.SSID(i);
-      if (i < limit - 1) lista += ",";
-    }
-  } else {
-    lista = "Nenhuma rede detetada";
-  }
-  Blynk.virtualWrite(V10, lista);
-  Serial.println("[WiFi] Redes enviadas para o Blynk: " + lista);
-}
-
-// Receptor de gatilho para escaneamento de redes (V11)
 BLYNK_WRITE(V11) {
-  if (param.asInt() == 1) {
-    escaniarWifi();
+  if (param.asInt() != 1) return;
+  Serial.println(F("[WiFi] A escaniar redes..."));
+  int n = WiFi.scanNetworks();
+  String lista = (n > 0) ? "" : "Nenhuma rede detetada";
+  for (int i = 0; i < min(n, 5); i++) {
+    if (i > 0) lista += ",";
+    lista += WiFi.SSID(i);
   }
+  Blynk.virtualWrite(VP_WIFI_REDES, lista);
+  Serial.println("[WiFi] Redes: " + lista);
 }
 
-// =====================================================================
-// TAREFA SENSORES
-// =====================================================================
-
-void tarefaSensores() {
-  unsigned long agora = millis();
-
-  // --- 1. Depósito 1 (ultrassónico 1) ---
-  int dist1 = lerDistanciaFiltrada(TRIG_GERAL, ECHO_GERAL);
-  if (dist1 > 0 && dist1 < DIST_MAX) {
-    int novaPerc1 =
-        constrain(map(dist1, DIST_CHEIO, DIST_VAZIO, 100, 0), 0, 100);
-    if (novaPerc1 != estado.percRacao1) {
-      estado.percRacao1 = novaPerc1;
-      atualizarNivelRacaoEcra(estado.percRacao1,
-                              estado.percRacao2 < 0 ? 0 : estado.percRacao2);
-      if (Blynk.connected())
-        Blynk.virtualWrite(VPIN_NIVEL_RACAO1, estado.percRacao1);
-    }
-    // Alerta depósito 1
-    if (estado.percRacao1 < NIVEL_CRITICO && Blynk.connected()) {
-      if (!estado.alertaRacao1 ||
-          agora - estado.ultimoAlertaRacao1 > INTERVALO_ALERTA) {
-        Blynk.logEvent("nivel_baixo", "Deposito 1: nivel de racao critico!");
-        estado.alertaRacao1 = true;
-        estado.ultimoAlertaRacao1 = agora;
-      }
-    } else
-      estado.alertaRacao1 = false;
-  }
-
-  // --- 2. Depósito 2 (ultrassónico 2) ---
-  int dist2 = lerDistanciaFiltrada(TRIG_AGUA, ECHO_AGUA);
-  if (dist2 > 0 && dist2 < DIST_MAX) {
-    int novaPerc2 =
-        constrain(map(dist2, DIST_CHEIO, DIST_VAZIO, 100, 0), 0, 100);
-    if (novaPerc2 != estado.percRacao2) {
-      estado.percRacao2 = novaPerc2;
-      atualizarNivelRacaoEcra(estado.percRacao1 < 0 ? 0 : estado.percRacao1,
-                              estado.percRacao2);
-      if (Blynk.connected())
-        Blynk.virtualWrite(VPIN_NIVEL_RACAO2, estado.percRacao2);
-    }
-    // Alerta depósito 2
-    if (estado.percRacao2 < NIVEL_CRITICO && Blynk.connected()) {
-      if (!estado.alertaRacao2 ||
-          agora - estado.ultimoAlertaRacao2 > INTERVALO_ALERTA) {
-        Blynk.logEvent("nivel_baixo2", "Deposito 2: nivel de racao critico!");
-        estado.alertaRacao2 = true;
-        estado.ultimoAlertaRacao2 = agora;
-      }
-    } else
-      estado.alertaRacao2 = false;
-  }
-
-  // --- 3. Célula de carga ---
-  float peso = lerPeso();
-  if (peso >= 0 && abs(peso - estado.pesoAtual) > 0.5f) {
-    estado.pesoAtual = peso;
-    atualizarPeso(estado.pesoAtual);
-    if (Blynk.connected())
-      Blynk.virtualWrite(VPIN_PESO, estado.pesoAtual);
-  }
-
-  // --- 4. Delay ADC ---
-  delay(50);
-
-  // --- 5. Sensor de água com debounce ---
-  int novoNivelAgua = lerNivelAgua();
-  if (novoNivelAgua == estado.nivelAguaAnterior) {
-    estado.nivelAguaContador++;
-  } else {
-    estado.nivelAguaContador = 0;
-    estado.nivelAguaAnterior = novoNivelAgua;
-  }
-  if (estado.nivelAguaContador >= AGUA_DEBOUNCE &&
-      novoNivelAgua != estado.nivelAgua) {
-    estado.nivelAgua = novoNivelAgua;
-    atualizarAgua(estado.nivelAgua);
-    controlarBomba(estado.nivelAgua);
-    if (Blynk.connected())
-      Blynk.virtualWrite(VPIN_AGUA, estado.nivelAgua);
-  }
-
-  // Verificar timeout da bomba mesmo sem mudança de nível
-  if (estado.bombaAtiva && millis() - estado.tempoBomba > TEMPO_BOMBA_MAX) {
-    digitalWrite(BOMBA_GATE, LOW);
-    estado.bombaAtiva = false;
-    Serial.println("[Bomba] Timeout de segurança");
-  }
-
-  // Alerta água
-  if (estado.nivelAgua == 0 && Blynk.connected()) {
-    if (!estado.alertaAgua ||
-        agora - estado.ultimoAlertaAgua > INTERVALO_ALERTA) {
-      Blynk.logEvent("sem_agua", "Tigela de agua vazia!");
-      estado.alertaAgua = true;
-      estado.ultimoAlertaAgua = agora;
-    }
-  } else
-    estado.alertaAgua = false;
-
-  // --- 6. Wi-Fi ---
-  bool onlineAgora = Blynk.connected();
-  if (onlineAgora != estado.online) {
-    estado.online = onlineAgora;
-    atualizarStatusWifi(estado.online);
-  }
-}
-
-// =====================================================================
-// SETUP & LOOP
-// =====================================================================
-
+// =============================================================
+// SETUP
+// =============================================================
 void setup() {
   Serial.begin(115200);
-  delay(1000);
+  delay(500);
+  Serial.println(F("\n=== Smart Pet Feeder — Arranque ==="));
 
-  // EEPROM — carregar horários guardados (funciona sem Wi-Fi)
+  // ── Display TFT (primeiro, para mostrar progresso no ecrã) ──
+  tft.init();
+  tft.setRotation(1);
+  desenharBase();
+  atualizarUltimaRefeicao();
+  atualizarWifiEcra(false);
+  atualizarHorariosEcra();
+
+  // ── EEPROM ──────────────────────────────────────────────────
   EEPROM.begin(EEPROM_SIZE);
   eepromCarregar();
 
-  // Motor
-  myStepper.setSpeed(STEPPER_SPEED);
-  pinMode(MOTOR_IN1, OUTPUT);
-  pinMode(MOTOR_IN2, OUTPUT);
-  pinMode(MOTOR_IN3, OUTPUT);
-  pinMode(MOTOR_IN4, OUTPUT);
+  motor = new Stepper(STEPPER_STEPS, MOTOR_IN1, MOTOR_IN2, MOTOR_IN3, MOTOR_IN4);
+  motor->setSpeed(STEPPER_SPEED_RPM);
+  // Garantir bobines desligadas ao arranque
+  digitalWrite(MOTOR_IN1, LOW); digitalWrite(MOTOR_IN2, LOW);
+  digitalWrite(MOTOR_IN3, LOW); digitalWrite(MOTOR_IN4, LOW);
 
-  // Sensores ultrassónicos
-  pinMode(TRIG_GERAL, OUTPUT);
-  pinMode(ECHO_GERAL, INPUT);
-  pinMode(TRIG_AGUA, OUTPUT);
-  pinMode(ECHO_AGUA, INPUT);
+  // ── Sensores ultrassónicos ──────────────────────────────────
+  pinMode(TRIG_DEP1, OUTPUT); pinMode(ECHO_DEP1, INPUT);
+  pinMode(TRIG_DEP2, OUTPUT); pinMode(ECHO_DEP2, INPUT);
 
-  // Sensor de água e bomba
-  pinMode(SENSOR_AGUA_PIN, INPUT);
-  pinMode(BOMBA_GATE, OUTPUT);
-  digitalWrite(BOMBA_GATE, LOW);
+  // ── Sensor de água + Bomba ──────────────────────────────────
+  pinMode(SENSOR_AGUA, INPUT);      // GPIO34 — sem pull-up interno
+  pinMode(BOMBA_PIN, OUTPUT);
+  digitalWrite(BOMBA_PIN, LOW);     // Bomba sempre desligada no arranque
   analogReadResolution(12);
 
-  // Célula de carga
+  // ── Célula de carga ─────────────────────────────────────────
   balanca.begin(HX711_DT, HX711_SCK);
   balanca.set_scale(FATOR_CALIBRACAO);
-  if (TARA_AUTOMATICA) {
+  if (TARA_NO_BOOT) {
     delay(500);
-    balanca.tare(10);
+    if (balanca.is_ready()) {
+      balanca.tare(10);
+      Serial.println(F("[Balanca] Tara de arranque realizada."));
+    } else {
+      Serial.println(F("[Balanca] Nao encontrada — a saltar tara."));
+    }
   }
 
-  // Display
-  tft.init();
-  tft.setRotation(1);
-  desenharInterfaceBase();
-  atualizarHoraRefeicao();
-  atualizarStatusWifi(false);
-
-  // Mostrar horários carregados da EEPROM
-  atualizarHorariosEcra();
-
-  // Wi-Fi
+  // ── Ligação Wi-Fi ───────────────────────────────────────────
   tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-  tft.drawString("A conectar...", 10, 355, 2);
+  tft.drawString("A conectar ao Wi-Fi...", 10, 355, 2);
 
   WiFi.persistent(false);
   WiFi.mode(WIFI_OFF);
-  delay(500);
+  delay(300);
   WiFi.mode(WIFI_STA);
-  delay(200);
-  WiFi.begin(ssid, pass);
+  delay(100);
+  WiFi.begin(SSID, PASS);
 
   int tentativas = 0;
   while (WiFi.status() != WL_CONNECTED && tentativas < 30) {
     delay(500);
-    tentativas++;
-    Serial.printf("Wi-Fi... tentativa %d\n", tentativas);
+    Serial.printf("  Wi-Fi... tentativa %d/30\n", ++tentativas);
   }
 
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.println("WiFi OK! IP: " + WiFi.localIP().toString());
+    Serial.println("  IP: " + WiFi.localIP().toString());
   } else {
-    Serial.println("WiFi FALHOU — modo offline ativo (horarios da EEPROM)");
+    Serial.println(F("  Wi-Fi falhou — modo offline (horários da EEPROM ativos)."));
   }
-
   tft.fillRect(0, 352, 290, 22, TFT_BLACK);
 
-  Blynk.config(auth);
-  Blynk.connect();
+  // ── Blynk ───────────────────────────────────────────────────
+  Blynk.config(AUTH);
+  Blynk.connect(3000);  // timeout de 3s para não bloquear
 
-  timer.setInterval(INTERVALO_SENSOR, tarefaSensores);
-  timer.setInterval(10000L, verificarHorarios);
+  // ── Temporizadores ──────────────────────────────────────────
+  timer.setInterval(INTERVALO_SENSOR_MS,  tarefaSensores);
+  timer.setInterval(INTERVALO_HORARIO_MS, verificarHorarios);
+
+  Serial.println(F("=== Arranque concluído ===\n"));
 }
 
+// =============================================================
+// LOOP
+// =============================================================
 void loop() {
   Blynk.run();
   timer.run();
