@@ -439,11 +439,10 @@ void atualizarUltimaRefeicao() {
 }
 
 void atualizarWifiEcra(bool online) {
-  uint16_t bg = online ? tft.color565(0, 70, 0)  : tft.color565(70, 0, 0);
-  uint16_t fg = online ? TFT_GREEN               : TFT_RED;
-  tft.fillRect(358, 10, 115, 22, bg);
-  tft.setTextColor(fg, bg);
-  tft.drawString(online ? " ONLINE " : " OFFLINE", 362, 14, 2);
+  // Fundo preto com texto colorido — evita problema de ordem BGR do display
+  tft.fillRect(358, 10, 115, 22, TFT_BLACK);
+  tft.setTextColor(online ? TFT_GREEN : TFT_RED, TFT_BLACK);
+  tft.drawString(online ? " ONLINE  " : " OFFLINE", 362, 14, 2);
 }
 
 // =============================================================
@@ -590,13 +589,12 @@ void tarefaSensores() {
     }
   } else if (est.nivelAgua > 0) est.alertaAgua = false;
 
-  // ── Estado Wi-Fi (sempre no fim, para nada desenhar por cima) ─
+  // ── Estado Wi-Fi (no fim, depois de todos os outros draws) ───────
   bool agOra = Blynk.connected();
   if (agOra != est.online) {
     est.online = agOra;
+    atualizarWifiEcra(est.online);
   }
-  // Redesenha o estado WiFi sempre, mesmo que não mude
-  atualizarWifiEcra(est.online);
 }
 
 // =============================================================
