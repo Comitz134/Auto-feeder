@@ -439,13 +439,11 @@ void atualizarUltimaRefeicao() {
 }
 
 void atualizarWifiEcra(bool online) {
-  Serial.printf("[TFT] A desenhar WiFi: %s\n", online ? "ONLINE" : "OFFLINE");
   uint16_t bg = online ? tft.color565(0, 70, 0)  : tft.color565(70, 0, 0);
   uint16_t fg = online ? TFT_GREEN               : TFT_RED;
   tft.fillRect(358, 10, 115, 22, bg);
   tft.setTextColor(fg, bg);
   tft.drawString(online ? " ONLINE " : " OFFLINE", 362, 14, 2);
-  Serial.printf("[TFT] Rect e texto desenhados. online=%d bg=%d fg=%d\n", online, bg, fg);
 }
 
 // =============================================================
@@ -592,13 +590,13 @@ void tarefaSensores() {
     }
   } else if (est.nivelAgua > 0) est.alertaAgua = false;
 
-  // ── Estado Wi-Fi ────────────────────────────────────────────
+  // ── Estado Wi-Fi (sempre no fim, para nada desenhar por cima) ─
   bool agOra = Blynk.connected();
   if (agOra != est.online) {
     est.online = agOra;
-    Serial.printf("[Debug WiFi] A atualizar ecrã para: %s\n", est.online ? "ONLINE" : "OFFLINE");
-    atualizarWifiEcra(est.online);
   }
+  // Redesenha o estado WiFi sempre, mesmo que não mude
+  atualizarWifiEcra(est.online);
 }
 
 // =============================================================
