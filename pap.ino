@@ -592,8 +592,10 @@ void tarefaSensores() {
 
   // ── Estado Wi-Fi ────────────────────────────────────────────
   bool agOra = Blynk.connected();
+  Serial.printf("[Debug WiFi] Blynk connected = %d | est.online = %d\n", agOra, est.online);
   if (agOra != est.online) {
     est.online = agOra;
+    Serial.printf("[Debug WiFi] A atualizar ecrã para: %s\n", est.online ? "ONLINE" : "OFFLINE");
     atualizarWifiEcra(est.online);
   }
 }
