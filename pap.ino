@@ -5,7 +5,7 @@
 
 // ─── Identificação Blynk ─────────────────────────────────────
 #define BLYNK_TEMPLATE_ID   "TMPL5mbVhAiea"
-#define BLYNK_TEMPLATE_NAME "Smart Pet Feeder"
+#define BLYNK_TEMPLATE_NAME "LED ESP32"
 #define BLYNK_PRINT         Serial
 
 // ─── Bibliotecas ─────────────────────────────────────────────
